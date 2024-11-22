@@ -24,8 +24,7 @@ int run() {
     throw std::runtime_error("Failed to make window resizable. ");
   }
 
-  engine = new Engine(window); // historically: vulkan = new Vulkan();
-  // engine->init();        // historically: init_vulkan_extern(vulkan);
+  engine = new Engine(window);
 
   SDL_Event event;
   bool running = true;

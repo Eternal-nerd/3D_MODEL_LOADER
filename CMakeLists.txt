@@ -26,6 +26,8 @@ set(SOURCES
 # add headers
 set(HEADERS
 	src/engine.h
+	src/input_structs.h
+	src/util_structs.h
 )
 
 # add executable:
