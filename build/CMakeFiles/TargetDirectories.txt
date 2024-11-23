@@ -1,0 +1,4 @@
+/home/skinny/Projects/3D_MODEL_LOADER/build/CMakeFiles/3D_MODEL_LOADER.dir
+/home/skinny/Projects/3D_MODEL_LOADER/build/CMakeFiles/run.dir
+/home/skinny/Projects/3D_MODEL_LOADER/build/CMakeFiles/edit_cache.dir
+/home/skinny/Projects/3D_MODEL_LOADER/build/CMakeFiles/rebuild_cache.dir
