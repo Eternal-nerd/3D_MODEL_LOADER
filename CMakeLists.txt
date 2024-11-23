@@ -21,13 +21,14 @@ find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 set(SOURCES
 	src/main.cpp
 	src/engine.cpp
+	src/vk_params.cpp
 )
 
 # add headers
 set(HEADERS
 	src/engine.h
-	src/input_structs.h
-	src/util_structs.h
+	src/vk_params.h
+	#src/util_structs.h
 )
 
 # add executable:

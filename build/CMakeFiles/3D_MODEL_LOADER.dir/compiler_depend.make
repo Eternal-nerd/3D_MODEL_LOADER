@@ -334,6 +334,8 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: /home/skinny/Projects/3D_MODEL_
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h \
+  /home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h \
   /usr/include/c++/12/iostream \
   /usr/include/c++/12/ostream \
   /usr/include/c++/12/ios \
@@ -625,33 +627,27 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
   /usr/include/c++/12/bits/ostream.tcc \
   /usr/include/c++/12/istream \
   /usr/include/c++/12/bits/istream.tcc \
-  /usr/local/include/SDL3/SDL.h \
-  /usr/local/include/SDL3/SDL_stdinc.h \
+  /usr/local/include/SDL3/SDL_main.h \
   /usr/local/include/SDL3/SDL_platform_defines.h \
+  /usr/local/include/SDL3/SDL_stdinc.h \
   /usr/include/string.h \
   /usr/include/strings.h \
   /usr/local/include/SDL3/SDL_begin_code.h \
   /usr/local/include/SDL3/SDL_close_code.h \
-  /usr/local/include/SDL3/SDL_assert.h \
-  /usr/local/include/SDL3/SDL_atomic.h \
+  /usr/local/include/SDL3/SDL_error.h \
+  /usr/local/include/SDL3/SDL_events.h \
   /usr/local/include/SDL3/SDL_audio.h \
   /usr/local/include/SDL3/SDL_endian.h \
-  /usr/local/include/SDL3/SDL_error.h \
   /usr/local/include/SDL3/SDL_mutex.h \
+  /usr/local/include/SDL3/SDL_atomic.h \
   /usr/local/include/SDL3/SDL_thread.h \
   /usr/local/include/SDL3/SDL_properties.h \
   /usr/local/include/SDL3/SDL_iostream.h \
-  /usr/local/include/SDL3/SDL_bits.h \
-  /usr/local/include/SDL3/SDL_blendmode.h \
   /usr/local/include/SDL3/SDL_camera.h \
   /usr/local/include/SDL3/SDL_pixels.h \
   /usr/local/include/SDL3/SDL_surface.h \
+  /usr/local/include/SDL3/SDL_blendmode.h \
   /usr/local/include/SDL3/SDL_rect.h \
-  /usr/local/include/SDL3/SDL_clipboard.h \
-  /usr/local/include/SDL3/SDL_cpuinfo.h \
-  /usr/local/include/SDL3/SDL_dialog.h \
-  /usr/local/include/SDL3/SDL_video.h \
-  /usr/local/include/SDL3/SDL_events.h \
   /usr/local/include/SDL3/SDL_gamepad.h \
   /usr/local/include/SDL3/SDL_guid.h \
   /usr/local/include/SDL3/SDL_joystick.h \
@@ -660,15 +656,23 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
   /usr/local/include/SDL3/SDL_keyboard.h \
   /usr/local/include/SDL3/SDL_keycode.h \
   /usr/local/include/SDL3/SDL_scancode.h \
+  /usr/local/include/SDL3/SDL_video.h \
   /usr/local/include/SDL3/SDL_mouse.h \
   /usr/local/include/SDL3/SDL_pen.h \
   /usr/local/include/SDL3/SDL_touch.h \
+  /usr/local/include/SDL3/SDL_init.h \
+  /home/skinny/Projects/3D_MODEL_LOADER/src/engine.h \
+  /usr/local/include/SDL3/SDL.h \
+  /usr/local/include/SDL3/SDL_assert.h \
+  /usr/local/include/SDL3/SDL_bits.h \
+  /usr/local/include/SDL3/SDL_clipboard.h \
+  /usr/local/include/SDL3/SDL_cpuinfo.h \
+  /usr/local/include/SDL3/SDL_dialog.h \
   /usr/local/include/SDL3/SDL_filesystem.h \
   /usr/local/include/SDL3/SDL_gpu.h \
   /usr/local/include/SDL3/SDL_haptic.h \
   /usr/local/include/SDL3/SDL_hidapi.h \
   /usr/local/include/SDL3/SDL_hints.h \
-  /usr/local/include/SDL3/SDL_init.h \
   /usr/local/include/SDL3/SDL_loadso.h \
   /usr/local/include/SDL3/SDL_locale.h \
   /usr/local/include/SDL3/SDL_log.h \
@@ -684,8 +688,6 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
   /usr/local/include/SDL3/SDL_timer.h \
   /usr/local/include/SDL3/SDL_version.h \
   /usr/local/include/SDL3/SDL_oldnames.h \
-  /usr/local/include/SDL3/SDL_main.h \
-  /home/skinny/Projects/3D_MODEL_LOADER/src/engine.h \
   /usr/local/include/SDL3/SDL_vulkan.h \
   /usr/include/glm/glm.hpp \
   /usr/include/glm/detail/_fixes.hpp \
@@ -868,7 +870,9 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
   /usr/include/vk_video/vulkan_video_codec_h264std.h \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
-  /usr/include/vk_video/vulkan_video_codec_h265std_decode.h
+  /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h \
+  /home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h
 
 
 /usr/include/c++/12/istream:
@@ -1132,6 +1136,8 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
 /usr/include/c++/12/bits/nested_exception.h:
 
 /usr/local/include/SDL3/SDL_oldnames.h:
+
+/home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h:
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
 
@@ -1400,6 +1406,8 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: /home/skinny/Projects/3D_MODEL_LO
 /usr/local/include/SDL3/SDL_version.h:
 
 /usr/include/c++/12/bits/concept_check.h:
+
+/home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h:
 
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
 

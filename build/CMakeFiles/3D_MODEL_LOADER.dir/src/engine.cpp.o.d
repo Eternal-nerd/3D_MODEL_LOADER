@@ -276,6 +276,8 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
  /usr/include/vk_video/vulkan_video_codec_h265std.h \
  /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+ /home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h \
+ /home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h \
  /usr/include/c++/12/iostream /usr/include/c++/12/ostream \
  /usr/include/c++/12/ios /usr/include/c++/12/iosfwd \
  /usr/include/c++/12/bits/stringfwd.h \
