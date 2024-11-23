@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o -o /home/skinny/Projects/3D_MODEL_LOADER/bin/3D_MODEL_LOADER  -Wl,-rpath,/usr/local/lib /usr/lib/x86_64-linux-gnu/libvulkan.so /usr/local/lib/libSDL3.so.0.1.7 
