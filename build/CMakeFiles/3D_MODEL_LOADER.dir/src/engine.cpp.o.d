@@ -2,11 +2,9 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /home/skinny/Projects/3D_MODEL_LOADER/src/engine.cpp \
  /usr/include/stdc-predef.h \
  /home/skinny/Projects/3D_MODEL_LOADER/src/engine.h \
- /usr/local/include/SDL3/SDL.h /usr/local/include/SDL3/SDL_stdinc.h \
- /usr/local/include/SDL3/SDL_platform_defines.h \
- /usr/lib/gcc/x86_64-linux-gnu/12/include/stdarg.h \
- /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
- /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+ /usr/include/c++/12/vector /usr/include/c++/12/bits/stl_algobase.h \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/bits/timesize.h \
@@ -14,6 +12,50 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/long-double.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/cpu_defines.h \
+ /usr/include/c++/12/pstl/pstl_config.h \
+ /usr/include/c++/12/bits/functexcept.h \
+ /usr/include/c++/12/bits/exception_defines.h \
+ /usr/include/c++/12/bits/cpp_type_traits.h \
+ /usr/include/c++/12/ext/type_traits.h \
+ /usr/include/c++/12/ext/numeric_traits.h \
+ /usr/include/c++/12/bits/stl_pair.h /usr/include/c++/12/type_traits \
+ /usr/include/c++/12/bits/move.h /usr/include/c++/12/bits/utility.h \
+ /usr/include/c++/12/compare /usr/include/c++/12/concepts \
+ /usr/include/c++/12/bits/stl_iterator_base_types.h \
+ /usr/include/c++/12/bits/iterator_concepts.h \
+ /usr/include/c++/12/bits/ptr_traits.h \
+ /usr/include/c++/12/bits/ranges_cmp.h \
+ /usr/include/c++/12/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/12/bits/concept_check.h \
+ /usr/include/c++/12/debug/assertions.h \
+ /usr/include/c++/12/bits/stl_iterator.h /usr/include/c++/12/new \
+ /usr/include/c++/12/bits/exception.h \
+ /usr/include/c++/12/bits/stl_construct.h \
+ /usr/include/c++/12/debug/debug.h \
+ /usr/include/c++/12/bits/predefined_ops.h \
+ /usr/include/c++/12/bits/allocator.h \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/c++allocator.h \
+ /usr/include/c++/12/bits/new_allocator.h \
+ /usr/include/c++/12/bits/memoryfwd.h \
+ /usr/include/c++/12/bits/stl_uninitialized.h \
+ /usr/include/c++/12/ext/alloc_traits.h \
+ /usr/include/c++/12/bits/alloc_traits.h \
+ /usr/include/c++/12/bits/stl_vector.h \
+ /usr/include/c++/12/initializer_list \
+ /usr/include/c++/12/bits/stl_bvector.h \
+ /usr/include/c++/12/bits/functional_hash.h \
+ /usr/include/c++/12/bits/hash_bytes.h /usr/include/c++/12/bits/refwrap.h \
+ /usr/include/c++/12/bits/invoke.h \
+ /usr/include/c++/12/bits/stl_function.h \
+ /usr/include/c++/12/backward/binders.h \
+ /usr/include/c++/12/bits/range_access.h \
+ /usr/include/c++/12/bits/vector.tcc /usr/local/include/SDL3/SDL.h \
+ /usr/local/include/SDL3/SDL_stdinc.h \
+ /usr/local/include/SDL3/SDL_platform_defines.h \
+ /usr/lib/gcc/x86_64-linux-gnu/12/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -78,13 +120,7 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/local/include/SDL3/SDL_oldnames.h \
  /usr/local/include/SDL3/SDL_vulkan.h /usr/include/glm/glm.hpp \
  /usr/include/glm/detail/_fixes.hpp /usr/include/c++/12/cmath \
- /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
- /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
- /usr/include/x86_64-linux-gnu/c++/12/bits/cpu_defines.h \
- /usr/include/c++/12/pstl/pstl_config.h \
- /usr/include/c++/12/bits/cpp_type_traits.h \
- /usr/include/c++/12/ext/type_traits.h /usr/include/math.h \
- /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
@@ -114,26 +150,7 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- /usr/include/c++/12/bits/specfun.h \
- /usr/include/c++/12/bits/stl_algobase.h \
- /usr/include/c++/12/bits/functexcept.h \
- /usr/include/c++/12/bits/exception_defines.h \
- /usr/include/c++/12/ext/numeric_traits.h \
- /usr/include/c++/12/bits/stl_pair.h /usr/include/c++/12/type_traits \
- /usr/include/c++/12/bits/move.h /usr/include/c++/12/bits/utility.h \
- /usr/include/c++/12/compare /usr/include/c++/12/concepts \
- /usr/include/c++/12/bits/stl_iterator_base_types.h \
- /usr/include/c++/12/bits/iterator_concepts.h \
- /usr/include/c++/12/bits/ptr_traits.h \
- /usr/include/c++/12/bits/ranges_cmp.h \
- /usr/include/c++/12/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/12/bits/concept_check.h \
- /usr/include/c++/12/debug/assertions.h \
- /usr/include/c++/12/bits/stl_iterator.h /usr/include/c++/12/new \
- /usr/include/c++/12/bits/exception.h \
- /usr/include/c++/12/bits/stl_construct.h \
- /usr/include/c++/12/debug/debug.h \
- /usr/include/c++/12/bits/predefined_ops.h /usr/include/c++/12/limits \
+ /usr/include/c++/12/bits/specfun.h /usr/include/c++/12/limits \
  /usr/include/c++/12/tr1/gamma.tcc \
  /usr/include/c++/12/tr1/special_function_util.h \
  /usr/include/c++/12/tr1/bessel_function.tcc \
@@ -276,17 +293,14 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
  /usr/include/vk_video/vulkan_video_codec_h265std.h \
  /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
- /home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h \
- /home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h \
+ /home/skinny/Projects/3D_MODEL_LOADER/src/vk_params.h \
  /usr/include/c++/12/iostream /usr/include/c++/12/ostream \
  /usr/include/c++/12/ios /usr/include/c++/12/iosfwd \
- /usr/include/c++/12/bits/stringfwd.h \
- /usr/include/c++/12/bits/memoryfwd.h /usr/include/c++/12/bits/postypes.h \
+ /usr/include/c++/12/bits/stringfwd.h /usr/include/c++/12/bits/postypes.h \
  /usr/include/c++/12/cwchar /usr/include/c++/12/exception \
  /usr/include/c++/12/bits/exception_ptr.h \
  /usr/include/c++/12/bits/cxxabi_init_exception.h \
- /usr/include/c++/12/typeinfo /usr/include/c++/12/bits/hash_bytes.h \
- /usr/include/c++/12/bits/nested_exception.h \
+ /usr/include/c++/12/typeinfo /usr/include/c++/12/bits/nested_exception.h \
  /usr/include/c++/12/bits/char_traits.h \
  /usr/include/c++/12/bits/localefwd.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++locale.h \
@@ -309,20 +323,9 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/12/bits/atomic_word.h \
  /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
  /usr/include/c++/12/bits/locale_classes.h /usr/include/c++/12/string \
- /usr/include/c++/12/bits/allocator.h \
- /usr/include/x86_64-linux-gnu/c++/12/bits/c++allocator.h \
- /usr/include/c++/12/bits/new_allocator.h \
  /usr/include/c++/12/bits/ostream_insert.h \
  /usr/include/c++/12/bits/cxxabi_forced.h \
- /usr/include/c++/12/bits/stl_function.h \
- /usr/include/c++/12/backward/binders.h \
- /usr/include/c++/12/bits/refwrap.h /usr/include/c++/12/bits/invoke.h \
- /usr/include/c++/12/bits/range_access.h \
- /usr/include/c++/12/initializer_list \
- /usr/include/c++/12/bits/basic_string.h \
- /usr/include/c++/12/ext/alloc_traits.h \
- /usr/include/c++/12/bits/alloc_traits.h /usr/include/c++/12/string_view \
- /usr/include/c++/12/bits/functional_hash.h \
+ /usr/include/c++/12/bits/basic_string.h /usr/include/c++/12/string_view \
  /usr/include/c++/12/bits/ranges_base.h \
  /usr/include/c++/12/bits/max_size_type.h /usr/include/c++/12/numbers \
  /usr/include/c++/12/bits/string_view.tcc \

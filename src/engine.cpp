@@ -22,7 +22,6 @@ void Engine::init() {
   }
 
   // Init Vulkan
-  
 }
 
 void Engine::run() {

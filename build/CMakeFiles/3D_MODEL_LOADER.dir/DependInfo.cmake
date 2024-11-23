@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/skinny/Projects/3D_MODEL_LOADER/src/engine.cpp" "CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o" "gcc" "CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o.d"
   "/home/skinny/Projects/3D_MODEL_LOADER/src/main.cpp" "CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o" "gcc" "CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o.d"
+  "/home/skinny/Projects/3D_MODEL_LOADER/src/vk_params.cpp" "CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o" "gcc" "CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o.d"
   )
 
 # Targets to which this target links.

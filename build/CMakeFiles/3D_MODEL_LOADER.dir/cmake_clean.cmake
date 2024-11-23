@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/3D_MODEL_LOADER.dir/src/engine.cpp.o.d"
   "CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o"
   "CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o.d"
+  "CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o"
+  "CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

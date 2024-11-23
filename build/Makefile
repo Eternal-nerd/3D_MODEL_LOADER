@@ -190,6 +190,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/3D_MODEL_LOADER.dir/build.make CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/vk_params.o: src/vk_params.cpp.o
+.PHONY : src/vk_params.o
+
+# target to build an object file
+src/vk_params.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/3D_MODEL_LOADER.dir/build.make CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.o
+.PHONY : src/vk_params.cpp.o
+
+src/vk_params.i: src/vk_params.cpp.i
+.PHONY : src/vk_params.i
+
+# target to preprocess a source file
+src/vk_params.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/3D_MODEL_LOADER.dir/build.make CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.i
+.PHONY : src/vk_params.cpp.i
+
+src/vk_params.s: src/vk_params.cpp.s
+.PHONY : src/vk_params.s
+
+# target to generate assembly for a file
+src/vk_params.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/3D_MODEL_LOADER.dir/build.make CMakeFiles/3D_MODEL_LOADER.dir/src/vk_params.cpp.s
+.PHONY : src/vk_params.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -206,6 +230,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/vk_params.o"
+	@echo "... src/vk_params.i"
+	@echo "... src/vk_params.s"
 .PHONY : help
 
 

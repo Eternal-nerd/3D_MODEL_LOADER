@@ -4,16 +4,13 @@
 
 class vk_params {
 public:
-  // constructor (populate structs)
   vk_params();
-	~vk_params();
+  ~vk_params();
 
-	void initAppInfo();
-	VkApplicationInfo appInfo{};
-	VkInstanceCreateInfo instanceCreateInfo{};
-  
+  VkApplicationInfo getAppInfo();
+  VkInstanceCreateInfo getInstanceCreateInfo();
 
 private:
-	// UTIL methods
-
+  VkApplicationInfo appInfo{};
+  VkInstanceCreateInfo instanceCreateInfo{};
 };

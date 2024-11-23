@@ -178,8 +178,11 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: \
  /usr/local/include/SDL3/SDL_pen.h /usr/local/include/SDL3/SDL_touch.h \
  /usr/local/include/SDL3/SDL_init.h \
  /home/skinny/Projects/3D_MODEL_LOADER/src/engine.h \
- /usr/local/include/SDL3/SDL.h /usr/local/include/SDL3/SDL_assert.h \
- /usr/local/include/SDL3/SDL_bits.h \
+ /usr/include/c++/12/vector /usr/include/c++/12/bits/stl_uninitialized.h \
+ /usr/include/c++/12/bits/stl_vector.h \
+ /usr/include/c++/12/bits/stl_bvector.h \
+ /usr/include/c++/12/bits/vector.tcc /usr/local/include/SDL3/SDL.h \
+ /usr/local/include/SDL3/SDL_assert.h /usr/local/include/SDL3/SDL_bits.h \
  /usr/local/include/SDL3/SDL_clipboard.h \
  /usr/local/include/SDL3/SDL_cpuinfo.h \
  /usr/local/include/SDL3/SDL_dialog.h \
@@ -350,5 +353,4 @@ CMakeFiles/3D_MODEL_LOADER.dir/src/main.cpp.o: \
  /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
  /usr/include/vk_video/vulkan_video_codec_h265std.h \
  /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
- /home/skinny/Projects/3D_MODEL_LOADER/src/input_structs.h \
- /home/skinny/Projects/3D_MODEL_LOADER/src/util_structs.h
+ /home/skinny/Projects/3D_MODEL_LOADER/src/vk_params.h
