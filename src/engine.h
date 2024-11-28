@@ -4,7 +4,6 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
 #include "vk_params.h"
@@ -22,8 +21,11 @@ private:
   SDL_Event event_;
   bool running_ = false;
 
+  // parameters:
+  vk_params params_;
+
   // Vulkan Shit
-  VkInstance instance;
+  VkInstance instance_;
   VkDebugUtilsMessengerEXT debugMessenger;
   VkSurfaceKHR surface;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -37,13 +39,23 @@ private:
   std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
   VkRenderPass renderPass;
+  VkDescriptorSetLayout descriptorSetLayout;
   VkPipelineLayout pipelineLayout;
   VkPipeline graphicsPipeline;
   VkCommandPool commandPool;
+  VkImage textureImage;
+  VkDeviceMemory textureImageMemory;
+  VkImageView textureImageView;
+  VkSampler textureSampler;
   VkBuffer vertexBuffer;
   VkDeviceMemory vertexBufferMemory;
   VkBuffer indexBuffer;
   VkDeviceMemory indexBufferMemory;
+  std::vector<VkBuffer> uniformBuffers;
+  std::vector<VkDeviceMemory> uniformBuffersMemory;
+  std::vector<void *> uniformBuffersMapped;
+  VkDescriptorPool descriptorPool;
+  std::vector<VkDescriptorSet> descriptorSets;
   std::vector<VkCommandBuffer> commandBuffers;
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -54,4 +66,7 @@ private:
   void init();
   void draw_frame();
   void cleanup();
+
+  // FIXME remove, for testing functions
+  void debug_test();
 };

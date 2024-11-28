@@ -22,10 +22,14 @@ void Engine::init() {
   }
 
   // Init Vulkan
+  // create instance:
 }
 
 void Engine::run() {
   std::cout << "run engine \n";
+
+  // FIXME
+  debug_test();
 
   running_ = true;
   while (running_) {
@@ -50,4 +54,13 @@ void Engine::cleanup() {
   SDL_DestroyWindow(win_);
 
   SDL_Quit();
+}
+
+void Engine::debug_test() {
+  std::cout << "testing a function. \n";
+
+  VkInstanceCreateInfo testing;
+  testing = params_.getInstanceCreateInfo();
+
+  std::cout << "End of debug_test(). \n";
 }

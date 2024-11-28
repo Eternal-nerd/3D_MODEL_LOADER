@@ -1,20 +1,21 @@
 #pragma once
 
+#include <vector>
 #include <vulkan/vulkan.h>
 
-// IDEA: create this obejct, then call getters to
-// initialize and return the appropriate VK API input
-// struct.  Can pass external needed data in only when
-// needed. Ex: output from SDL_Vulkan_GetInstanceExtensions()
+// FIXME, maybe config stucts dont need to be stored in class... since theyre
+// one time use (I think?)
 class vk_params {
 public:
   vk_params();
   ~vk_params();
 
-  VkApplicationInfo getAppInfo();
+  // VkApplicationInfo getAppInfo();
   VkInstanceCreateInfo getInstanceCreateInfo();
 
 private:
   VkApplicationInfo appInfo{};
   VkInstanceCreateInfo instanceCreateInfo{};
+
+  std::vector<const char *> getRequiredExtensions();
 };
