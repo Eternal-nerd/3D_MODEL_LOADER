@@ -124,21 +124,38 @@ const std::vector<Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 
 const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
+const bool usingSDL = false;
+
 class HelloTriangleApplication {
 public:
   void run() {
-    initWindow();
+    if (usingSDL) {
+      initWindowSDL();
+    } else {
+      initWindow();
+    }
     initVulkan();
-    mainLoop();
+    if (usingSDL) {
+      mainLoopSDL();
+    } else {
+      mainLoop();
+    }
     cleanup();
   }
 
 private:
   GLFWwindow *window;
 
+  // SDL Shit
+  SDL_Window *window_ = nullptr;
+  SDL_Event event_;
+  bool running_ = false;
+
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
+  // FIXME
   VkSurfaceKHR surface;
+  VkSurfaceKHR surface_;
 
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   VkDevice device;
@@ -198,6 +215,23 @@ private:
     app->framebufferResized = true;
   }
 
+  void initWindowSDL() {
+    // init SDL
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+      throw std::runtime_error("Failed to initialize SDL. ");
+    }
+
+    window_ = SDL_CreateWindow("3D_MODEL_LOADER", 800, 600, SDL_WINDOW_VULKAN);
+
+    if (!window_) {
+      throw std::runtime_error("Failed to create SDL window. ");
+    }
+
+    if (!SDL_SetWindowResizable(window_, true)) {
+      throw std::runtime_error("Failed to make window resizable. ");
+    }
+  }
+
   void initVulkan() {
     createInstance();
     setupDebugMessenger();
@@ -225,7 +259,23 @@ private:
       glfwPollEvents();
       drawFrame();
     }
+    vkDeviceWaitIdle(device);
+  }
 
+  void mainLoopSDL() {
+    std::cout << "run engine \n";
+
+    running_ = true;
+    while (running_) {
+      // Poll events
+      while (SDL_PollEvent(&event_)) {
+        if (event_.type == SDL_EVENT_QUIT) {
+          running_ = false;
+        }
+      }
+      // draw frame
+      drawFrame();
+    }
     vkDeviceWaitIdle(device);
   }
 
@@ -277,14 +327,24 @@ private:
       DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
 
-    vkDestroySurfaceKHR(instance, surface, nullptr);
+    if (usingSDL) {
+      vkDestroySurfaceKHR(instance, surface_, nullptr);
+      // ? SDL_Vulkan_DestroySurface(instance, surface_, nullptr);
+    } else {
+      vkDestroySurfaceKHR(instance, surface, nullptr);
+    }
     vkDestroyInstance(instance, nullptr);
 
     glfwDestroyWindow(window);
 
     glfwTerminate();
+
+    // SDL Cleanup
+    SDL_DestroyWindow(window_);
+    SDL_Quit();
   }
 
+  // TODO
   void recreateSwapChain() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
@@ -372,9 +432,16 @@ private:
   }
 
   void createSurface() {
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create window surface!");
+    if (usingSDL) {
+      if (SDL_Vulkan_CreateSurface(window_, instance, nullptr, &surface_) !=
+          VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+      }
+    } else {
+      if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
+          VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+      }
     }
   }
 
@@ -1188,6 +1255,7 @@ private:
     return VK_PRESENT_MODE_FIFO_KHR;
   }
 
+  // TODO
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
     if (capabilities.currentExtent.width !=
         std::numeric_limits<uint32_t>::max()) {
@@ -1324,6 +1392,7 @@ private:
     return extensions;
   }
 
+  // FIXME Remove
   std::vector<const char *> getRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
