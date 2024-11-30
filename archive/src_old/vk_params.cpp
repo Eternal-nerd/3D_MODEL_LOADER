@@ -6,7 +6,7 @@
 vk_params::vk_params() {}
 vk_params::~vk_params() {}
 
-VkInstanceCreateInfo vk_params::getInstanceCreateInfo() {
+void vk_params::makeInstanceCreateInfo() {
   // APP Info here
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "3D_MODEL_LOADER";
@@ -15,6 +15,7 @@ VkInstanceCreateInfo vk_params::getInstanceCreateInfo() {
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.apiVersion = VK_API_VERSION_1_0;
 
+  // instance create info
   instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   instanceCreateInfo.pApplicationInfo = &appInfo;
   // get extensions from SDL
@@ -22,8 +23,6 @@ VkInstanceCreateInfo vk_params::getInstanceCreateInfo() {
   instanceCreateInfo.enabledExtensionCount =
       static_cast<uint32_t>(extensions.size());
   instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-
-  return instanceCreateInfo;
 }
 
 // Utility functions:
@@ -40,8 +39,8 @@ std::vector<const char *> vk_params::getRequiredExtensions() {
 
   // FIXME add??
   /*if (enableValidationLayers) {
-  extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-}*/
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+  }*/
 
   return extensions;
 }

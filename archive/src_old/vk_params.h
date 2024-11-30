@@ -10,12 +10,11 @@ public:
   vk_params();
   ~vk_params();
 
-  // VkApplicationInfo getAppInfo();
-  VkInstanceCreateInfo getInstanceCreateInfo();
-
-private:
+  // instance creation
+  void makeInstanceCreateInfo();
   VkApplicationInfo appInfo{};
   VkInstanceCreateInfo instanceCreateInfo{};
 
+private:
   std::vector<const char *> getRequiredExtensions();
 };

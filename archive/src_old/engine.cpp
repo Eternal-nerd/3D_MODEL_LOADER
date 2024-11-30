@@ -23,13 +23,15 @@ void Engine::init() {
 
   // Init Vulkan
   // create instance:
+  // params_.makeInstanceCreateInfo();
+  if (vkCreateInstance(&params_.instanceCreateInfo, nullptr, &instance_) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create instance!");
+  }
 }
 
 void Engine::run() {
   std::cout << "run engine \n";
-
-  // FIXME
-  debug_test();
 
   running_ = true;
   while (running_) {
@@ -58,9 +60,6 @@ void Engine::cleanup() {
 
 void Engine::debug_test() {
   std::cout << "testing a function. \n";
-
-  VkInstanceCreateInfo testing;
-  testing = params_.getInstanceCreateInfo();
 
   std::cout << "End of debug_test(). \n";
 }
