@@ -1,8 +1,7 @@
-// FIXME replace glfw with SDL
+// FIXME REMOVE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
-// Used libs here:
+// USE THEse
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_vulkan.h>
@@ -124,11 +123,13 @@ const std::vector<Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 
 const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
-const bool usingSDL = false;
+// FIXME when full switch to SDL
+const bool usingSDL = true;
 
 class HelloTriangleApplication {
 public:
   void run() {
+    // FIXME when full switch to SDL
     if (usingSDL) {
       initWindowSDL();
     } else {
@@ -144,6 +145,7 @@ public:
   }
 
 private:
+  // FIXME when switch
   GLFWwindow *window;
 
   // SDL Shit
@@ -153,9 +155,7 @@ private:
 
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
-  // FIXME
   VkSurfaceKHR surface;
-  VkSurfaceKHR surface_;
 
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   VkDevice device;
@@ -327,12 +327,9 @@ private:
       DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
 
-    if (usingSDL) {
-      vkDestroySurfaceKHR(instance, surface_, nullptr);
-      // ? SDL_Vulkan_DestroySurface(instance, surface_, nullptr);
-    } else {
-      vkDestroySurfaceKHR(instance, surface, nullptr);
-    }
+    // FIXME
+    //  ? SDL_Vulkan_DestroySurface(instance, surface, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 
     glfwDestroyWindow(window);
@@ -344,13 +341,23 @@ private:
     SDL_Quit();
   }
 
-  // TODO
   void recreateSwapChain() {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(window, &width, &height);
-    while (width == 0 || height == 0) {
+    // FIXME
+    if (usingSDL) {
+      SDL_GetWindowSizeInPixels(window_, &width, &height);
+    } else {
       glfwGetFramebufferSize(window, &width, &height);
-      glfwWaitEvents();
+    }
+    while (width == 0 || height == 0) {
+      // FIXME
+      if (usingSDL) {
+        SDL_GetWindowSizeInPixels(window_, &width, &height);
+        SDL_PollEvent(&event_);
+      } else {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+      }
     }
 
     vkDeviceWaitIdle(device);
@@ -380,8 +387,8 @@ private:
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    // TODO
-    auto extensions = getRequiredExtensions();
+    // TODO - change to SDL
+    auto extensions = getRequiredExtensionsSDL();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -432,10 +439,10 @@ private:
   }
 
   void createSurface() {
+
     if (usingSDL) {
-      if (SDL_Vulkan_CreateSurface(window_, instance, nullptr, &surface_) !=
-          VK_SUCCESS) {
-        throw std::runtime_error("failed to create window surface!");
+      if (!SDL_Vulkan_CreateSurface(window_, instance, nullptr, &surface)) {
+        throw std::runtime_error("failed to create SDL window surface!");
       }
     } else {
       if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
@@ -1255,14 +1262,18 @@ private:
     return VK_PRESENT_MODE_FIFO_KHR;
   }
 
-  // TODO
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
     if (capabilities.currentExtent.width !=
         std::numeric_limits<uint32_t>::max()) {
       return capabilities.currentExtent;
     } else {
       int width, height;
-      glfwGetFramebufferSize(window, &width, &height);
+      // FIXME
+      if (usingSDL) {
+        SDL_GetWindowSizeInPixels(window_, &width, &height);
+      } else {
+        glfwGetFramebufferSize(window, &width, &height);
+      }
 
       VkExtent2D actualExtent = {static_cast<uint32_t>(width),
                                  static_cast<uint32_t>(height)};
