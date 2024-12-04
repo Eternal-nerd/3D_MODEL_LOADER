@@ -21,12 +21,13 @@ find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 set(SOURCES
 	src/main.cpp
   src/engine.cpp
+  src/util.cpp
 )
 
 # add headers
 set(HEADERS
   src/engine.h
-  src/debug.h
+  src/util.h
   src/types.h
   src/data.h
 )

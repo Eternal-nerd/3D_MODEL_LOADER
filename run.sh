@@ -1,6 +1,6 @@
 echo "formatting code..."
 clang-format -style=llvm -i src/*.cpp
-#clang-format -style=llvm -i src/*.h
+clang-format -style=llvm -i src/*.h
 
 cd shaders
 echo "compiling shaders..."
