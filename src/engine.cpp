@@ -107,6 +107,90 @@ void Engine::cleanup() {
   SDL_Quit();
 }
 
+void Engine::drawFrame() {
+  vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
+                  UINT64_MAX);
+
+  uint32_t imageIndex;
+  VkResult result = vkAcquireNextImageKHR(
+      device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
+      VK_NULL_HANDLE, &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    recreateSwapChain();
+    return;
+  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    throw std::runtime_error("failed to acquire swap chain image!");
+  }
+
+  updateUniformBuffer(currentFrame);
+
+  vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
+  vkResetCommandBuffer(commandBuffers[currentFrame],
+                       /*VkCommandBufferResetFlagBits*/ 0);
+  recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+  VkPipelineStageFlags waitStages[] = {
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
+
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+
+  VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
+
+  if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                    inFlightFences[currentFrame]) != VK_SUCCESS) {
+    throw std::runtime_error("failed to submit draw command buffer!");
+  }
+
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+
+  VkSwapchainKHR swapChains[] = {swapChain};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapChains;
+
+  presentInfo.pImageIndices = &imageIndex;
+
+  result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    recreateSwapChain();
+  } else if (result != VK_SUCCESS) {
+    throw std::runtime_error("failed to present swap chain image!");
+  }
+
+  currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+VkShaderModule Engine::createShaderModule(const std::vector<char> &code) {
+  VkShaderModuleCreateInfo createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.codeSize = code.size();
+  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+  VkShaderModule shaderModule;
+  if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create shader module!");
+  }
+
+  return shaderModule;
+}
+
 void Engine::cleanupSwapChain() {
   for (auto framebuffer : swapChainFramebuffers) {
     vkDestroyFramebuffer(device, framebuffer, nullptr);
@@ -614,7 +698,7 @@ void Engine::createVertexBuffer() {
 }
 
 void Engine::createIndexBuffer() {
-  VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+  VkDeviceSize bufferSize = sizeof(input_indices[0]) * input_indices.size();
 
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -625,7 +709,7 @@ void Engine::createIndexBuffer() {
 
   void *data;
   vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, indices.data(), (size_t)bufferSize);
+  memcpy(data, input_indices.data(), (size_t)bufferSize);
   vkUnmapMemory(device, stagingBufferMemory);
 
   createBuffer(
@@ -852,8 +936,8 @@ void Engine::recordCommandBuffer(VkCommandBuffer commandBuffer,
                           pipelineLayout, 0, 1, &descriptorSets[currentFrame],
                           0, nullptr);
 
-  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
-                   0, 0);
+  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(input_indices.size()),
+                   1, 0, 0, 0);
 
   vkCmdEndRenderPass(commandBuffer);
 
@@ -887,6 +971,7 @@ void Engine::createSyncObjects() {
   }
 }
 
+// TODO: this is where model is moved and shit
 void Engine::updateUniformBuffer(uint32_t currentImage) {
   static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -896,101 +981,21 @@ void Engine::updateUniformBuffer(uint32_t currentImage) {
                    .count();
 
   UniformBufferObject ubo{};
-  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+  // DO ROTATION
+  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(6190.0f),
                           glm::vec3(0.0f, 0.0f, 1.0f));
+  ubo.model *= glm::rotate(glm::mat4(1.0f), time * glm::radians(1750.0f),
+                           glm::vec3(0.0f, 1.0f, 0.0f));
+
   ubo.view =
       glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                   glm::vec3(0.0f, 0.0f, 1.0f));
   ubo.proj = glm::perspective(
-      glm::radians(45.0f),
+      glm::radians(30.0f),
       swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
   ubo.proj[1][1] *= -1;
 
   memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
-}
-
-void Engine::drawFrame() {
-  vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
-                  UINT64_MAX);
-
-  uint32_t imageIndex;
-  VkResult result = vkAcquireNextImageKHR(
-      device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
-      VK_NULL_HANDLE, &imageIndex);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    recreateSwapChain();
-    return;
-  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-    throw std::runtime_error("failed to acquire swap chain image!");
-  }
-
-  updateUniformBuffer(currentFrame);
-
-  vkResetFences(device, 1, &inFlightFences[currentFrame]);
-
-  vkResetCommandBuffer(commandBuffers[currentFrame],
-                       /*VkCommandBufferResetFlagBits*/ 0);
-  recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-
-  VkSubmitInfo submitInfo{};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-  VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-  VkPipelineStageFlags waitStages[] = {
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = waitSemaphores;
-  submitInfo.pWaitDstStageMask = waitStages;
-
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
-
-  VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
-  submitInfo.signalSemaphoreCount = 1;
-  submitInfo.pSignalSemaphores = signalSemaphores;
-
-  if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
-                    inFlightFences[currentFrame]) != VK_SUCCESS) {
-    throw std::runtime_error("failed to submit draw command buffer!");
-  }
-
-  VkPresentInfoKHR presentInfo{};
-  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-  presentInfo.waitSemaphoreCount = 1;
-  presentInfo.pWaitSemaphores = signalSemaphores;
-
-  VkSwapchainKHR swapChains[] = {swapChain};
-  presentInfo.swapchainCount = 1;
-  presentInfo.pSwapchains = swapChains;
-
-  presentInfo.pImageIndices = &imageIndex;
-
-  result = vkQueuePresentKHR(presentQueue, &presentInfo);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-    recreateSwapChain();
-  } else if (result != VK_SUCCESS) {
-    throw std::runtime_error("failed to present swap chain image!");
-  }
-
-  currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-VkShaderModule Engine::createShaderModule(const std::vector<char> &code) {
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-  VkShaderModule shaderModule;
-  if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create shader module!");
-  }
-
-  return shaderModule;
 }
 
 VkSurfaceFormatKHR Engine::chooseSwapSurfaceFormat(
