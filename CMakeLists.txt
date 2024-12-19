@@ -34,11 +34,32 @@ add_executable(3D_MODEL_LOADER ${SOURCES} ${HEADERS})
 # add libs
 target_link_libraries(3D_MODEL_LOADER PRIVATE Vulkan::Vulkan SDL3::SDL3)
 
-# compile shaders
-add_custom_target(compile_shaders
-	COMMENT "Compiling shaders..."
-	WORKING_DIRECTORY "../../../shaders"
-	COMMAND "compile.bat"
-)
+# Specify the output directory for the binary
+set_target_properties(3D_MODEL_LOADER PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-add_dependencies(3D_MODEL_LOADER compile_shaders)
+if (WIN32)
+	# Windows-specific stuff
+
+	# compile shaders on windows
+	add_custom_target(compile_shaders
+		COMMENT "Compiling shaders..."
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders
+		COMMAND "compile.bat"
+	)
+	add_dependencies(3D_MODEL_LOADER compile_shaders)
+
+else()
+	# Linux/other (only Linux for now)
+	
+	# custom target for run script on Linux (run.sh)
+	# command to run in root dir:
+	add_custom_target(run
+		COMMAND 3D_MODEL_LOADER
+		DEPENDS 3D_MODEL_LOADER
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+		COMMENT "Running 3D_MODEL_LOADER"
+	)
+
+endif()
+
+
