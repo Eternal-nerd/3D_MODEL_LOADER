@@ -23,5 +23,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
 
+void populateDebugMessengerCreateInfo(
+    VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
 // UTILITIES
 std::vector<char> readFile(const std::string &filename);

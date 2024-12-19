@@ -83,8 +83,6 @@ private:
   void mainLoop();
   void cleanup();
 
-  void populateDebugMessengerCreateInfo(
-      VkDebugUtilsMessengerCreateInfoEXT &createInfo);
   void setupDebugMessenger();
 
   void cleanupSwapChain();
