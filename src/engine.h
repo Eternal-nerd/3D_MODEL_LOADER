@@ -79,6 +79,12 @@ private:
   std::vector<VkFence> inFlightFences;
   uint32_t currentFrame = 0;
 
+  // TEXTURE STUFF
+  VkImage textureImage;
+  VkDeviceMemory textureImageMemory;
+  VkImageView textureImageView;
+  VkSampler textureSampler;
+
   void init();
   void mainLoop();
   void cleanup();
@@ -101,6 +107,15 @@ private:
   void createDescriptorSetLayout();
   void createGraphicsPipeline();
 
+  // TEXTURES
+  void createTextureImage();
+  void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+  void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+  void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+  void createTextureImageView();
+  VkImageView createImageView(VkImage image, VkFormat format);
+  void createTextureSampler();
+
   void createFramebuffers();
   void createCommandPool();
   void createVertexBuffer();
@@ -112,6 +127,9 @@ private:
                     VkMemoryPropertyFlags properties, VkBuffer &buffer,
                     VkDeviceMemory &bufferMemory);
 
+
+  VkCommandBuffer beginSingleTimeCommands();
+  void endSingleTimeCommands(VkCommandBuffer commandBuffer);
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
   uint32_t findMemoryType(uint32_t typeFilter,
                           VkMemoryPropertyFlags properties);

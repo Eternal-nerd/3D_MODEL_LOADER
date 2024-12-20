@@ -26,6 +26,8 @@ set(HEADERS
 	src/util.h
 	src/types.h
 	src/data.h
+	libs/stb_image.h
+	libs/stb_image_resize2.h
 )
 
 # add executable:

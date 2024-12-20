@@ -19,11 +19,18 @@ const bool enableValidationLayers = true;
 
 // INPUT DATA
 const std::vector<Vertex> vertices = {
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+};
+
+/*const std::vector<Vertex> vertices = {
     {{-0.5f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // bottom left 0
     {{0.5f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // bottom right 1
     {{0.5f, 1.0f, 0.0f}, {0.0f, 1.0f, 1.0f}},   // top right 2
     {{-0.5f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // top left 3
     {{-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 1.0f}},  // middle left 4
-    {{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};  // middle right 5
+    {{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};  // middle right 5*/
 
-const std::vector<uint16_t> input_indices = {5, 3, 0, 1, 2, 4};
+const std::vector<uint16_t> input_indices = { 0, 1, 2, 2, 3, 0 };
