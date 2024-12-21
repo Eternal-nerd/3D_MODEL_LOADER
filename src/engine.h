@@ -4,6 +4,7 @@
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -85,6 +86,11 @@ private:
   VkImageView textureImageView;
   VkSampler textureSampler;
 
+  // DEPTH
+  VkImage depthImage;
+  VkDeviceMemory depthImageMemory;
+  VkImageView depthImageView;
+
   void init();
   void mainLoop();
   void cleanup();
@@ -102,6 +108,7 @@ private:
 
   void createSwapChain();
 
+  VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
   void createImageViews();
   void createRenderPass();
   void createDescriptorSetLayout();
@@ -118,8 +125,12 @@ private:
   void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
                          uint32_t height);
   void createTextureImageView();
-  VkImageView createImageView(VkImage image, VkFormat format);
   void createTextureSampler();
+
+  //DEPTH
+  void createDepthResources();
+  VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+  VkFormat findDepthFormat();
 
   void createFramebuffers();
   void createCommandPool();

@@ -6,8 +6,8 @@
 
 #include "engine.h"
 
-// Let the game begin
-int main(int argv, char **args) {
+// Program entry point
+int main(int argv, char** args) {
   Engine eng;
 
   try {
