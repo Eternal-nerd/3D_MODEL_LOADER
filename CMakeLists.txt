@@ -17,12 +17,14 @@ include_directories(${SDL3_INCLUDE_DIRS})
 set(SOURCES
 	src/main.cpp
 	src/engine.cpp
+	src/renderer.cpp
 	src/util.cpp
 )
 
 # add headers
 set(HEADERS
 	src/engine.h
+	src/renderer.h
 	src/util.h
 	src/types.h
 	src/data.h

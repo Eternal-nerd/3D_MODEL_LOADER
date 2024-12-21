@@ -5,3 +5,9 @@ Build instructions (Linux):
 
 Build instructions (Windows):
 	-TODO
+
+TODOLIST:
+	-Encapsulate Vulkan into Renderer class
+	-Encapsulate debugging facilities
+	-utility namespace
+
