@@ -16,9 +16,9 @@ struct SwapChainSupportDetails {
 };
 
 struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
+  glm::vec3 pos;
+  glm::vec3 color;
+  glm::vec2 texCoord;
 
   static VkVertexInputBindingDescription getBindingDescription() {
     VkVertexInputBindingDescription bindingDescription{};

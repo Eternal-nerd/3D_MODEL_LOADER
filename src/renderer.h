@@ -2,23 +2,14 @@
 
 class Renderer {
 public:
-	Renderer();
-	~Renderer();
+  Renderer();
+  ~Renderer();
 
-	void init();
+  void init();
 
-	void drawFrame();
+  void drawFrame();
 
-	void cleanup();
+  void cleanup();
 
 private:
-
-
-
 };
-
-
-
-
-
-

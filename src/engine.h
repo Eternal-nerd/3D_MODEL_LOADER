@@ -23,8 +23,8 @@
 #include <vector>
 
 // My useless abstractions
-#include "renderer.h"
 #include "data.h"
+#include "renderer.h"
 #include "types.h"
 #include "util.h"
 
@@ -46,7 +46,7 @@ private:
   VkSurfaceKHR surface;
 
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device;
+  VkDevice device_;
 
   VkQueue graphicsQueue;
   VkQueue presentQueue;
@@ -112,7 +112,8 @@ private:
 
   void createSwapChain();
 
-  VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+  VkImageView createImageView(VkImage image, VkFormat format,
+                              VkImageAspectFlags aspectFlags);
   void createImageViews();
   void createRenderPass();
   void createDescriptorSetLayout();
@@ -131,9 +132,11 @@ private:
   void createTextureImageView();
   void createTextureSampler();
 
-  //DEPTH
+  // DEPTH
   void createDepthResources();
-  VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+  VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
+                               VkImageTiling tiling,
+                               VkFormatFeatureFlags features);
   VkFormat findDepthFormat();
 
   void createFramebuffers();

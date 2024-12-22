@@ -7,7 +7,7 @@
 #include "engine.h"
 
 // Program entry point
-int main(int argv, char** args) {
+int main(int argv, char **args) {
   Engine eng;
 
   try {
