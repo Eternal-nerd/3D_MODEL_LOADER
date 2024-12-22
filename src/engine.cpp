@@ -26,6 +26,9 @@ void Engine::init() {
     throw std::runtime_error("Failed to make window resizable. ");
   }
 
+  // FIXME
+  renderer_.init();
+
   // INIT VULKAN
   createInstance();
   setupDebugMessenger();
@@ -66,6 +69,8 @@ void Engine::mainLoop() {
         running_ = false;
       }
     }
+    // FIXME
+    renderer_.drawFrame();
     drawFrame();
   }
   vkDeviceWaitIdle(device);
@@ -194,10 +199,9 @@ void Engine::drawFrame() {
 
 // TEXTURE STUFF
 void Engine::createTextureImage() {
-  int texWidth, texHeight, texChannels;
-  stbi_uc *pixels = stbi_load("../res/set.png", &texWidth, &texHeight,
-                              &texChannels, STBI_rgb_alpha);
-  VkDeviceSize imageSize = texWidth * texHeight * 4;
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load("../res/test.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
 
   if (!pixels) {
     throw std::runtime_error("failed to load texture image!");
@@ -819,7 +823,7 @@ void Engine::createGraphicsPipeline() {
   rasterizer.depthClampEnable = VK_FALSE;
   rasterizer.rasterizerDiscardEnable = VK_FALSE;
   // Options: POINT, LINE, FILL
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+  rasterizer.polygonMode = VK_POLYGON_MODE_FILL; //FIXME
   rasterizer.lineWidth = 1.0f;
   rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
   rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
