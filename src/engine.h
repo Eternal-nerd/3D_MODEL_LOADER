@@ -23,6 +23,7 @@
 #include <vector>
 
 // My useless abstractions
+#include "renderer.h"
 #include "data.h"
 #include "types.h"
 #include "util.h"
@@ -36,6 +37,9 @@ private:
   SDL_Window *window_ = nullptr;
   SDL_Event event_;
   bool running_ = false;
+
+  // Renderer (Vulkan encapsulated)
+  Renderer renderer_;
 
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;

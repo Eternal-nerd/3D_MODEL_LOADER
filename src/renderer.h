@@ -7,6 +7,10 @@ public:
 
 	void init();
 
+	void drawFrame();
+
+	void cleanup();
+
 private:
 
 
