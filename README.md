@@ -7,7 +7,9 @@ Build instructions (Windows):
 	-TODO
 
 TODOLIST:
-	-Encapsulate Vulkan into Renderer class
-	-Encapsulate debugging facilities
-	-utility namespace
+	-More Vulkan encapsulating (render class)
+	-debugging/utility class/namespace redo
+	-ORGANIZE AND EXPLAIN CODE IN THE RENDER CLASS
+		-documentation pretty much
+	
 
