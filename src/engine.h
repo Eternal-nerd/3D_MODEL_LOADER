@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+// FIXME Minimal includes PLEASE
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -41,20 +42,24 @@ private:
   // Renderer (Vulkan encapsulated)
   Renderer renderer_;
 
-  VkInstance instance;
-  VkDebugUtilsMessengerEXT debugMessenger;
-  VkSurfaceKHR surface;
+  // FIXME
+  /*VkInstance instance_ = VK_NULL_HANDLE;
+  VkDebugUtilsMessengerEXT debugMessenger_ = VK_NULL_HANDLE;
 
-  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device_;
+  VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
+  VkDevice device_ = VK_NULL_HANDLE;
+
+  VkSurfaceKHR surface_ = VK_NULL_HANDLE;
 
   VkQueue graphicsQueue;
   VkQueue presentQueue;
 
   VkSwapchainKHR swapChain;
+
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
-  VkExtent2D swapChainExtent;
+  VkExtent2D swapChainExtent;*/
+
   std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -99,18 +104,17 @@ private:
   void mainLoop();
   void cleanup();
 
+  /*void createInstance();
   void setupDebugMessenger();
-
-  void cleanupSwapChain();
-  void recreateSwapChain();
-
-  void createInstance();
-  void createSurface();
 
   void pickPhysicalDevice();
   void createLogicalDevice();
 
-  void createSwapChain();
+  void createSurface();
+
+  void createSwapChain();*/
+  void cleanupSwapChain();
+  void recreateSwapChain();
 
   VkImageView createImageView(VkImage image, VkFormat format,
                               VkImageAspectFlags aspectFlags);
@@ -165,7 +169,9 @@ private:
   void drawFrame();
 
   VkShaderModule createShaderModule(const std::vector<char> &code);
-  VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+  
+  
+  /*VkSurfaceFormatKHR chooseSwapSurfaceFormat(
       const std::vector<VkSurfaceFormatKHR> &availableFormats);
   VkPresentModeKHR chooseSwapPresentMode(
       const std::vector<VkPresentModeKHR> &availablePresentModes);
@@ -176,5 +182,5 @@ private:
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
   std::vector<const char *> getRequiredExtensions();
-  bool checkValidationLayerSupport();
+  bool checkValidationLayerSupport();*/
 };
