@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include <optional>
 #include <array>
+#include <optional>
 
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;

@@ -42,6 +42,15 @@ private:
   // Renderer (Vulkan encapsulated)
   Renderer renderer_;
 
+  /* BIG PICTURE METHODS */
+  void collectInputs(); // get user input data to update camera/scene
+  void updateCamera();  // update camera based on inputs
+  void updateScene();   // perform transformations to objects being rendered
+  void renderScene();   // GPU renders scene image
+  // TODO after effects (applied to rendered image)
+  void
+  swapBuffers(); // Presents rendered image to user, maybe rename function TODO
+
   // FIXME
   /*VkInstance instance_ = VK_NULL_HANDLE;
   VkDebugUtilsMessengerEXT debugMessenger_ = VK_NULL_HANDLE;
@@ -169,8 +178,7 @@ private:
   void drawFrame();
 
   VkShaderModule createShaderModule(const std::vector<char> &code);
-  
-  
+
   /*VkSurfaceFormatKHR chooseSwapSurfaceFormat(
       const std::vector<VkSurfaceFormatKHR> &availableFormats);
   VkPresentModeKHR chooseSwapPresentMode(
