@@ -48,6 +48,7 @@ void Renderer::init() {
   createVertexBuffer();
   createIndexBuffer();
   createUniformBuffers();
+
   createDescriptorPool();
   createDescriptorSets();
   createCommandBuffers();

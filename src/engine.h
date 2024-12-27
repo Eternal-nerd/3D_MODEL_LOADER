@@ -18,6 +18,7 @@
 #include <vector>
 
 // My useless abstractions
+#include "camera.h"
 #include "data.h"
 #include "renderer.h"
 #include "types.h"
@@ -35,6 +36,9 @@ private:
 
   // Renderer (Vulkan encapsulated)
   Renderer renderer_;
+
+  // Camera
+  Camera camera_;
 
   /* BIG PICTURE METHODS */
   void collectInputs(); // get user input data to update camera/scene

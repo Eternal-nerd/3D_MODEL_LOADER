@@ -18,6 +18,7 @@ set(SOURCES
 	src/main.cpp
 	src/engine.cpp
 	src/renderer.cpp
+	src/camera.cpp
 	src/util.cpp
 )
 
@@ -25,6 +26,7 @@ set(SOURCES
 set(HEADERS
 	src/engine.h
 	src/renderer.h
+	src/camera.h
 	src/util.h
 	src/types.h
 	src/data.h

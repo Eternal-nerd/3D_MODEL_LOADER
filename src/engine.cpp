@@ -37,6 +37,8 @@ void Engine::mainLoop() {
     while (SDL_PollEvent(&event_)) {
       if (event_.type == SDL_EVENT_QUIT) {
         running_ = false;
+      } else {
+        collectInputs();
       }
     }
 
@@ -54,6 +56,9 @@ void Engine::mainLoop() {
  */
 void Engine::collectInputs() {
   // TODO add inputs
+  // switch () {
+
+  //}
 }
 void Engine::updateCamera() {
   // TODO Update UBO here?
