@@ -21,7 +21,7 @@ struct SwapChainSupportDetails {
 };
 
 /*  Vertex is a point in 3D space
-    pos: (x, y, z) 
+    pos: (x, y, z)
     color: (r, g, b)
 */
 struct Vertex {

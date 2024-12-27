@@ -48,5 +48,4 @@ private:
   void init();
   void mainLoop();
   void cleanup();
-
 };

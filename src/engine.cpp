@@ -39,11 +39,11 @@ void Engine::mainLoop() {
         running_ = false;
       }
     }
-    
+
     // FIXME
     renderer_.drawFrame();
-    //std::chrono::milliseconds waitTime(200);
-    //std::this_thread::sleep_for(waitTime);
+    // std::chrono::milliseconds waitTime(200);
+    // std::this_thread::sleep_for(waitTime);
   }
   // FIXME
   //  vkDeviceWaitIdle(device_);
@@ -53,14 +53,12 @@ void Engine::mainLoop() {
 /* BIG PICTURE METHODS
  */
 void Engine::collectInputs() {
-    // TODO add inputs
+  // TODO add inputs
 }
 void Engine::updateCamera() {
-    // TODO Update UBO here?
+  // TODO Update UBO here?
 }
-void Engine::updateScene() {
-    
-}
+void Engine::updateScene() {}
 void Engine::renderScene() {}
 // TODO after effects (applied to rendered image)
 void Engine::swapBuffers() {}
