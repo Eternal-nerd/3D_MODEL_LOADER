@@ -38,6 +38,9 @@ void Engine::mainLoop() {
       if (event_.type == SDL_EVENT_QUIT) {
         running_ = false;
       }
+      else {
+          collectInputs();
+      }
     }
     
     // FIXME
@@ -54,6 +57,9 @@ void Engine::mainLoop() {
  */
 void Engine::collectInputs() {
     // TODO add inputs
+    //switch () {
+
+    //}
 }
 void Engine::updateCamera() {
     // TODO Update UBO here?

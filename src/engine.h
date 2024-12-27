@@ -22,6 +22,7 @@
 #include "renderer.h"
 #include "types.h"
 #include "util.h"
+#include "camera.h"
 
 class Engine {
 public:
@@ -35,6 +36,9 @@ private:
 
   // Renderer (Vulkan encapsulated)
   Renderer renderer_;
+
+  // Camera
+  Camera camera_;
 
   /* BIG PICTURE METHODS */
   void collectInputs(); // get user input data to update camera/scene
