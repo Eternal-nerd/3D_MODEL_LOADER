@@ -20,6 +20,10 @@ struct SwapChainSupportDetails {
   std::vector<VkPresentModeKHR> presentModes;
 };
 
+/*  Vertex is a point in 3D space
+    pos: (x, y, z) 
+    color: (r, g, b)
+*/
 struct Vertex {
   glm::vec3 pos;
   glm::vec3 color;
