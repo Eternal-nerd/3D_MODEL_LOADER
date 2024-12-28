@@ -1,5 +1,7 @@
 #include "engine.h"
 
+#include <thread>
+
 // ENGINE IMPLEMENTATION
 void Engine::run() {
   init();
@@ -42,13 +44,26 @@ void Engine::mainLoop() {
       }
     }
 
-    // FIXME
+    // measure frametime
+    // set a timepoint
+    auto startTime = std::chrono::high_resolution_clock::now();
+
     renderer_.drawFrame();
-    // std::chrono::milliseconds waitTime(200);
-    // std::this_thread::sleep_for(waitTime);
+
+    // Limit FPS if wanted:
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
+
+    // set another timepoint
+    auto stopTime = std::chrono::high_resolution_clock::now();
+    // get duration of drawFrame() method
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+        stopTime - startTime);
+    double ms = duration.count() * 0.001; // convert to ms
+    double fps = 1000 / ms;
+    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps
+              << " FPS). \n";
   }
-  // FIXME
-  //  vkDeviceWaitIdle(device_);
+
   renderer_.deviceWaitIdle();
 }
 

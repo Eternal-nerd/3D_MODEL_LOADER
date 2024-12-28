@@ -1552,15 +1552,17 @@ void Renderer::updateUniformBuffer(uint32_t currentImage) {
   // DO ROTATION
   ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
                           glm::vec3(0.0f, 0.0f, 1.0f));
-  // ubo.model *= glm::rotate(glm::mat4(1.0f), time * glm::radians(1750.0f),
-  //                          glm::vec3(0.0f, 1.0f, 0.0f));
+  // ubo.model = glm::mat4(1.0f);
 
   ubo.view =
       glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                   glm::vec3(0.0f, 0.0f, 1.0f));
-  ubo.proj = glm::perspective(
-      glm::radians(30.0f),
-      swapChainExtent_.width / (float)swapChainExtent_.height, 0.1f, 10.0f);
+  ubo.proj = // glm::rotate(
+      glm::perspective(glm::radians(30.0f),
+                       swapChainExtent_.width / (float)swapChainExtent_.height,
+                       0.1f, 10.0f); //,
+  // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
+
   ubo.proj[1][1] *= -1;
 
   memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
