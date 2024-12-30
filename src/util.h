@@ -28,3 +28,28 @@ void populateDebugMessengerCreateInfo(
 
 // UTILITIES
 std::vector<char> readFile(const std::string &filename);
+
+// BUFFERS / MEM Manage
+
+/*
+class BufferManager {
+public:
+    BufferManager(VkDevice& device, VkPhysicalDevice& physicalDevice, );
+    ~BufferManager();
+
+private:
+
+
+};
+
+
+
+void createBuffer2(VkDevice& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+void copyBuffer2(VkDevice& device, VkCommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+uint32_t findMemoryType2(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+// command buffer helpers
+VkCommandBuffer beginSingleTimeCommands2(VkDevice& device, VkCommandPool& commandPool);
+void endSingleTimeCommands2(VkDevice& device, VkCommandBuffer commandBuffer, VkCommandPool& commandPool, VkQueue& graphicsQueue);
+
+*/

@@ -20,6 +20,7 @@ set(SOURCES
 	src/renderer.cpp
 	src/camera.cpp
 	src/util.cpp
+	src/renderable.cpp
 )
 
 # add headers
@@ -30,6 +31,7 @@ set(HEADERS
 	src/util.h
 	src/types.h
 	src/data.h
+	src/renderable.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
 )

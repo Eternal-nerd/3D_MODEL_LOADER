@@ -60,45 +60,45 @@ private:
   VkFormat swapChainImageFormat_;
   VkExtent2D swapChainExtent_;
 
-  std::vector<VkImageView> swapChainImageViews;
-  std::vector<VkFramebuffer> swapChainFramebuffers;
+  std::vector<VkImageView> swapChainImageViews_;
+  std::vector<VkFramebuffer> swapChainFramebuffers_;
 
-  VkRenderPass renderPass = VK_NULL_HANDLE;
-  VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-  VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+  VkRenderPass renderPass_ = VK_NULL_HANDLE;
+  VkDescriptorSetLayout descriptorSetLayout_ = VK_NULL_HANDLE;
+  VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
+  VkPipeline graphicsPipeline_ = VK_NULL_HANDLE;
 
-  VkCommandPool commandPool = VK_NULL_HANDLE;
+  VkCommandPool commandPool_ = VK_NULL_HANDLE;
 
-  VkBuffer vertexBuffer = VK_NULL_HANDLE;
-  VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
-  VkBuffer indexBuffer = VK_NULL_HANDLE;
-  VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+  VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
+  VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
+  VkBuffer indexBuffer_ = VK_NULL_HANDLE;
+  VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
 
-  std::vector<VkBuffer> uniformBuffers;
-  std::vector<VkDeviceMemory> uniformBuffersMemory;
-  std::vector<void *> uniformBuffersMapped;
+  std::vector<VkBuffer> uniformBuffers_;
+  std::vector<VkDeviceMemory> uniformBuffersMemory_;
+  std::vector<void *> uniformBuffersMapped_;
 
-  VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-  std::vector<VkDescriptorSet> descriptorSets;
+  VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
+  std::vector<VkDescriptorSet> descriptorSets_;
 
-  std::vector<VkCommandBuffer> commandBuffers;
+  std::vector<VkCommandBuffer> commandBuffers_;
 
-  std::vector<VkSemaphore> imageAvailableSemaphores;
-  std::vector<VkSemaphore> renderFinishedSemaphores;
-  std::vector<VkFence> inFlightFences;
-  uint32_t currentFrame = 0;
+  std::vector<VkSemaphore> imageAvailableSemaphores_;
+  std::vector<VkSemaphore> renderFinishedSemaphores_;
+  std::vector<VkFence> inFlightFences_;
+  uint32_t currentFrame_ = 0;
 
   // TEXTURE STUFF
-  VkImage textureImage = VK_NULL_HANDLE;
-  VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
-  VkImageView textureImageView = VK_NULL_HANDLE;
-  VkSampler textureSampler = VK_NULL_HANDLE;
+  VkImage textureImage_ = VK_NULL_HANDLE;
+  VkDeviceMemory textureImageMemory_ = VK_NULL_HANDLE;
+  VkImageView textureImageView_ = VK_NULL_HANDLE;
+  VkSampler textureSampler_ = VK_NULL_HANDLE;
 
   // DEPTH
-  VkImage depthImage = VK_NULL_HANDLE;
-  VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
-  VkImageView depthImageView = VK_NULL_HANDLE;
+  VkImage depthImage_ = VK_NULL_HANDLE;
+  VkDeviceMemory depthImageMemory_ = VK_NULL_HANDLE;
+  VkImageView depthImageView_ = VK_NULL_HANDLE;
 
   /*--------------------------------------------------------------------------------
   ------------------------------METHODS---------------------------------------------
@@ -176,15 +176,17 @@ private:
   void createUniformBuffers();
   void createDescriptorPool();
   void createDescriptorSets();
+
+  //FIXME REMOVE
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                     VkMemoryPropertyFlags properties, VkBuffer &buffer,
                     VkDeviceMemory &bufferMemory);
-
-  VkCommandBuffer beginSingleTimeCommands();
-  void endSingleTimeCommands(VkCommandBuffer commandBuffer);
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
   uint32_t findMemoryType(uint32_t typeFilter,
-                          VkMemoryPropertyFlags properties);
+      VkMemoryPropertyFlags properties);
+  VkCommandBuffer beginSingleTimeCommands();
+  void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+  //------
 
   void createCommandBuffers();
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
