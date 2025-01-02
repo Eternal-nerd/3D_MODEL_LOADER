@@ -17,6 +17,9 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation" };
+
 // INPUT DATA
 const std::vector<Vertex> vertices = {
     {{-0.5f, -0.5f, 1.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
