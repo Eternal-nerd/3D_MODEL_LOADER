@@ -17,21 +17,16 @@ include_directories(${SDL3_INCLUDE_DIRS})
 set(SOURCES
 	src/main.cpp
 	src/engine.cpp
-	src/renderer.cpp
-	src/camera.cpp
+	src/gfx.cpp
 	src/util.cpp
-	src/renderable.cpp
 )
 
 # add headers
 set(HEADERS
 	src/engine.h
-	src/renderer.h
-	src/camera.h
+	src/gfx.h
 	src/util.h
-	src/types.h
 	src/data.h
-	src/renderable.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
 )

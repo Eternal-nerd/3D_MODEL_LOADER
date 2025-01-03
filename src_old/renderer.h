@@ -169,7 +169,6 @@ private:
   void createTextureSampler();
 
   // TODO EXPLAIN THIS
-
   void createCommandPool();
   void createVertexBuffer();
   void createIndexBuffer();
