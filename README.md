@@ -6,10 +6,4 @@ Build instructions (Linux):
 Build instructions (Windows):
 	-TODO
 
-TODOLIST:
-	-More Vulkan encapsulating (render class)
-	-debugging/utility class/namespace redo
-	-ORGANIZE AND EXPLAIN CODE IN THE RENDER CLASS
-		-documentation pretty much
-	
-
+TBD
