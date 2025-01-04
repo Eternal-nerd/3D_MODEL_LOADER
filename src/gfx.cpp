@@ -18,6 +18,7 @@ void Gfx::drawRenderable() {}
 void Gfx::cleanup() {
 	util::log("Cleaning up Gfx...");
 
-	// cleanup dvce
+	/* cleanup dvce
+	*/
 	dvce_.cleanup();
 }

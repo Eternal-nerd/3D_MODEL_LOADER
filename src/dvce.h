@@ -23,14 +23,17 @@ public:
 	Dvce();
 	~Dvce();
 
+	void setWindowPtr(SDL_Window* window);
 	void init();
 
-	//const VkPhysicalDevice& getPhysical() const;
-	//const VkDevice& getLogical() const;
+	// getters
+	const VkPhysicalDevice& getPhysical() const;
+	const VkDevice& getLogical() const;
+	const VkSurfaceKHR& getSurface() const;
+	const VkQueue& getGraphicsQue() const;
+	const VkQueue& getGraphicsQue() const;
 
 	void cleanup();
-
-	void setWindowPtr(SDL_Window* window);
 
 private:
 	// SDL WINDOW
@@ -57,12 +60,11 @@ private:
 	void createSurface();
 
 	// VK PHYSCIAL DEVICE
-	//void pickPhysicalDevice();
-	//bool isDeviceSuitable(VkPhysicalDevice device);
-	//bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+	void selectPhysicalDevice();
+	bool isDeviceSuitable(VkPhysicalDevice physicalDevice);
 
 	// VK LOGICAL DEVICE
-	//void createLogicalDevice();
+	void createLogicalDevice();
 
 
 };

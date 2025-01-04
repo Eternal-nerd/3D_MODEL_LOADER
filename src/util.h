@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "types.h"
 #include "types.h"
@@ -35,6 +36,7 @@ namespace util {
 
     // VULKAN DETAILS
     bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 
