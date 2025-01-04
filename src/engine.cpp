@@ -1,10 +1,12 @@
 #include "engine.h"
 
 #include <stdexcept>
+#include <chrono>
+#include <iostream>
+#include <thread>
 
 // my abstractions
 #include "util.h"
-#include "data.h"
 
 Engine::Engine() {}
 
@@ -35,16 +37,37 @@ void Engine::init() {
 	if (!SDL_SetWindowResizable(window_, true)) {
 		throw std::runtime_error("Failed to make window resizable. ");
 	}
+
+	// Initialize gfx
+	gfx_.setWindowPtr(window_);
+	gfx_.init();
 }
 
 void Engine::renderLoop() {
+	util::log("Begining render loop...");
+
 	running_ = true;
 	while (running_) {
+		// measure frametime
+		// set a timepoint
+		auto startTime = std::chrono::high_resolution_clock::now();
+
 		collectInputs();
 		updateCamera();
 		updateScene();
 		renderScene();
 		swapBuffers();
+	
+		// Limit FPS if wanted:
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+		// set another timepoint
+		auto stopTime = std::chrono::high_resolution_clock::now();
+		// get duration
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime);
+		double ms = duration.count() * 0.001; // convert to ms
+		double fps = 1000 / ms;
+		std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
 	}
 }
 
@@ -66,9 +89,18 @@ void Engine::updateCamera() {}
 void Engine::updateScene() {}
 
 void Engine::renderScene() {
-
+	// device wait idle here?
 }
 
 void Engine::swapBuffers() {}
 
-void Engine::cleanup() {}
+void Engine::cleanup() {
+	util::log("Cleaning up engine...");
+
+	// cleanup gfx
+	gfx_.cleanup();
+
+	util::log("Cleaning up SDL...");
+	SDL_DestroyWindow(window_);
+	SDL_Quit();
+}

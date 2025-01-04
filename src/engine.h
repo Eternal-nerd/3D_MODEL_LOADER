@@ -3,6 +3,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 
+#include "gfx.h"
+
+const uint32_t WIDTH = 300;
+const uint32_t HEIGHT = 200;
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 class Engine {
 public:
 	Engine();
@@ -15,6 +22,9 @@ private:
 	SDL_Window* window_ = nullptr;
 	SDL_Event event_;
 	bool running_ = false;
+
+	// Gfx (Vulkan), used to draw Renderable objects
+	Gfx gfx_;
 
 	// initializes the application
 	void init();

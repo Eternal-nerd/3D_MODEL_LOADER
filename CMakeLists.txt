@@ -18,6 +18,8 @@ set(SOURCES
 	src/main.cpp
 	src/engine.cpp
 	src/gfx.cpp
+	src/dvce.cpp
+	src/renderable.cpp
 	src/util.cpp
 )
 
@@ -26,7 +28,9 @@ set(HEADERS
 	src/engine.h
 	src/gfx.h
 	src/util.h
-	src/data.h
+	src/dvce.h
+	src/renderable.h
+	src/types.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
 )
