@@ -31,6 +31,12 @@ void Txtr::create(const std::string& filename) {
 }
 
 /*-----------------------------------------------------------------------------
+-----------------------------GETTERS-------------------------------------------
+-----------------------------------------------------------------------------*/
+const VkImageView& Txtr::getTextureImageView() const { return textureImageView_; }
+const VkSampler& Txtr::getTextureSampler() const { return textureSampler_; }
+
+/*-----------------------------------------------------------------------------
 ------------------------------TEXTURE-IMAGE------------------------------------
 -----------------------------------------------------------------------------*/
 void Txtr::createTextureImage() {
@@ -100,7 +106,7 @@ void Txtr::createTextureSampler() {
 	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_TRUE; // FIXME - maybe disable
+	samplerInfo.anisotropyEnable = VK_FALSE; // FIXME - WTF THIS
 	samplerInfo.maxAnisotropy =
 		properties.limits.maxSamplerAnisotropy; // FIXME -> 1.0f
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;

@@ -81,6 +81,7 @@ void Engine::renderLoop() {
 		double fps = 1000 / ms;
 		std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
 	}
+	gfx_.deviceWaitIdle();
 }
 
 /*-----------------------------------------------------------------------------
@@ -111,6 +112,7 @@ void Engine::updateScene() {}
 -----------------------------------------------------------------------------*/
 void Engine::renderScene() {
 	// device wait idle here?
+	gfx_.tempDrawFrame();
 }
 
 void Engine::swapBuffers() {}

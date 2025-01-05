@@ -1,6 +1,11 @@
 #include "gfx.h"
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <stdexcept>
+#include <chrono>
 
 Gfx::Gfx() {}
 Gfx::~Gfx() {}
@@ -32,6 +37,8 @@ void Gfx::init() {
 	createDescriptorSetLayout();
 	// create pipeline
 	createGraphicsPipeline();
+	// create descriptor pool
+	createDescriptorPool();
 
 	// create cmdr - TODO needs access to graphics que
 	cmdr_.setDvcePtr(dvce_);
@@ -41,6 +48,21 @@ void Gfx::init() {
 	txtr_.setDvcePtr(dvce_);
 	txtr_.setCmdrPtr(cmdr_);
 	txtr_.create("../res/test.jpg");
+
+	// TODO MOVE TO RENDERABLE
+	createVertexBuffer();
+	createIndexBuffer();
+	createUniformBuffers();
+	// END REMOVE
+
+	// can stay
+	createDescriptorSets();
+	// TODO MOVE TO CMDR
+	createCommandBuffers();
+
+	// init synchro
+	synchro_.setDvcePtr(dvce_);
+	synchro_.init(MAX_FRAMES_IN_FLIGHT);
 }
 
 
@@ -48,6 +70,10 @@ void Gfx::init() {
 ------------------------------DRAW-SHIT----------------------------------------
 -----------------------------------------------------------------------------*/
 void Gfx::drawRenderable() {}
+
+void Gfx::deviceWaitIdle() {
+	dvce_.waitIdle();
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -291,6 +317,82 @@ void Gfx::createGraphicsPipeline() {
 }
 
 /*-----------------------------------------------------------------------------
+-----------------------------DESCRIPTOR----------------------------------------
+-----------------------------------------------------------------------------*/
+void Gfx::createDescriptorPool() {
+	util::log("Creating descriptor pool...");
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
+	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	if (vkCreateDescriptorPool(dvce_.getLogical(), &poolInfo, nullptr, &descriptorPool_) !=
+		VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+}
+
+void Gfx::createDescriptorSets() {
+	util::log("Creating descriptor sets...");
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT,
+		descriptorSetLayout_);
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = descriptorPool_;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	allocInfo.pSetLayouts = layouts.data();
+
+	descriptorSets_.resize(MAX_FRAMES_IN_FLIGHT);
+	if (vkAllocateDescriptorSets(dvce_.getLogical(), &allocInfo, descriptorSets_.data()) !=
+		VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = uniformBuffers_[i];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(UniformBufferObject);
+
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = txtr_.getTextureImageView();
+		imageInfo.sampler = txtr_.getTextureSampler();
+
+		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet = descriptorSets_[i];
+		descriptorWrites[0].dstBinding = 0;
+		descriptorWrites[0].dstArrayElement = 0;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount = 1;
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[1].dstSet = descriptorSets_[i];
+		descriptorWrites[1].dstBinding = 1;
+		descriptorWrites[1].dstArrayElement = 0;
+		descriptorWrites[1].descriptorType =
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[1].descriptorCount = 1;
+		descriptorWrites[1].pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets(dvce_.getLogical(),
+			static_cast<uint32_t>(descriptorWrites.size()),
+			descriptorWrites.data(), 0, nullptr);
+	}
+}
+
+
+/*-----------------------------------------------------------------------------
 ------------------------------CLEANUP------------------------------------------
 -----------------------------------------------------------------------------*/
 void Gfx::cleanup() {
@@ -309,27 +411,26 @@ void Gfx::cleanup() {
 	util::log("Destroying render pass...");
 	vkDestroyRenderPass(dvce_.getLogical(), renderPass_, nullptr);
 
-	/*for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroyBuffer(device_, uniformBuffers_[i], nullptr);
-		vkFreeMemory(device_, uniformBuffersMemory_[i], nullptr);
+	// FIXME
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroyBuffer(dvce_.getLogical(), uniformBuffers_[i], nullptr);
+		vkFreeMemory(dvce_.getLogical(), uniformBuffersMemory_[i], nullptr);
 	}
+	
 
-	vkDestroyDescriptorPool(device_, descriptorPool_, nullptr);
-	*/
+	util::log("Destroying descriptor pool...");
+	vkDestroyDescriptorPool(dvce_.getLogical(), descriptorPool_, nullptr);
 	util::log("Destroying descriptor set layout...");
 	vkDestroyDescriptorSetLayout(dvce_.getLogical(), descriptorSetLayout_, nullptr);
-	/*
-	vkDestroyBuffer(device_, indexBuffer_, nullptr);
-	vkFreeMemory(device_, indexBufferMemory_, nullptr);
 
-	vkDestroyBuffer(device_, vertexBuffer_, nullptr);
-	vkFreeMemory(device_, vertexBufferMemory_, nullptr);
+	// FIXME
+	vkDestroyBuffer(dvce_.getLogical(), indexBuffer_, nullptr);
+	vkFreeMemory(dvce_.getLogical(), indexBufferMemory_, nullptr);
+	vkDestroyBuffer(dvce_.getLogical(), vertexBuffer_, nullptr);
+	vkFreeMemory(dvce_.getLogical(), vertexBufferMemory_, nullptr);
+	
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroySemaphore(device_, renderFinishedSemaphores_[i], nullptr);
-		vkDestroySemaphore(device_, imageAvailableSemaphores_[i], nullptr);
-		vkDestroyFence(device_, inFlightFences_[i], nullptr);
-	}*/
+	synchro_.cleanup();
 
 	cmdr_.cleanup();
 
@@ -338,3 +439,248 @@ void Gfx::cleanup() {
 	*/
 	dvce_.cleanup();
 }
+
+/*--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--
+--!--!--!--!--!--!--!--!--!---TEMPORARY--!--!--!--!--!--!--!--!--!--!--!--!--!-
+----!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!---*/
+
+void Gfx::tempDrawFrame() {
+	vkWaitForFences(dvce_.getLogical(), 1, &synchro_.getInFlightFences()[currentFrame_], VK_TRUE,
+		UINT64_MAX);
+
+	uint32_t imageIndex;
+	VkResult result = vkAcquireNextImageKHR(
+		dvce_.getLogical(), swpchn_.getSwapChain(), UINT64_MAX, synchro_.getImageAvailableSemaphores()[currentFrame_],
+		VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		swpchn_.recreate();
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
+
+	updateUniformBuffer(currentFrame_);
+
+	vkResetFences(dvce_.getLogical(), 1, &synchro_.getInFlightFences()[currentFrame_]);
+
+	vkResetCommandBuffer(commandBuffers_[currentFrame_],
+		/*VkCommandBufferResetFlagBits*/ 0);
+	recordCommandBuffer(commandBuffers_[currentFrame_], imageIndex);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { synchro_.getImageAvailableSemaphores()[currentFrame_] };
+	VkPipelineStageFlags waitStages[] = {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffers_[currentFrame_];
+
+	VkSemaphore signalSemaphores[] = { synchro_.getRenderFinishedSemaphores()[currentFrame_] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(dvce_.getGraphicsQue(), 1, &submitInfo,
+		synchro_.getInFlightFences()[currentFrame_]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { swpchn_.getSwapChain() };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	result = vkQueuePresentKHR(dvce_.getPresentQue(), &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+		swpchn_.recreate();
+	}
+	else if (result != VK_SUCCESS) {
+		throw std::runtime_error("failed to present swap chain image!");
+	}
+
+	currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+
+
+
+
+
+void Gfx::createVertexBuffer() {
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, dvce_.getLogical(), dvce_.getPhysical());
+
+	void* data;
+	vkMapMemory(dvce_.getLogical(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(dvce_.getLogical(), stagingBufferMemory);
+
+	util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_, dvce_.getLogical(), dvce_.getPhysical());
+
+	util::copyBuffer(stagingBuffer, vertexBuffer_, bufferSize, cmdr_);
+
+	vkDestroyBuffer(dvce_.getLogical(), stagingBuffer, nullptr);
+	vkFreeMemory(dvce_.getLogical(), stagingBufferMemory, nullptr);
+}
+
+void Gfx::createIndexBuffer() {
+	VkDeviceSize bufferSize = sizeof(input_indices[0]) * input_indices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, dvce_.getLogical(), dvce_.getPhysical());
+
+	void* data;
+	vkMapMemory(dvce_.getLogical(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, input_indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(dvce_.getLogical(), stagingBufferMemory);
+
+	util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer_, indexBufferMemory_, dvce_.getLogical(), dvce_.getPhysical());
+
+	util::copyBuffer(stagingBuffer, indexBuffer_, bufferSize, cmdr_);
+
+	vkDestroyBuffer(dvce_.getLogical(), stagingBuffer, nullptr);
+	vkFreeMemory(dvce_.getLogical(), stagingBufferMemory, nullptr);
+}
+
+void Gfx::createUniformBuffers() {
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers_[i], uniformBuffersMemory_[i], dvce_.getLogical(), dvce_.getPhysical());
+
+		vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0, &uniformBuffersMapped_[i]);
+	}
+}
+
+
+void Gfx::updateUniformBuffer(uint32_t currentImage) {
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(
+		currentTime - startTime)
+		.count();
+
+	UniformBufferObject ubo{};
+	// DO ROTATION
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f));
+	// ubo.model = glm::mat4(1.0f);
+
+	ubo.view =
+		glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = // glm::rotate(
+		glm::perspective(glm::radians(30.0f),
+			swpchn_.getSwapExtent().width / (float)swpchn_.getSwapExtent().height,
+			0.1f, 10.0f); //,
+	// time * glm::radians(90.0f), glm::vec3(0, 0, 1));
+
+	ubo.proj[1][1] *= -1;
+
+	memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
+}
+
+void Gfx::recordCommandBuffer(VkCommandBuffer commandBuffer,
+	uint32_t imageIndex) {
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("failed to begin recording command buffer!");
+	}
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass_;
+	renderPassInfo.framebuffer = swpchn_.getFrameBuffers()[imageIndex];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = swpchn_.getSwapExtent();
+
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
+		VK_SUBPASS_CONTENTS_INLINE);
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		graphicsPipeline_);
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)swpchn_.getSwapExtent().width;
+	viewport.height = (float)swpchn_.getSwapExtent().height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = swpchn_.getSwapExtent();
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+	VkBuffer vertexBuffers[] = { vertexBuffer_ };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT16);
+
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineLayout_, 0, 1, &descriptorSets_[currentFrame_],
+		0, nullptr);
+
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(input_indices.size()),
+		1, 0, 0, 0);
+
+	vkCmdEndRenderPass(commandBuffer);
+
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
+}
+
+void Gfx::createCommandBuffers() {
+	commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = cmdr_.getCommandPool();
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
+
+	if (vkAllocateCommandBuffers(dvce_.getLogical(), &allocInfo, commandBuffers_.data()) !=
+		VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+}
+
+/*--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--
+--!--!--!--!--!--!--!--!--END-TEMPORARY--!--!--!--!--!--!--!--!--!--!--!--!--!-
+----!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!---*/

@@ -24,6 +24,7 @@ set(SOURCES
 	src/txtr.cpp
 	src/renderable.cpp
 	src/util.cpp
+	src/synchro.cpp
 )
 
 # add headers
@@ -37,6 +38,7 @@ set(HEADERS
 	src/txtr.h
 	src/renderable.h
 	src/types.h
+	src/synchro.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
 )

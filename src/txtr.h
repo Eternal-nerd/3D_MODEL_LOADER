@@ -22,6 +22,8 @@ public:
 	void create(const std::string& filename);
 
 	// TODO getter for imager view and sampler
+	const VkImageView& getTextureImageView() const;
+	const VkSampler& getTextureSampler() const;
 
 	void cleanup();
 

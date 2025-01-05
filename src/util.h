@@ -9,7 +9,9 @@
 #include <set>
 
 #include "types.h"
-#include "types.h"
+#include "cmdr.h"
+
+class Cmdr;
 
 namespace util {
 
@@ -65,4 +67,5 @@ namespace util {
     //BUFFERS
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory,
         const VkDevice& device, const VkPhysicalDevice& physicalDevice);
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Cmdr& cmdr);
 }

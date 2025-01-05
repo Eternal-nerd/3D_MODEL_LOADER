@@ -405,4 +405,15 @@ namespace util {
 
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
+
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Cmdr& cmdr) {
+        VkCommandBuffer commandBuffer = cmdr.beginSingleTimeCommands();
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+        cmdr.endSingleTimeCommands(commandBuffer);
+    }
+
 }

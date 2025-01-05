@@ -42,7 +42,8 @@ void Swpchn::init() {
 -----------------------------------------------------------------------------*/
 const VkFormat& Swpchn::getSwapFormat() const {	return swapChainImageFormat_; }
 const VkExtent2D& Swpchn::getSwapExtent() const { return swapChainExtent_; }
-
+const VkSwapchainKHR& Swpchn::getSwapChain() const { return swapChain_; }
+const std::vector<VkFramebuffer>& Swpchn::getFrameBuffers() const { return swapChainFramebuffers_; }
 
 /*-----------------------------------------------------------------------------
 -----------------------------SWAPCHAIN-----------------------------------------
@@ -113,6 +114,10 @@ void Swpchn::recreateSwapChain() {
 	createImageViews();
 	createDepthResources();
 	createFramebuffers();
+}
+
+void Swpchn::recreate() {
+	recreateSwapChain();
 }
 
 /*-----------------------------------------------------------------------------

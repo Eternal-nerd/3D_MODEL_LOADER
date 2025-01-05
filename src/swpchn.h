@@ -22,6 +22,10 @@ public:
 
 	const VkFormat& getSwapFormat() const;
 	const VkExtent2D& getSwapExtent() const;
+	const VkSwapchainKHR& getSwapChain() const;
+	const std::vector<VkFramebuffer>& getFrameBuffers() const;
+
+	void recreate();
 
 	void cleanup();
 
