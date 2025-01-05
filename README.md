@@ -6,4 +6,6 @@ Build instructions (Linux):
 Build instructions (Windows):
 	-TODO
 
+TODO: FIX RESIZING IT IS BROKEN
+
 TBD

@@ -4,40 +4,35 @@
 
 #include <vector>
 
-#include "util.h"
 #include "dvce.h"
+#include "util.h"
 
 class Synchro {
 public:
-	Synchro();
-	~Synchro();
+  Synchro();
+  ~Synchro();
 
-	// to give sync objs access to device
-	void setDvcePtr(const Dvce& dvce);
+  // to give sync objs access to device
+  void setDvcePtr(const Dvce &dvce);
 
-	void init(int framesInFlight);
+  void init(int framesInFlight);
 
-	// GETTERS
-	const std::vector<VkSemaphore>& getImageAvailableSemaphores() const;
-	const std::vector<VkSemaphore>& getRenderFinishedSemaphores() const;
-	const std::vector<VkFence>& getInFlightFences() const;
+  // GETTERS
+  const std::vector<VkSemaphore> &getImageAvailableSemaphores() const;
+  const std::vector<VkSemaphore> &getRenderFinishedSemaphores() const;
+  const std::vector<VkFence> &getInFlightFences() const;
 
-	void cleanup();
-
-
-
+  void cleanup();
 
 private:
-	// reference to device:
-	const Dvce* dvcePtr_ = nullptr;
+  // reference to device:
+  const Dvce *dvcePtr_ = nullptr;
 
-	int maxFramesInFlight_ = -1;
+  int maxFramesInFlight_ = -1;
 
-	std::vector<VkSemaphore> imageAvailableSemaphores_;
-	std::vector<VkSemaphore> renderFinishedSemaphores_;
-	std::vector<VkFence> inFlightFences_;
+  std::vector<VkSemaphore> imageAvailableSemaphores_;
+  std::vector<VkSemaphore> renderFinishedSemaphores_;
+  std::vector<VkFence> inFlightFences_;
 
-	void createSyncObjects();
-
-
+  void createSyncObjects();
 };
