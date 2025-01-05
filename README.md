@@ -8,4 +8,4 @@ Build instructions (Windows):
 
 TODO: FIX RESIZING IT IS BROKEN
 
-TBD
+ WTF GIT
