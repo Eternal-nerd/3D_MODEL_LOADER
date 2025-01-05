@@ -13,13 +13,11 @@ void Swpchn::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
 
 void Swpchn::preInit() {
   util::log("Getting some swapchain details...");
-  swapChainSupport_ = util::querySwapChainSupport(dvcePtr_->getPhysical(),
+  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvcePtr_->getPhysical(),
                                                   dvcePtr_->getSurface());
-  presentMode_ = util::chooseSwapPresentMode(swapChainSupport_.presentModes);
-  surfaceFormat_ = util::chooseSwapSurfaceFormat(swapChainSupport_.formats);
-  swapChainExtent_ = util::chooseSwapExtent(swapChainSupport_.capabilities,
+  swapChainImageFormat_ = util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
+  swapChainExtent_ = util::chooseSwapExtent(swapChainSupport.capabilities,
                                             dvcePtr_->getWindowPtr());
-  swapChainImageFormat_ = surfaceFormat_.format;
 }
 
 void Swpchn::setRenderPassPtr(const VkRenderPass &renderPass) {
@@ -28,7 +26,7 @@ void Swpchn::setRenderPassPtr(const VkRenderPass &renderPass) {
 
 void Swpchn::init() {
   util::log("Initializing swpchn...");
-
+  
   createSwapChain();
   createImageViews();
   createDepthResources();
@@ -51,10 +49,15 @@ const std::vector<VkFramebuffer> &Swpchn::getFrameBuffers() const {
 void Swpchn::createSwapChain() {
   util::log("Creating swapchain...");
 
-  uint32_t imageCount = swapChainSupport_.capabilities.minImageCount + 1;
-  if (swapChainSupport_.capabilities.maxImageCount > 0 &&
-      imageCount > swapChainSupport_.capabilities.maxImageCount) {
-    imageCount = swapChainSupport_.capabilities.maxImageCount;
+  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvcePtr_->getPhysical(), dvcePtr_->getSurface());
+  VkSurfaceFormatKHR surfaceFormat = util::chooseSwapSurfaceFormat(swapChainSupport.formats);
+  VkPresentModeKHR presentMode = util::chooseSwapPresentMode(swapChainSupport.presentModes);
+  VkExtent2D extent = util::chooseSwapExtent(swapChainSupport.capabilities, dvcePtr_->getWindowPtr());
+
+  uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+  if (swapChainSupport.capabilities.maxImageCount > 0 &&
+      imageCount > swapChainSupport.capabilities.maxImageCount) {
+    imageCount = swapChainSupport.capabilities.maxImageCount;
   }
 
   VkSwapchainCreateInfoKHR createInfo{};
@@ -62,9 +65,9 @@ void Swpchn::createSwapChain() {
   createInfo.surface = dvcePtr_->getSurface();
 
   createInfo.minImageCount = imageCount;
-  createInfo.imageFormat = surfaceFormat_.format;
-  createInfo.imageColorSpace = surfaceFormat_.colorSpace;
-  createInfo.imageExtent = swapChainExtent_;
+  createInfo.imageFormat = surfaceFormat.format;
+  createInfo.imageColorSpace = surfaceFormat.colorSpace;
+  createInfo.imageExtent = extent;
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -81,9 +84,9 @@ void Swpchn::createSwapChain() {
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
   }
 
-  createInfo.preTransform = swapChainSupport_.capabilities.currentTransform;
+  createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
   createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-  createInfo.presentMode = presentMode_;
+  createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
   if (vkCreateSwapchainKHR(dvcePtr_->getLogical(), &createInfo, nullptr,
@@ -96,15 +99,21 @@ void Swpchn::createSwapChain() {
   swapChainImages_.resize(imageCount);
   vkGetSwapchainImagesKHR(dvcePtr_->getLogical(), swapChain_, &imageCount,
                           swapChainImages_.data());
+
+  swapChainImageFormat_ = surfaceFormat.format;
+  swapChainExtent_ = extent;
 }
 
 void Swpchn::recreateSwapChain() {
   int width = 0, height = 0;
   SDL_GetWindowSizeInPixels(dvcePtr_->getWindowPtr(), &width, &height);
 
+
+  SDL_Event e;
+  bool result;
   while (width == 0 || height == 0) {
     SDL_GetWindowSizeInPixels(dvcePtr_->getWindowPtr(), &width, &height);
-    // FIXME SDL_PollEvent(&event_);
+    result = SDL_WaitEvent(&e);
   }
 
   dvcePtr_->waitIdle();

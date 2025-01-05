@@ -40,11 +40,8 @@ private:
   std::vector<VkImage> swapChainImages_;
 
   // details
-  SwapChainSupportDetails swapChainSupport_;
   VkFormat swapChainImageFormat_;
   VkExtent2D swapChainExtent_;
-  VkSurfaceFormatKHR surfaceFormat_;
-  VkPresentModeKHR presentMode_;
 
   std::vector<VkImageView> swapChainImageViews_;
   std::vector<VkFramebuffer> swapChainFramebuffers_;

@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <stdexcept>
+#include <iostream>
 
 Gfx::Gfx() {}
 Gfx::~Gfx() {}
@@ -506,13 +507,12 @@ void Gfx::tempDrawFrame() {
 
   presentInfo.pImageIndices = &imageIndex;
 
-  // FIXME WORK ON THIS
   result = vkQueuePresentKHR(dvce_.getPresentQue(), &presentInfo);
 
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-    // FIXME for some reason this goes infinite
     swpchn_.recreate();
-  } else if (result != VK_SUCCESS) {
+  } 
+  else if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to present swap chain image!");
   }
 
