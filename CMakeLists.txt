@@ -19,6 +19,9 @@ set(SOURCES
 	src/engine.cpp
 	src/gfx.cpp
 	src/dvce.cpp
+	src/swpchn.cpp
+	src/cmdr.cpp
+	src/txtr.cpp
 	src/renderable.cpp
 	src/util.cpp
 )
@@ -29,6 +32,9 @@ set(HEADERS
 	src/gfx.h
 	src/util.h
 	src/dvce.h
+	src/swpchn.h
+	src/cmdr.h
+	src/txtr.h
 	src/renderable.h
 	src/types.h
 	libs/stb_image.h

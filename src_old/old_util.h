@@ -23,7 +23,7 @@ namespace util {
     void populateDebugMessengerCreateInfo(
         VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-    // UTILITIES
+    // GENERAL UTILITIES
     std::vector<char> readFile(const std::string& filename);
 
     // BUFFERS / MEM Manage

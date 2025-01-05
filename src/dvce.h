@@ -1,10 +1,10 @@
 #pragma once
 
-#include "util.h"
-#include "types.h"
-
 #include <vulkan/vulkan.h>
 #include <vector>
+
+#include "util.h"
+#include "types.h"
 
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -31,7 +31,11 @@ public:
 	const VkDevice& getLogical() const;
 	const VkSurfaceKHR& getSurface() const;
 	const VkQueue& getGraphicsQue() const;
-	const VkQueue& getGraphicsQue() const;
+	const VkQueue& getPresentQue() const;
+	SDL_Window* getWindowPtr() const;
+
+	// wait idle
+	void waitIdle() const;
 
 	void cleanup();
 

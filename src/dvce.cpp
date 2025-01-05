@@ -29,7 +29,8 @@ const VkPhysicalDevice& Dvce::getPhysical() const { return physicalDevice_; }
 const VkDevice& Dvce::getLogical() const { return device_; }
 const VkSurfaceKHR& Dvce::getSurface() const { return surface_; }
 const VkQueue& Dvce::getGraphicsQue() const { return graphicsQueue_; }
-const VkQueue& Dvce::getGraphicsQue() const { return presentQueue_; }
+const VkQueue& Dvce::getPresentQue() const { return presentQueue_; }
+SDL_Window* Dvce::getWindowPtr() const { return window_; }
 
 
 /*-----------------------------------------------------------------------------
@@ -212,6 +213,10 @@ void Dvce::createLogicalDevice() {
 
     vkGetDeviceQueue(device_, indices.graphicsFamily.value(), 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
+}
+
+void Dvce::waitIdle() const {
+    vkDeviceWaitIdle(device_);
 }
 
 /*-----------------------------------------------------------------------------
