@@ -15,14 +15,16 @@ public:
   // to give cmdr access to device
   void setDvcePtr(const Dvce &dvce);
 
-  void createPool();
+  void createCommandPool();
+  void createCommandBuffers(int maxFramesInFlight);
 
   // free to use by other code
   VkCommandBuffer beginSingleTimeCommands();
   void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-  // getter
+  // getters
   const VkCommandPool &getCommandPool() const;
+  const std::vector<VkCommandBuffer>& getCommandBuffers() const;
 
   void cleanup();
 
@@ -31,4 +33,5 @@ private:
   const Dvce *dvcePtr_ = nullptr;
 
   VkCommandPool commandPool_ = VK_NULL_HANDLE;
+  std::vector<VkCommandBuffer> commandBuffers_;
 };

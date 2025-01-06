@@ -14,9 +14,7 @@ public:
   ~Txtr();
 
   // to give texture access to stuff
-  void setDvcePtr(const Dvce &dvce);
-  // TODO is this not const unsafe?
-  void setCmdrPtr(Cmdr &cmdr);
+  void setAccessPtrs(const Dvce &dvce, Cmdr& cmdr);
 
   void create(const std::string &filename);
 

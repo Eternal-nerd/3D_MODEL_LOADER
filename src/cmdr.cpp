@@ -10,7 +10,7 @@ Cmdr::~Cmdr() {}
 -----------------------------------------------------------------------------*/
 void Cmdr::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
 
-void Cmdr::createPool() {
+void Cmdr::createCommandPool() {
   util::log("Creating command pool...");
   QueueFamilyIndices queueFamilyIndices =
       util::findQueueFamilies(dvcePtr_->getPhysical(), dvcePtr_->getSurface());
@@ -26,10 +26,27 @@ void Cmdr::createPool() {
   }
 }
 
+void Cmdr::createCommandBuffers(int maxFramesInFlight) {
+    util::log("Creating command buffers...");
+    commandBuffers_.resize(maxFramesInFlight);
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool_;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
+
+    if (vkAllocateCommandBuffers(dvcePtr_->getLogical(), &allocInfo,
+        commandBuffers_.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate command buffers!");
+    }
+}
+
 /*-----------------------------------------------------------------------------
 -----------------------------GETTERS-------------------------------------------
 -----------------------------------------------------------------------------*/
 const VkCommandPool &Cmdr::getCommandPool() const { return commandPool_; }
+const std::vector<VkCommandBuffer>& Cmdr::getCommandBuffers() const { return commandBuffers_; }
 
 /*-----------------------------------------------------------------------------
 ------------------------------SINGLE-TIMERS------------------------------------

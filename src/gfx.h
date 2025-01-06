@@ -65,6 +65,10 @@ private:
 
   Txtr txtr_;
 
+  std::vector<VkBuffer> uniformBuffers_;
+  std::vector<VkDeviceMemory> uniformBuffersMemory_;
+  std::vector<void*> uniformBuffersMapped_;
+
   std::vector<VkDescriptorSet> descriptorSets_;
 
   Synchro synchro_;
@@ -75,30 +79,22 @@ private:
   void createDescriptorSetLayout();
   void createGraphicsPipeline();
 
+  void createUniformBuffers();
+  void updateUniformBuffer(uint32_t currentImage);
+
   // Maybe not here?
   void createDescriptorPool();
+  void createDescriptorSets();
 
   // TODO REMOVE AND REPLACE WITH RENDERABLE CLASS STUFF
   void createVertexBuffer();
   void createIndexBuffer();
-  void createUniformBuffers();
   VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
   VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
   VkBuffer indexBuffer_ = VK_NULL_HANDLE;
   VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
-  std::vector<VkBuffer> uniformBuffers_;
-  std::vector<VkDeviceMemory> uniformBuffersMemory_;
-  std::vector<void *> uniformBuffersMapped_;
   // END REMOVE
 
-  // this can stay here
-  void createDescriptorSets();
-
   // TODO MOVE TO CMDR CLASS?
-  void createCommandBuffers();
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-  std::vector<VkCommandBuffer> commandBuffers_;
-
-  // TODO FIND LOCATION FOR:
-  void updateUniformBuffer(uint32_t currentImage);
 };

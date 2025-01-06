@@ -23,15 +23,11 @@ void Gfx::init() {
   dvce_.setWindowPtr(window_);
   dvce_.init();
 
-  // pre-init swpchn
-  swpchn_.setDvcePtr(dvce_);
-  swpchn_.preInit();
-
   // create renderpass
   createRenderPass();
 
   // initialize swpchn
-  swpchn_.setRenderPassPtr(renderPass_);
+  swpchn_.setAccessPtrs(dvce_, renderPass_);
   swpchn_.init();
 
   // create descriptor set layour for pipeline to use
@@ -41,14 +37,14 @@ void Gfx::init() {
   // create descriptor pool
   createDescriptorPool();
 
-  // create cmdr - TODO needs access to graphics que
+  // create cmdr
   cmdr_.setDvcePtr(dvce_);
-  cmdr_.createPool();
+  cmdr_.createCommandPool();
+  cmdr_.createCommandBuffers(MAX_FRAMES_IN_FLIGHT);
 
   // create texture TODO make this more efficient because there will prob be
   // many textures
-  txtr_.setDvcePtr(dvce_);
-  txtr_.setCmdrPtr(cmdr_);
+  txtr_.setAccessPtrs(dvce_, cmdr_);
   txtr_.create("../res/test.jpg");
 
   // TODO MOVE TO RENDERABLE
@@ -59,8 +55,6 @@ void Gfx::init() {
 
   // can stay
   createDescriptorSets();
-  // TODO MOVE TO CMDR
-  createCommandBuffers();
 
   // init synchro
   synchro_.setDvcePtr(dvce_);
@@ -81,8 +75,11 @@ void Gfx::deviceWaitIdle() { dvce_.waitIdle(); }
 void Gfx::createRenderPass() {
   util::log("Creating renderpass...");
 
+  // get some swapchain details here:
+  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvce_.getPhysical(), dvce_.getSurface());
+
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = swpchn_.getSwapFormat();
+  colorAttachment.format = util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -393,6 +390,58 @@ void Gfx::createDescriptorSets() {
 }
 
 /*-----------------------------------------------------------------------------
+-----------------------------UNIFORM-BUFFERS-----------------------------------
+-----------------------------------------------------------------------------*/
+
+void Gfx::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            uniformBuffers_[i], uniformBuffersMemory_[i],
+            dvce_.getLogical(), dvce_.getPhysical());
+
+        vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0,
+            &uniformBuffersMapped_[i]);
+    }
+}
+
+void Gfx::updateUniformBuffer(uint32_t currentImage) {
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(
+        currentTime - startTime)
+        .count();
+
+    UniformBufferObject ubo{};
+    // DO ROTATION
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f));
+    // ubo.model = glm::mat4(1.0f);
+
+    ubo.view =
+        glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = // glm::rotate(
+        glm::perspective(glm::radians(30.0f),
+            swpchn_.getSwapExtent().width /
+            (float)swpchn_.getSwapExtent().height,
+            0.1f, 10.0f); //,
+    // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
+
+    ubo.proj[1][1] *= -1;
+
+    memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
+}
+
+/*-----------------------------------------------------------------------------
 ------------------------------CLEANUP------------------------------------------
 -----------------------------------------------------------------------------*/
 void Gfx::cleanup() {
@@ -411,7 +460,8 @@ void Gfx::cleanup() {
   util::log("Destroying render pass...");
   vkDestroyRenderPass(dvce_.getLogical(), renderPass_, nullptr);
 
-  // FIXME
+  // its okay
+  util::log("Destroying uniform buffers...");
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroyBuffer(dvce_.getLogical(), uniformBuffers_[i], nullptr);
     vkFreeMemory(dvce_.getLogical(), uniformBuffersMemory_[i], nullptr);
@@ -466,9 +516,9 @@ void Gfx::tempDrawFrame() {
   vkResetFences(dvce_.getLogical(), 1,
                 &synchro_.getInFlightFences()[currentFrame_]);
 
-  vkResetCommandBuffer(commandBuffers_[currentFrame_],
+  vkResetCommandBuffer(cmdr_.getCommandBuffers()[currentFrame_],
                        /*VkCommandBufferResetFlagBits*/ 0);
-  recordCommandBuffer(commandBuffers_[currentFrame_], imageIndex);
+  recordCommandBuffer(cmdr_.getCommandBuffers()[currentFrame_], imageIndex);
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -482,7 +532,7 @@ void Gfx::tempDrawFrame() {
   submitInfo.pWaitDstStageMask = waitStages;
 
   submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffers_[currentFrame_];
+  submitInfo.pCommandBuffers = &cmdr_.getCommandBuffers()[currentFrame_];
 
   VkSemaphore signalSemaphores[] = {
       synchro_.getRenderFinishedSemaphores()[currentFrame_]};
@@ -517,6 +567,69 @@ void Gfx::tempDrawFrame() {
   }
 
   currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Gfx::recordCommandBuffer(VkCommandBuffer commandBuffer,
+    uint32_t imageIndex) {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass_;
+    renderPassInfo.framebuffer = swpchn_.getFrameBuffers()[imageIndex];
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = swpchn_.getSwapExtent();
+
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+    clearValues[1].depthStencil = { 1.0f, 0 };
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
+        VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        graphicsPipeline_);
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)swpchn_.getSwapExtent().width;
+    viewport.height = (float)swpchn_.getSwapExtent().height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = { 0, 0 };
+    scissor.extent = swpchn_.getSwapExtent();
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+    VkBuffer vertexBuffers[] = { vertexBuffer_ };
+    VkDeviceSize offsets[] = { 0 };
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        pipelineLayout_, 0, 1,
+        &descriptorSets_[currentFrame_], 0, nullptr);
+
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(input_indices.size()),
+        1, 0, 0, 0);
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+        throw std::runtime_error("failed to record command buffer!");
+    }
 }
 
 void Gfx::createVertexBuffer() {
@@ -573,132 +686,6 @@ void Gfx::createIndexBuffer() {
 
   vkDestroyBuffer(dvce_.getLogical(), stagingBuffer, nullptr);
   vkFreeMemory(dvce_.getLogical(), stagingBufferMemory, nullptr);
-}
-
-void Gfx::createUniformBuffers() {
-  VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-  uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-  uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
-  uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
-
-  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                       uniformBuffers_[i], uniformBuffersMemory_[i],
-                       dvce_.getLogical(), dvce_.getPhysical());
-
-    vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0,
-                &uniformBuffersMapped_[i]);
-  }
-}
-
-void Gfx::updateUniformBuffer(uint32_t currentImage) {
-  static auto startTime = std::chrono::high_resolution_clock::now();
-
-  auto currentTime = std::chrono::high_resolution_clock::now();
-  float time = std::chrono::duration<float, std::chrono::seconds::period>(
-                   currentTime - startTime)
-                   .count();
-
-  UniformBufferObject ubo{};
-  // DO ROTATION
-  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
-                          glm::vec3(0.0f, 0.0f, 1.0f));
-  // ubo.model = glm::mat4(1.0f);
-
-  ubo.view =
-      glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                  glm::vec3(0.0f, 0.0f, 1.0f));
-  ubo.proj = // glm::rotate(
-      glm::perspective(glm::radians(30.0f),
-                       swpchn_.getSwapExtent().width /
-                           (float)swpchn_.getSwapExtent().height,
-                       0.1f, 10.0f); //,
-  // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
-
-  ubo.proj[1][1] *= -1;
-
-  memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
-}
-
-void Gfx::recordCommandBuffer(VkCommandBuffer commandBuffer,
-                              uint32_t imageIndex) {
-  VkCommandBufferBeginInfo beginInfo{};
-  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-  if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-    throw std::runtime_error("failed to begin recording command buffer!");
-  }
-
-  VkRenderPassBeginInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = renderPass_;
-  renderPassInfo.framebuffer = swpchn_.getFrameBuffers()[imageIndex];
-  renderPassInfo.renderArea.offset = {0, 0};
-  renderPassInfo.renderArea.extent = swpchn_.getSwapExtent();
-
-  std::array<VkClearValue, 2> clearValues{};
-  clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-  clearValues[1].depthStencil = {1.0f, 0};
-
-  renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-  renderPassInfo.pClearValues = clearValues.data();
-
-  vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
-                       VK_SUBPASS_CONTENTS_INLINE);
-
-  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    graphicsPipeline_);
-
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = (float)swpchn_.getSwapExtent().width;
-  viewport.height = (float)swpchn_.getSwapExtent().height;
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-  VkRect2D scissor{};
-  scissor.offset = {0, 0};
-  scissor.extent = swpchn_.getSwapExtent();
-  vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-  VkBuffer vertexBuffers[] = {vertexBuffer_};
-  VkDeviceSize offsets[] = {0};
-  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-  vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT16);
-
-  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          pipelineLayout_, 0, 1,
-                          &descriptorSets_[currentFrame_], 0, nullptr);
-
-  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(input_indices.size()),
-                   1, 0, 0, 0);
-
-  vkCmdEndRenderPass(commandBuffer);
-
-  if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-    throw std::runtime_error("failed to record command buffer!");
-  }
-}
-
-void Gfx::createCommandBuffers() {
-  commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-
-  VkCommandBufferAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = cmdr_.getCommandPool();
-  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
-
-  if (vkAllocateCommandBuffers(dvce_.getLogical(), &allocInfo,
-                               commandBuffers_.data()) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate command buffers!");
-  }
 }
 
 /*--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--

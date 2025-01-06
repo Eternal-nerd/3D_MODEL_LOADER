@@ -9,7 +9,10 @@ Swpchn::~Swpchn() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Swpchn::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
+void Swpchn::setAccessPtrs(const Dvce& dvce, const VkRenderPass& renderPass) { 
+    dvcePtr_ = &dvce;
+    renderPassPtr_ = &renderPass;
+}
 
 void Swpchn::preInit() {
   util::log("Getting some swapchain details...");
@@ -18,10 +21,6 @@ void Swpchn::preInit() {
   swapChainImageFormat_ = util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
   swapChainExtent_ = util::chooseSwapExtent(swapChainSupport.capabilities,
                                             dvcePtr_->getWindowPtr());
-}
-
-void Swpchn::setRenderPassPtr(const VkRenderPass &renderPass) {
-  renderPassPtr_ = &renderPass;
 }
 
 void Swpchn::init() {
@@ -105,17 +104,6 @@ void Swpchn::createSwapChain() {
 }
 
 void Swpchn::recreateSwapChain() {
-  int width = 0, height = 0;
-  SDL_GetWindowSizeInPixels(dvcePtr_->getWindowPtr(), &width, &height);
-
-
-  SDL_Event e;
-  bool result;
-  while (width == 0 || height == 0) {
-    SDL_GetWindowSizeInPixels(dvcePtr_->getWindowPtr(), &width, &height);
-    result = SDL_WaitEvent(&e);
-  }
-
   dvcePtr_->waitIdle();
 
   cleanup();

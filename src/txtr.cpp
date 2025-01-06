@@ -12,9 +12,10 @@ Txtr::~Txtr() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Txtr::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
-
-void Txtr::setCmdrPtr(Cmdr &cmdr) { cmdrPtr_ = &cmdr; }
+void Txtr::setAccessPtrs(const Dvce& dvce, Cmdr& cmdr) { 
+    dvcePtr_ = &dvce;
+    cmdrPtr_ = &cmdr;
+}
 
 void Txtr::create(const std::string &filename) {
   util::log("Creating texture...");
