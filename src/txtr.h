@@ -14,7 +14,7 @@ public:
   ~Txtr();
 
   // to give texture access to stuff
-  void setAccessPtrs(const Dvce &dvce, Cmdr& cmdr);
+  void setAccessPtrs(const Dvce &dvce, Cmdr &cmdr);
 
   void create(const std::string &filename);
 

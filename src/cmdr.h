@@ -24,7 +24,7 @@ public:
 
   // getters
   const VkCommandPool &getCommandPool() const;
-  const std::vector<VkCommandBuffer>& getCommandBuffers() const;
+  const std::vector<VkCommandBuffer> &getCommandBuffers() const;
 
   void cleanup();
 

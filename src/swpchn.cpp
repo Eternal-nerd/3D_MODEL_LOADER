@@ -9,23 +9,24 @@ Swpchn::~Swpchn() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Swpchn::setAccessPtrs(const Dvce& dvce, const VkRenderPass& renderPass) { 
-    dvcePtr_ = &dvce;
-    renderPassPtr_ = &renderPass;
+void Swpchn::setAccessPtrs(const Dvce &dvce, const VkRenderPass &renderPass) {
+  dvcePtr_ = &dvce;
+  renderPassPtr_ = &renderPass;
 }
 
 void Swpchn::preInit() {
   util::log("Getting some swapchain details...");
-  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvcePtr_->getPhysical(),
-                                                  dvcePtr_->getSurface());
-  swapChainImageFormat_ = util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
+  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(
+      dvcePtr_->getPhysical(), dvcePtr_->getSurface());
+  swapChainImageFormat_ =
+      util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
   swapChainExtent_ = util::chooseSwapExtent(swapChainSupport.capabilities,
                                             dvcePtr_->getWindowPtr());
 }
 
 void Swpchn::init() {
   util::log("Initializing swpchn...");
-  
+
   createSwapChain();
   createImageViews();
   createDepthResources();
@@ -48,10 +49,14 @@ const std::vector<VkFramebuffer> &Swpchn::getFrameBuffers() const {
 void Swpchn::createSwapChain() {
   util::log("Creating swapchain...");
 
-  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvcePtr_->getPhysical(), dvcePtr_->getSurface());
-  VkSurfaceFormatKHR surfaceFormat = util::chooseSwapSurfaceFormat(swapChainSupport.formats);
-  VkPresentModeKHR presentMode = util::chooseSwapPresentMode(swapChainSupport.presentModes);
-  VkExtent2D extent = util::chooseSwapExtent(swapChainSupport.capabilities, dvcePtr_->getWindowPtr());
+  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(
+      dvcePtr_->getPhysical(), dvcePtr_->getSurface());
+  VkSurfaceFormatKHR surfaceFormat =
+      util::chooseSwapSurfaceFormat(swapChainSupport.formats);
+  VkPresentModeKHR presentMode =
+      util::chooseSwapPresentMode(swapChainSupport.presentModes);
+  VkExtent2D extent = util::chooseSwapExtent(swapChainSupport.capabilities,
+                                             dvcePtr_->getWindowPtr());
 
   uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&

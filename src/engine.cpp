@@ -5,9 +5,6 @@
 #include <stdexcept>
 #include <thread>
 
-// my abstractions
-#include "util.h"
-
 Engine::Engine() {}
 
 Engine::~Engine() {}
@@ -49,6 +46,13 @@ void Engine::init() {
   // Initialize gfx
   gfx_.setWindowPtr(window_);
   gfx_.init();
+
+  // TODO: generate renderables here
+}
+
+void Engine::generateRenderables() {
+  util::log("Generating renderables... ");
+  
 }
 
 /*-----------------------------------------------------------------------------

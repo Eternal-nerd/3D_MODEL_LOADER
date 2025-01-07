@@ -67,7 +67,7 @@ private:
 
   std::vector<VkBuffer> uniformBuffers_;
   std::vector<VkDeviceMemory> uniformBuffersMemory_;
-  std::vector<void*> uniformBuffersMapped_;
+  std::vector<void *> uniformBuffersMapped_;
 
   std::vector<VkDescriptorSet> descriptorSets_;
 
@@ -85,15 +85,6 @@ private:
   // Maybe not here?
   void createDescriptorPool();
   void createDescriptorSets();
-
-  // TODO REMOVE AND REPLACE WITH RENDERABLE CLASS STUFF
-  void createVertexBuffer();
-  void createIndexBuffer();
-  VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
-  VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
-  VkBuffer indexBuffer_ = VK_NULL_HANDLE;
-  VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
-  // END REMOVE
 
   // TODO MOVE TO CMDR CLASS?
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);

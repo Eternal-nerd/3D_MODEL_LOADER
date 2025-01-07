@@ -12,9 +12,9 @@ Txtr::~Txtr() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Txtr::setAccessPtrs(const Dvce& dvce, Cmdr& cmdr) { 
-    dvcePtr_ = &dvce;
-    cmdrPtr_ = &cmdr;
+void Txtr::setAccessPtrs(const Dvce &dvce, Cmdr &cmdr) {
+  dvcePtr_ = &dvce;
+  cmdrPtr_ = &cmdr;
 }
 
 void Txtr::create(const std::string &filename) {
