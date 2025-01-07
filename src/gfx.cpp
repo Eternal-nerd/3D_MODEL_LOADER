@@ -48,8 +48,6 @@ void Gfx::init() {
   txtr_.create("../res/test.jpg");
 
   // TODO MOVE TO RENDERABLE
-  createVertexBuffer();
-  createIndexBuffer();
   createUniformBuffers();
   // END REMOVE
 
@@ -59,6 +57,9 @@ void Gfx::init() {
   // init synchro
   synchro_.setDvcePtr(dvce_);
   synchro_.init(MAX_FRAMES_IN_FLIGHT);
+
+  createVertexBuffer();
+  createIndexBuffer();
 }
 
 /*-----------------------------------------------------------------------------

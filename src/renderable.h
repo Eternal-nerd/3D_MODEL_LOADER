@@ -4,7 +4,7 @@ class Renderable {
 public:
 	Renderable();
 	~Renderable();
-	 // void
+	 // voidcd 
 
 
 
