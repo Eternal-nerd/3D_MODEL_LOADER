@@ -3,7 +3,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 
+// my abstractions
+#include "util.h"
 #include "gfx.h"
+#include "renderable.h"
 
 const uint32_t WIDTH = 300;
 const uint32_t HEIGHT = 200;
@@ -24,8 +27,12 @@ private:
   // Gfx (Vulkan), used to draw Renderable objects
   Gfx gfx_;
 
+  std::vector<Renderable> renderables_ = {};
+
   // initializes the application
   void init();
+
+  void generateRenderables();
 
   // loop that executes for each frame
   void renderLoop();

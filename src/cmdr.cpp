@@ -27,26 +27,28 @@ void Cmdr::createCommandPool() {
 }
 
 void Cmdr::createCommandBuffers(int maxFramesInFlight) {
-    util::log("Creating command buffers...");
-    commandBuffers_.resize(maxFramesInFlight);
+  util::log("Creating command buffers...");
+  commandBuffers_.resize(maxFramesInFlight);
 
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool_;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
+  VkCommandBufferAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  allocInfo.commandPool = commandPool_;
+  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
 
-    if (vkAllocateCommandBuffers(dvcePtr_->getLogical(), &allocInfo,
-        commandBuffers_.data()) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
+  if (vkAllocateCommandBuffers(dvcePtr_->getLogical(), &allocInfo,
+                               commandBuffers_.data()) != VK_SUCCESS) {
+    throw std::runtime_error("failed to allocate command buffers!");
+  }
 }
 
 /*-----------------------------------------------------------------------------
 -----------------------------GETTERS-------------------------------------------
 -----------------------------------------------------------------------------*/
 const VkCommandPool &Cmdr::getCommandPool() const { return commandPool_; }
-const std::vector<VkCommandBuffer>& Cmdr::getCommandBuffers() const { return commandBuffers_; }
+const std::vector<VkCommandBuffer> &Cmdr::getCommandBuffers() const {
+  return commandBuffers_;
+}
 
 /*-----------------------------------------------------------------------------
 ------------------------------SINGLE-TIMERS------------------------------------

@@ -5,9 +5,6 @@
 #include <stdexcept>
 #include <thread>
 
-// my abstractions
-#include "util.h"
-
 Engine::Engine() {}
 
 Engine::~Engine() {}
@@ -49,6 +46,46 @@ void Engine::init() {
   // Initialize gfx
   gfx_.setWindowPtr(window_);
   gfx_.init();
+
+  // TODO: generate renderables here
+  generateRenderables();
+}
+
+void Engine::generateRenderables() {
+  util::log("Generating renderables... ");
+
+  //for (int i = 0; i < 5; i++) {
+
+    RenderableData data;
+    data.vertices = {
+    {{-0.5, -0.5, 0.5}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, 
+    {{0.5, -0.5, 0.5}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5, 0.5, 0.5}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+    {{-0.5, 0.5, 0.5}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5, -0.5, -0.5}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5, -0.5, -0.5}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5, 0.5, -0.5}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+    {{-0.5, 0.5, -0.5}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}} };
+
+    data.indices = {
+    0, 1, 2, 2, 3, 0, // top face
+    6, 5, 4, 4, 7, 6, // bottom face
+    4, 1, 0, 4, 5, 1, 
+    5, 2, 1, 5, 6, 2,
+    6, 3, 2, 6, 7, 3,
+    7, 4, 3, 4, 0, 3
+    };
+
+    RenderableAccess access;
+    gfx_.getRenderableAccess(access);
+
+    Renderable r;
+
+    r.init(data, access);
+
+    renderables_.push_back(r);
+  //}
+
 }
 
 /*-----------------------------------------------------------------------------
@@ -71,7 +108,7 @@ void Engine::renderLoop() {
     swapBuffers();
 
     // Limit FPS if wanted:
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // set another timepoint
     auto stopTime = std::chrono::high_resolution_clock::now();
@@ -111,8 +148,18 @@ void Engine::updateScene() {}
 ------------------------------GFX-RENDERING------------------------------------
 -----------------------------------------------------------------------------*/
 void Engine::renderScene() {
-  // device wait idle here?
-  gfx_.tempDrawFrame();
+    VkCommandBuffer commandBuffer;
+
+    commandBuffer = gfx_.beginFrame();
+
+    // draw renderables
+    for (auto renderable : renderables_) {
+        renderable.bind(commandBuffer);
+        renderable.draw(commandBuffer);
+    }
+
+    gfx_.endFrame(commandBuffer);
+
 }
 
 void Engine::swapBuffers() {}
@@ -124,7 +171,13 @@ void Engine::cleanup() {
   util::log("Cleaning up engine...");
 
   // cleanup gfx
-  gfx_.cleanup();
+  gfx_.cleanupStart();
+
+  for (auto r : renderables_) {
+      r.cleanup();
+  }
+
+  gfx_.cleanupEnd();
 
   util::log("Cleaning up SDL...");
   SDL_DestroyWindow(window_);

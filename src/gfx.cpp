@@ -5,8 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 Gfx::Gfx() {}
 Gfx::~Gfx() {}
@@ -47,9 +47,10 @@ void Gfx::init() {
   txtr_.setAccessPtrs(dvce_, cmdr_);
   txtr_.create("../res/test.jpg");
 
-  // TODO MOVE TO RENDERABLE
+
   createUniformBuffers();
-  // END REMOVE
+
+  // FYI THis is where the vertex and index buffers were created
 
   // can stay
   createDescriptorSets();
@@ -57,15 +58,152 @@ void Gfx::init() {
   // init synchro
   synchro_.setDvcePtr(dvce_);
   synchro_.init(MAX_FRAMES_IN_FLIGHT);
-
-  createVertexBuffer();
-  createIndexBuffer();
 }
 
 /*-----------------------------------------------------------------------------
 ------------------------------DRAW-SHIT----------------------------------------
 -----------------------------------------------------------------------------*/
-void Gfx::drawRenderable() {}
+VkCommandBuffer Gfx::beginFrame() {
+
+    VkCommandBuffer commandBuffer = cmdr_.getCommandBuffers()[currentFrame_];
+
+    vkWaitForFences(dvce_.getLogical(), 1,
+        &synchro_.getInFlightFences()[currentFrame_], VK_TRUE,
+        UINT64_MAX);
+
+    VkResult result = vkAcquireNextImageKHR(
+        dvce_.getLogical(), swpchn_.getSwapChain(), UINT64_MAX,
+        synchro_.getImageAvailableSemaphores()[currentFrame_], VK_NULL_HANDLE,
+        &imageIndex_);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        swpchn_.recreate();
+        return commandBuffer;
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    updateUniformBuffer(currentFrame_);
+
+    vkResetFences(dvce_.getLogical(), 1,
+        &synchro_.getInFlightFences()[currentFrame_]);
+
+    vkResetCommandBuffer(commandBuffer,
+        /*VkCommandBufferResetFlagBits*/ 0);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass_;
+    renderPassInfo.framebuffer = swpchn_.getFrameBuffers()[imageIndex_];
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = swpchn_.getSwapExtent();
+
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+    clearValues[1].depthStencil = { 1.0f, 0 };
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
+        VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        graphicsPipeline_);
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)swpchn_.getSwapExtent().width;
+    viewport.height = (float)swpchn_.getSwapExtent().height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = { 0, 0 };
+    scissor.extent = swpchn_.getSwapExtent();
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+    // TODO where does this next line go???
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        pipelineLayout_, 0, 1,
+        &descriptorSets_[currentFrame_], 0, nullptr);
+
+    return commandBuffer;
+}
+
+void Gfx::endFrame(VkCommandBuffer commandBuffer) {
+    vkCmdEndRenderPass(commandBuffer);
+
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+        throw std::runtime_error("failed to record command buffer!");
+    }
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {
+        synchro_.getImageAvailableSemaphores()[currentFrame_] };
+    VkPipelineStageFlags waitStages[] = {
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    VkSemaphore signalSemaphores[] = {
+        synchro_.getRenderFinishedSemaphores()[currentFrame_] };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(dvce_.getGraphicsQue(), 1, &submitInfo,
+        synchro_.getInFlightFences()[currentFrame_]) !=
+        VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = { swpchn_.getSwapChain() };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+
+    presentInfo.pImageIndices = &imageIndex_;
+
+    VkResult result = vkQueuePresentKHR(dvce_.getPresentQue(), &presentInfo);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        swpchn_.recreate();
+    }
+    else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+
+    currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+/*-----------------------------------------------------------------------------
+------------------------------GETTERS------------------------------------------
+-----------------------------------------------------------------------------*/
+void Gfx::getRenderableAccess(RenderableAccess& access) {
+    access.dvcePtr = &dvce_;
+    access.cmdrPtr = &cmdr_;
+}
 
 void Gfx::deviceWaitIdle() { dvce_.waitIdle(); }
 
@@ -77,10 +215,12 @@ void Gfx::createRenderPass() {
   util::log("Creating renderpass...");
 
   // get some swapchain details here:
-  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(dvce_.getPhysical(), dvce_.getSurface());
+  SwapChainSupportDetails swapChainSupport =
+      util::querySwapChainSupport(dvce_.getPhysical(), dvce_.getSurface());
 
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
+  colorAttachment.format =
+      util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -143,39 +283,8 @@ void Gfx::createRenderPass() {
 }
 
 /*-----------------------------------------------------------------------------
-------------------------------PIPELINE-AND-LAYOUTS-----------------------------
+-----------------------------GFX-PIPELINE--------------------------------------
 -----------------------------------------------------------------------------*/
-
-void Gfx::createDescriptorSetLayout() {
-  util::log("Creating descriptor set layout...");
-  VkDescriptorSetLayoutBinding uboLayoutBinding{};
-  uboLayoutBinding.binding = 0;
-  uboLayoutBinding.descriptorCount = 1;
-  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  uboLayoutBinding.pImmutableSamplers = nullptr;
-  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-  VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-  samplerLayoutBinding.binding = 1;
-  samplerLayoutBinding.descriptorCount = 1;
-  samplerLayoutBinding.descriptorType =
-      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  samplerLayoutBinding.pImmutableSamplers = nullptr;
-  samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-  std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding,
-                                                          samplerLayoutBinding};
-  VkDescriptorSetLayoutCreateInfo layoutInfo{};
-  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-  layoutInfo.pBindings = bindings.data();
-
-  if (vkCreateDescriptorSetLayout(dvce_.getLogical(), &layoutInfo, nullptr,
-                                  &descriptorSetLayout_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create descriptor set layout!");
-  }
-}
-
 void Gfx::createGraphicsPipeline() {
   util::log("Creating graphics pipeline...");
   auto vertShaderCode = util::readFile("../shaders/vert.spv");
@@ -234,7 +343,7 @@ void Gfx::createGraphicsPipeline() {
   // Options: POINT, LINE, FILL
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL; // FIXME2
   rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_NONE; // BACK_BIT; // FIXME
+  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // _NONE; // fixme
   rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
   rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -318,6 +427,37 @@ void Gfx::createGraphicsPipeline() {
 /*-----------------------------------------------------------------------------
 -----------------------------DESCRIPTOR----------------------------------------
 -----------------------------------------------------------------------------*/
+void Gfx::createDescriptorSetLayout() {
+  util::log("Creating descriptor set layout...");
+  VkDescriptorSetLayoutBinding uboLayoutBinding{};
+  uboLayoutBinding.binding = 0;
+  uboLayoutBinding.descriptorCount = 1;
+  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  uboLayoutBinding.pImmutableSamplers = nullptr;
+  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+  VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+  samplerLayoutBinding.binding = 1;
+  samplerLayoutBinding.descriptorCount = 1;
+  samplerLayoutBinding.descriptorType =
+      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  samplerLayoutBinding.pImmutableSamplers = nullptr;
+  samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+  std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding,
+                                                          samplerLayoutBinding};
+  VkDescriptorSetLayoutCreateInfo layoutInfo{};
+  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+  layoutInfo.pBindings = bindings.data();
+
+  if (vkCreateDescriptorSetLayout(dvce_.getLogical(), &layoutInfo, nullptr,
+                                  &descriptorSetLayout_) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create descriptor set layout!");
+  }
+}
+
+
 void Gfx::createDescriptorPool() {
   util::log("Creating descriptor pool...");
   std::array<VkDescriptorPoolSize, 2> poolSizes{};
@@ -395,58 +535,61 @@ void Gfx::createDescriptorSets() {
 -----------------------------------------------------------------------------*/
 
 void Gfx::createUniformBuffers() {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+  VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
+  uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+  uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
+  uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            uniformBuffers_[i], uniformBuffersMemory_[i],
-            dvce_.getLogical(), dvce_.getPhysical());
+  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                       uniformBuffers_[i], uniformBuffersMemory_[i],
+                       dvce_.getLogical(), dvce_.getPhysical());
 
-        vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0,
-            &uniformBuffersMapped_[i]);
-    }
+    vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0,
+                &uniformBuffersMapped_[i]);
+  }
 }
 
 void Gfx::updateUniformBuffer(uint32_t currentImage) {
-    static auto startTime = std::chrono::high_resolution_clock::now();
+  static auto startTime = std::chrono::high_resolution_clock::now();
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(
-        currentTime - startTime)
-        .count();
+  auto currentTime = std::chrono::high_resolution_clock::now();
+  float time = std::chrono::duration<float, std::chrono::seconds::period>(
+                   currentTime - startTime)
+                   .count();
 
-    UniformBufferObject ubo{};
-    // DO ROTATION
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f));
-    // ubo.model = glm::mat4(1.0f);
+  time *= 3;
 
-    ubo.view =
-        glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = // glm::rotate(
-        glm::perspective(glm::radians(30.0f),
-            swpchn_.getSwapExtent().width /
-            (float)swpchn_.getSwapExtent().height,
-            0.1f, 10.0f); //,
-    // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
+  UniformBufferObject ubo{};
+  // DO ROTATION
+  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+                          glm::vec3(0.0f, 0.0f, 1.0f));
+  ubo.model = glm::rotate(ubo.model, time * glm::radians(40.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f));
 
-    ubo.proj[1][1] *= -1;
+  ubo.view =
+      glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                  glm::vec3(0.0f, 0.0f, 1.0f));
+  ubo.proj = // glm::rotate(
+      glm::perspective(glm::radians(30.0f),
+                       swpchn_.getSwapExtent().width /
+                           (float)swpchn_.getSwapExtent().height,
+                       0.1f, 10.0f); //,
+  // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
 
-    memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
+  ubo.proj[1][1] *= -1;
+
+  memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
 }
 
 /*-----------------------------------------------------------------------------
 ------------------------------CLEANUP------------------------------------------
 -----------------------------------------------------------------------------*/
-void Gfx::cleanup() {
-  util::log("Cleaning up Gfx...");
+void Gfx::cleanupStart() {
+  util::log("Starting to clean up Gfx...");
 
   // cleanup swapchain
   swpchn_.cleanup();
@@ -474,221 +617,17 @@ void Gfx::cleanup() {
   vkDestroyDescriptorSetLayout(dvce_.getLogical(), descriptorSetLayout_,
                                nullptr);
 
-  // FIXME
-  vkDestroyBuffer(dvce_.getLogical(), indexBuffer_, nullptr);
-  vkFreeMemory(dvce_.getLogical(), indexBufferMemory_, nullptr);
-  vkDestroyBuffer(dvce_.getLogical(), vertexBuffer_, nullptr);
-  vkFreeMemory(dvce_.getLogical(), vertexBufferMemory_, nullptr);
-
-  synchro_.cleanup();
-
-  cmdr_.cleanup();
-
-  /* cleanup dvce
-   * ... explain whats cleaned up here
-   */
-  dvce_.cleanup();
 }
 
-/*--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--
---!--!--!--!--!--!--!--!--!---TEMPORARY--!--!--!--!--!--!--!--!--!--!--!--!--!-
-----!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!---*/
+void Gfx::cleanupEnd() {
+    util::log("Finishing cleaning up Gfx...");
 
-void Gfx::tempDrawFrame() {
-  vkWaitForFences(dvce_.getLogical(), 1,
-                  &synchro_.getInFlightFences()[currentFrame_], VK_TRUE,
-                  UINT64_MAX);
+    synchro_.cleanup();
 
-  uint32_t imageIndex;
-  VkResult result = vkAcquireNextImageKHR(
-      dvce_.getLogical(), swpchn_.getSwapChain(), UINT64_MAX,
-      synchro_.getImageAvailableSemaphores()[currentFrame_], VK_NULL_HANDLE,
-      &imageIndex);
+    cmdr_.cleanup();
 
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    swpchn_.recreate();
-    return;
-  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-    throw std::runtime_error("failed to acquire swap chain image!");
-  }
-
-  updateUniformBuffer(currentFrame_);
-
-  vkResetFences(dvce_.getLogical(), 1,
-                &synchro_.getInFlightFences()[currentFrame_]);
-
-  vkResetCommandBuffer(cmdr_.getCommandBuffers()[currentFrame_],
-                       /*VkCommandBufferResetFlagBits*/ 0);
-  recordCommandBuffer(cmdr_.getCommandBuffers()[currentFrame_], imageIndex);
-
-  VkSubmitInfo submitInfo{};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-  VkSemaphore waitSemaphores[] = {
-      synchro_.getImageAvailableSemaphores()[currentFrame_]};
-  VkPipelineStageFlags waitStages[] = {
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = waitSemaphores;
-  submitInfo.pWaitDstStageMask = waitStages;
-
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &cmdr_.getCommandBuffers()[currentFrame_];
-
-  VkSemaphore signalSemaphores[] = {
-      synchro_.getRenderFinishedSemaphores()[currentFrame_]};
-  submitInfo.signalSemaphoreCount = 1;
-  submitInfo.pSignalSemaphores = signalSemaphores;
-
-  if (vkQueueSubmit(dvce_.getGraphicsQue(), 1, &submitInfo,
-                    synchro_.getInFlightFences()[currentFrame_]) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to submit draw command buffer!");
-  }
-
-  VkPresentInfoKHR presentInfo{};
-  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-  presentInfo.waitSemaphoreCount = 1;
-  presentInfo.pWaitSemaphores = signalSemaphores;
-
-  VkSwapchainKHR swapChains[] = {swpchn_.getSwapChain()};
-  presentInfo.swapchainCount = 1;
-  presentInfo.pSwapchains = swapChains;
-
-  presentInfo.pImageIndices = &imageIndex;
-
-  result = vkQueuePresentKHR(dvce_.getPresentQue(), &presentInfo);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-    swpchn_.recreate();
-  } 
-  else if (result != VK_SUCCESS) {
-    throw std::runtime_error("failed to present swap chain image!");
-  }
-
-  currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+    /* cleanup dvce
+     * ... explain whats cleaned up here
+     */
+    dvce_.cleanup();
 }
-
-void Gfx::recordCommandBuffer(VkCommandBuffer commandBuffer,
-    uint32_t imageIndex) {
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-        throw std::runtime_error("failed to begin recording command buffer!");
-    }
-
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass_;
-    renderPassInfo.framebuffer = swpchn_.getFrameBuffers()[imageIndex];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = swpchn_.getSwapExtent();
-
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
-        VK_SUBPASS_CONTENTS_INLINE);
-
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        graphicsPipeline_);
-
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = (float)swpchn_.getSwapExtent().width;
-    viewport.height = (float)swpchn_.getSwapExtent().height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-    VkRect2D scissor{};
-    scissor.offset = { 0, 0 };
-    scissor.extent = swpchn_.getSwapExtent();
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-    VkBuffer vertexBuffers[] = { vertexBuffer_ };
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT16);
-
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        pipelineLayout_, 0, 1,
-        &descriptorSets_[currentFrame_], 0, nullptr);
-
-    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(input_indices.size()),
-        1, 0, 0, 0);
-
-    vkCmdEndRenderPass(commandBuffer);
-
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("failed to record command buffer!");
-    }
-}
-
-void Gfx::createVertexBuffer() {
-  VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-  VkBuffer stagingBuffer;
-  VkDeviceMemory stagingBufferMemory;
-  util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     stagingBuffer, stagingBufferMemory, dvce_.getLogical(),
-                     dvce_.getPhysical());
-
-  void *data;
-  vkMapMemory(dvce_.getLogical(), stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, vertices.data(), (size_t)bufferSize);
-  vkUnmapMemory(dvce_.getLogical(), stagingBufferMemory);
-
-  util::createBuffer(
-      bufferSize,
-      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_,
-      dvce_.getLogical(), dvce_.getPhysical());
-
-  util::copyBuffer(stagingBuffer, vertexBuffer_, bufferSize, cmdr_);
-
-  vkDestroyBuffer(dvce_.getLogical(), stagingBuffer, nullptr);
-  vkFreeMemory(dvce_.getLogical(), stagingBufferMemory, nullptr);
-}
-
-void Gfx::createIndexBuffer() {
-  VkDeviceSize bufferSize = sizeof(input_indices[0]) * input_indices.size();
-
-  VkBuffer stagingBuffer;
-  VkDeviceMemory stagingBufferMemory;
-  util::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     stagingBuffer, stagingBufferMemory, dvce_.getLogical(),
-                     dvce_.getPhysical());
-
-  void *data;
-  vkMapMemory(dvce_.getLogical(), stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, input_indices.data(), (size_t)bufferSize);
-  vkUnmapMemory(dvce_.getLogical(), stagingBufferMemory);
-
-  util::createBuffer(
-      bufferSize,
-      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer_, indexBufferMemory_,
-      dvce_.getLogical(), dvce_.getPhysical());
-
-  util::copyBuffer(stagingBuffer, indexBuffer_, bufferSize, cmdr_);
-
-  vkDestroyBuffer(dvce_.getLogical(), stagingBuffer, nullptr);
-  vkFreeMemory(dvce_.getLogical(), stagingBufferMemory, nullptr);
-}
-
-/*--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--
---!--!--!--!--!--!--!--!--END-TEMPORARY--!--!--!--!--!--!--!--!--!--!--!--!--!-
-----!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!--!---*/
