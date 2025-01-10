@@ -561,8 +561,6 @@ void Gfx::updateUniformBuffer(uint32_t currentImage) {
                    currentTime - startTime)
                    .count();
 
-  time *= 3;
-
   UniformBufferObject ubo{};
   // DO ROTATION
   ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
