@@ -43,7 +43,7 @@ void Gfx::init() {
   // create texture TODO make this more efficient because there will prob be
   // many textures
   txtr_.setAccessPtrs(dvce_, cmdr_);
-  txtr_.create("../res/test.jpg");
+  txtr_.create("../res/mclovin.jpg");
 
   // init synchro
   synchro_.setDvcePtr(dvce_);
@@ -54,7 +54,7 @@ void Gfx::init() {
   createUniformBuffers();
 
   // FYI THis is where the vertex and index buffers were created
-
+  
   // can stay
   createDescriptorPool();
 
