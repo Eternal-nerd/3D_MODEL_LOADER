@@ -34,8 +34,6 @@ void Gfx::init() {
   createDescriptorSetLayout();
   // create pipeline
   createGraphicsPipeline();
-  // create descriptor pool
-  createDescriptorPool();
 
   // create cmdr
   cmdr_.setDvcePtr(dvce_);
@@ -47,17 +45,20 @@ void Gfx::init() {
   txtr_.setAccessPtrs(dvce_, cmdr_);
   txtr_.create("../res/test.jpg");
 
+  // init synchro
+  synchro_.setDvcePtr(dvce_);
+  synchro_.init(MAX_FRAMES_IN_FLIGHT);
 
+
+  // TODO MOVE TO RENDERABLE
   createUniformBuffers();
 
   // FYI THis is where the vertex and index buffers were created
 
   // can stay
-  createDescriptorSets();
+  createDescriptorPool();
 
-  // init synchro
-  synchro_.setDvcePtr(dvce_);
-  synchro_.init(MAX_FRAMES_IN_FLIGHT);
+  createDescriptorSets();
 }
 
 /*-----------------------------------------------------------------------------
@@ -535,52 +536,49 @@ void Gfx::createDescriptorSets() {
 -----------------------------------------------------------------------------*/
 
 void Gfx::createUniformBuffers() {
-  VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-  uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-  uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
-  uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMemory_.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMapped_.resize(MAX_FRAMES_IN_FLIGHT);
 
-  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                       uniformBuffers_[i], uniformBuffersMemory_[i],
-                       dvce_.getLogical(), dvce_.getPhysical());
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        util::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            uniformBuffers_[i], uniformBuffersMemory_[i],
+            dvce_.getLogical(), dvce_.getPhysical());
 
-    vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0,
-                &uniformBuffersMapped_[i]);
-  }
+        vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0, &uniformBuffersMapped_[i]);
+    }
 }
 
 void Gfx::updateUniformBuffer(uint32_t currentImage) {
-  static auto startTime = std::chrono::high_resolution_clock::now();
+    static auto startTime = std::chrono::high_resolution_clock::now();
 
-  auto currentTime = std::chrono::high_resolution_clock::now();
-  float time = std::chrono::duration<float, std::chrono::seconds::period>(
-                   currentTime - startTime)
-                   .count();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(
+        currentTime - startTime)
+        .count();
 
-  UniformBufferObject ubo{};
-  // DO ROTATION
-  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
-                          glm::vec3(0.0f, 0.0f, 1.0f));
-  ubo.model = glm::rotate(ubo.model, time * glm::radians(40.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f));
+    UniformBufferObject ubo{};
+    // DO ROTATION
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::rotate(ubo.model, time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-  ubo.view =
-      glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                  glm::vec3(0.0f, 0.0f, 1.0f));
-  ubo.proj = // glm::rotate(
-      glm::perspective(glm::radians(30.0f),
-                       swpchn_.getSwapExtent().width /
-                           (float)swpchn_.getSwapExtent().height,
-                       0.1f, 10.0f); //,
-  // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
+    ubo.view =
+        glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = // glm::rotate(
+        glm::perspective(glm::radians(30.0f),
+            swpchn_.getSwapExtent().width /
+            (float)swpchn_.getSwapExtent().height,
+            0.1f, 10.0f); //,
+    // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
 
-  ubo.proj[1][1] *= -1;
+    ubo.proj[1][1] *= -1;
 
-  memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
+    memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
 }
 
 /*-----------------------------------------------------------------------------

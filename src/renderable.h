@@ -25,7 +25,7 @@ public:
   Renderable();
   ~Renderable();
   
-  void init(const RenderableData& data, const RenderableAccess& access);
+  void init(const std::string& name, const RenderableData& data, const RenderableAccess& access);
 
   void bind(VkCommandBuffer commandBuffer);
 
@@ -37,13 +37,17 @@ private:
 	RenderableData data_;
 	RenderableAccess access_;
 
-  VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
-  VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
-  VkBuffer indexBuffer_ = VK_NULL_HANDLE;
-  VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
+	std::string name_;
+
+	//glm::vec3 position_; // TODO
+
+	VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
+	VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
+	VkBuffer indexBuffer_ = VK_NULL_HANDLE;
+	VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
   
-  void createVertexBuffer();
-  void createIndexBuffer();
+	void createVertexBuffer();
+	void createIndexBuffer();
 
 
 };

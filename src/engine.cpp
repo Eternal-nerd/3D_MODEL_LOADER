@@ -49,6 +49,9 @@ void Engine::init() {
 
   // TODO: generate renderables here
   generateRenderables();
+
+  // TODO gfx_ CREATE DESCRIPTOR POOL and SETS FROM RENDERABLES
+
 }
 
 void Engine::generateRenderables() {
@@ -81,7 +84,7 @@ void Engine::generateRenderables() {
 
     Renderable r;
 
-    r.init(data, access);
+    r.init("cube", data, access);
 
     renderables_.push_back(r);
   //}

@@ -55,7 +55,7 @@ private:
 
   std::vector<VkBuffer> uniformBuffers_;
   std::vector<VkDeviceMemory> uniformBuffersMemory_;
-  std::vector<void *> uniformBuffersMapped_;
+  std::vector<void*> uniformBuffersMapped_;
 
   std::vector<VkDescriptorSet> descriptorSets_;
 
@@ -69,13 +69,11 @@ private:
   void createDescriptorSetLayout();
   void createGraphicsPipeline();
 
-  void createUniformBuffers();
-  void updateUniformBuffer(uint32_t currentImage);
-
   // Maybe not here?
   void createDescriptorPool();
   void createDescriptorSets();
 
-  // TODO MOVE TO CMDR CLASS?
-  void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+  void createUniformBuffers();
+  void updateUniformBuffer(uint32_t currentImage);
+
 };

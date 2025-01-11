@@ -6,9 +6,10 @@ Renderable::~Renderable() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Renderable::init(const RenderableData& data, const RenderableAccess& access) {
+void Renderable::init(const std::string& name, const RenderableData& data, const RenderableAccess& access) {
   util::log("Initializing Renderable...");
 
+  name_ = name;
   data_ = data;
   access_ = access;
 
