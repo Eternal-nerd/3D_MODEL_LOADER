@@ -39,6 +39,19 @@ private:
 
 	std::string name_;
 
+	// TODO IMPLEMENT
+	struct Vertices {
+		int count;
+		VkBuffer buffer;
+		VkDeviceMemory memory;
+	} vertices_;
+
+	struct Indices {
+		int count;
+		VkBuffer buffer;
+		VkDeviceMemory memory;
+	} indices_;
+
 	//glm::vec3 position_; // TODO
 
 	VkBuffer vertexBuffer_ = VK_NULL_HANDLE;

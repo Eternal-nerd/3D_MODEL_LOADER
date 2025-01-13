@@ -18,9 +18,12 @@ public:
 
   void create(const std::string &filename);
 
-  // TODO getter for imager view and sampler
+  // FIXME REMOVE
   const VkImageView &getTextureImageView() const;
   const VkSampler &getTextureSampler() const;
+
+  // TODO just use texture descriptor
+  const VkDescriptorImageInfo& getDescriptor() const;
 
   void cleanup();
 
@@ -38,6 +41,8 @@ private:
   VkDeviceMemory textureImageMemory_ = VK_NULL_HANDLE;
   VkImageView textureImageView_ = VK_NULL_HANDLE;
   VkSampler textureSampler_ = VK_NULL_HANDLE;
+  VkImageLayout imageLayout_;
+  VkDescriptorImageInfo descriptor_;
 
   void createTextureImage();
   void createTextureImageView();
@@ -48,4 +53,6 @@ private:
                              VkImageLayout oldLayout, VkImageLayout newLayout);
   void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
                          uint32_t height);
+
+  void updateDescriptor();
 };

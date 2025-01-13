@@ -50,7 +50,7 @@ void Gfx::init() {
   synchro_.init(MAX_FRAMES_IN_FLIGHT);
 
 
-  // TODO MOVE TO RENDERABLE
+  // MAKE CAMERA UBO AND PER-MODEL UBO
   createUniformBuffers();
 
   // FYI THis is where the vertex and index buffers were created

@@ -31,8 +31,7 @@ void Engine::init() {
   }
 
   util::log("Creating SDL window...");
-  window_ =
-      SDL_CreateWindow("3D_MODEL_LOADER", WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
+  window_ = SDL_CreateWindow("3D_MODEL_LOADER", WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
 
   if (!window_) {
     throw std::runtime_error("Failed to create SDL window. ");
@@ -128,7 +127,7 @@ void Engine::renderLoop() {
     swapBuffers();
 
     // Limit FPS if wanted:
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     // set another timepoint
     auto stopTime = std::chrono::high_resolution_clock::now();
@@ -137,8 +136,7 @@ void Engine::renderLoop() {
         stopTime - startTime);
     double ms = duration.count() * 0.001; // convert to ms
     double fps = 1000 / ms;
-    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps
-              << " FPS). \n";
+    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
   }
   gfx_.deviceWaitIdle();
 }

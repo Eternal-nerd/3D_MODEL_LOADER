@@ -25,6 +25,7 @@ void Txtr::create(const std::string &filename) {
   createTextureImage();
   createTextureImageView();
   createTextureSampler();
+  updateDescriptor();
 }
 
 /*-----------------------------------------------------------------------------
@@ -34,6 +35,8 @@ const VkImageView &Txtr::getTextureImageView() const {
   return textureImageView_;
 }
 const VkSampler &Txtr::getTextureSampler() const { return textureSampler_; }
+
+const VkDescriptorImageInfo& Txtr::getDescriptor() const { return descriptor_; }
 
 /*-----------------------------------------------------------------------------
 ------------------------------TEXTURE-IMAGE------------------------------------
@@ -128,6 +131,12 @@ void Txtr::createTextureSampler() {
 /*-----------------------------------------------------------------------------
 ------------------------------HELPERS------------------------------------------
 -----------------------------------------------------------------------------*/
+void Txtr::updateDescriptor() {
+    descriptor_.sampler = textureSampler_;
+    descriptor_.imageView = textureImageView_;
+    descriptor_.imageLayout = imageLayout_;
+}
+
 void Txtr::transitionImageLayout(VkImage image, VkFormat format,
                                  VkImageLayout oldLayout,
                                  VkImageLayout newLayout) {
@@ -171,6 +180,8 @@ void Txtr::transitionImageLayout(VkImage image, VkFormat format,
                        nullptr, 0, nullptr, 1, &barrier);
 
   cmdrPtr_->endSingleTimeCommands(commandBuffer);
+
+  imageLayout_ = newLayout;
 }
 
 void Txtr::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
