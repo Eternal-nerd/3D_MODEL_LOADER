@@ -40,7 +40,7 @@ void Gfx::init() {
   // create texture TODO make this more efficient because there will prob be
   // many textures
   txtr_.setAccessPtrs(dvce_, cmdr_);
-  txtr_.create("../res/money.jpg");
+  txtr_.create("../res/guy.jpg");
 
   // init synchro
   synchro_.setDvcePtr(dvce_);

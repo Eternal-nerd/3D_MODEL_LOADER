@@ -128,7 +128,7 @@ void Engine::updateUBO() {
     VkExtent2D extent = gfx_.getSwapExtent();
 
     // LOOKAT(eyePos, centerPos (pointed at), up)
-    ubo.view = glm::lookAt(glm::vec3(0, 20, 50), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.view = glm::lookAt(glm::vec3(0, 40, 50), glm::vec3(0.0f, -20, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     ubo.proj = glm::perspective(glm::radians(30.0f), extent.width / (float)extent.height, 0.1f, 100.0f);
 
     ubo.proj[1][1] *= -1;
@@ -184,7 +184,7 @@ void Engine::generateRenderables() {
 
         r.init(i, data, access);
 
-        r.position_ = { i%50-25, i%20-10, 0 };
+        r.position_ = { i%50-25, i%20-10, i%30 };
 
         if (renderables_.size() < MAX_MODELS) {
             renderables_.push_back(r);
