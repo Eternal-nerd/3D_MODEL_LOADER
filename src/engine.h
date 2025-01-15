@@ -12,8 +12,8 @@
 #include "gfx.h"
 #include "renderable.h"
 
-const uint32_t WIDTH = 300;
-const uint32_t HEIGHT = 200;
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 400;
 
 class Engine {
 public:

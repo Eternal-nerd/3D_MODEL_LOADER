@@ -40,7 +40,7 @@ void Gfx::init() {
   // create texture TODO make this more efficient because there will prob be
   // many textures
   txtr_.setAccessPtrs(dvce_, cmdr_);
-  txtr_.create("../res/mclovin.jpg");
+  txtr_.create("../res/money.jpg");
 
   // init synchro
   synchro_.setDvcePtr(dvce_);
@@ -239,8 +239,7 @@ void Gfx::createRenderPass() {
   depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  depthAttachment.finalLayout =
-      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+  depthAttachment.finalLayout =VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
   VkAttachmentReference colorAttachmentRef{};
   colorAttachmentRef.attachment = 0;

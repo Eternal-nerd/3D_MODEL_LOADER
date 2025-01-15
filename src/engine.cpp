@@ -48,9 +48,6 @@ void Engine::init() {
 
   // TODO: generate renderables here
   generateRenderables();
-
-  // TODO gfx_ CREATE DESCRIPTOR POOL and SETS FROM RENDERABLES
-
 }
 
 /*-----------------------------------------------------------------------------
@@ -71,7 +68,7 @@ void Engine::renderLoop() {
     renderScene();
 
     // Limit FPS if wanted:
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
 
     // set another timepoint
     auto stopTime = std::chrono::high_resolution_clock::now();
@@ -118,7 +115,7 @@ void Engine::updateUBO() {
         glm::vec3 pos = renderables_[i].position_;
 
         // can do fun stuff to positions here
-        pos[1] = sin(time+i);
+        pos[1]*=sin(time+i);
 
         ubo.model[i] = glm::translate(ubo.model[i], pos);
 
@@ -131,8 +128,8 @@ void Engine::updateUBO() {
     VkExtent2D extent = gfx_.getSwapExtent();
 
     // LOOKAT(eyePos, centerPos (pointed at), up)
-    ubo.view = glm::lookAt(glm::vec3(0, 2, 6), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.proj = glm::perspective(glm::radians(30.0f), extent.width / (float)extent.height, 0.1f, 10.0f);
+    ubo.view = glm::lookAt(glm::vec3(0, 20, 50), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.proj = glm::perspective(glm::radians(30.0f), extent.width / (float)extent.height, 0.1f, 100.0f);
 
     ubo.proj[1][1] *= -1;
 
@@ -142,7 +139,7 @@ void Engine::updateUBO() {
 void Engine::generateRenderables() {
     util::log("Generating renderables... ");
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 400; i++) {
         RenderableData data;
         data.vertices = {
                 { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
@@ -187,7 +184,7 @@ void Engine::generateRenderables() {
 
         r.init(i, data, access);
 
-        r.position_ = { i-2, 0, 0 };
+        r.position_ = { i%50-25, i%20-10, 0 };
 
         if (renderables_.size() < MAX_MODELS) {
             renderables_.push_back(r);
