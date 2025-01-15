@@ -9,6 +9,7 @@
 #include "txtr.h"
 #include "util.h"
 #include "renderable.h"
+#include "types.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -18,6 +19,8 @@ public:
   ~Gfx();
 
   void init();
+
+  void waitFrame();
 
   VkCommandBuffer beginFrame();
   
@@ -29,6 +32,11 @@ public:
 
   // getter for renderable access
   void getRenderableAccess(RenderableAccess& access);
+
+  // getter for swapchain extent
+  const VkExtent2D& getSwapExtent() const;
+
+  void mapUBO(const UniformBufferObject& ubo);
 
   void cleanupStart();
   void cleanupEnd();
@@ -74,6 +82,5 @@ private:
   void createDescriptorSets();
 
   void createUniformBuffers();
-  void updateUniformBuffer(uint32_t currentImage);
 
 };

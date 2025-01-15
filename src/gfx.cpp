@@ -1,9 +1,6 @@
 #include "gfx.h"
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
@@ -30,7 +27,7 @@ void Gfx::init() {
   swpchn_.setAccessPtrs(dvce_, renderPass_);
   swpchn_.init();
 
-  // create descriptor set layour for pipeline to use
+  // create descriptor set layout for pipeline to use
   createDescriptorSetLayout();
   // create pipeline
   createGraphicsPipeline();
@@ -64,10 +61,7 @@ void Gfx::init() {
 /*-----------------------------------------------------------------------------
 ------------------------------DRAW-SHIT----------------------------------------
 -----------------------------------------------------------------------------*/
-VkCommandBuffer Gfx::beginFrame() {
-
-    VkCommandBuffer commandBuffer = cmdr_.getCommandBuffers()[currentFrame_];
-
+void Gfx::waitFrame() {
     vkWaitForFences(dvce_.getLogical(), 1,
         &synchro_.getInFlightFences()[currentFrame_], VK_TRUE,
         UINT64_MAX);
@@ -79,13 +73,18 @@ VkCommandBuffer Gfx::beginFrame() {
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         swpchn_.recreate();
-        return commandBuffer;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
+}
 
-    updateUniformBuffer(currentFrame_);
+void Gfx::mapUBO(const UniformBufferObject& ubo) {
+    memcpy(uniformBuffersMapped_[currentFrame_], &ubo, sizeof(ubo));
+}
+
+VkCommandBuffer Gfx::beginFrame() {
+    VkCommandBuffer commandBuffer = cmdr_.getCommandBuffers()[currentFrame_];
 
     vkResetFences(dvce_.getLogical(), 1,
         &synchro_.getInFlightFences()[currentFrame_]);
@@ -208,6 +207,8 @@ void Gfx::getRenderableAccess(RenderableAccess& access) {
 
 void Gfx::deviceWaitIdle() { dvce_.waitIdle(); }
 
+const VkExtent2D& Gfx::getSwapExtent() const { return swpchn_.getSwapExtent(); }
+
 /*-----------------------------------------------------------------------------
 ------------------------------RENDER-PASS--------------------------------------
 -----------------------------------------------------------------------------*/
@@ -314,21 +315,16 @@ void Gfx::createGraphicsPipeline() {
                                                     fragShaderStageInfo};
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
+  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   auto bindingDescription = Vertex::getBindingDescription();
   auto attributeDescriptions = Vertex::getAttributeDescriptions();
-
   vertexInputInfo.vertexBindingDescriptionCount = 1;
-  vertexInputInfo.vertexAttributeDescriptionCount =
-      static_cast<uint32_t>(attributeDescriptions.size());
+  vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
   vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
   vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   inputAssembly.primitiveRestartEnable = VK_FALSE;
 
@@ -440,8 +436,7 @@ void Gfx::createDescriptorSetLayout() {
   VkDescriptorSetLayoutBinding samplerLayoutBinding{};
   samplerLayoutBinding.binding = 1;
   samplerLayoutBinding.descriptorCount = 1;
-  samplerLayoutBinding.descriptorType =
-      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   samplerLayoutBinding.pImmutableSamplers = nullptr;
   samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
@@ -520,8 +515,7 @@ void Gfx::createDescriptorSets() {
     descriptorWrites[1].dstSet = descriptorSets_[i];
     descriptorWrites[1].dstBinding = 1;
     descriptorWrites[1].dstArrayElement = 0;
-    descriptorWrites[1].descriptorType =
-        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptorWrites[1].descriptorCount = 1;
     descriptorWrites[1].pImageInfo = &imageInfo;
 
@@ -551,34 +545,6 @@ void Gfx::createUniformBuffers() {
 
         vkMapMemory(dvce_.getLogical(), uniformBuffersMemory_[i], 0, bufferSize, 0, &uniformBuffersMapped_[i]);
     }
-}
-
-void Gfx::updateUniformBuffer(uint32_t currentImage) {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(
-        currentTime - startTime)
-        .count();
-
-    UniformBufferObject ubo{};
-    // DO ROTATION
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.model = glm::rotate(ubo.model, time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    ubo.view =
-        glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = // glm::rotate(
-        glm::perspective(glm::radians(30.0f),
-            swpchn_.getSwapExtent().width /
-            (float)swpchn_.getSwapExtent().height,
-            0.1f, 10.0f); //,
-    // time * glm::radians(90.0f), glm::vec3(0, 0, 1));
-
-    ubo.proj[1][1] *= -1;
-
-    memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
 }
 
 /*-----------------------------------------------------------------------------

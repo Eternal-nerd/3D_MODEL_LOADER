@@ -61,8 +61,10 @@ struct Vertex {
   }
 };
 
+const int MAX_MODELS = 10;
+
 struct UniformBufferObject {
-  alignas(16) glm::mat4 model;
-  alignas(16) glm::mat4 view;
-  alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 model[MAX_MODELS];
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
 };

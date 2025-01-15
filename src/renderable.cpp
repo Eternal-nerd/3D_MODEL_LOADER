@@ -6,10 +6,10 @@ Renderable::~Renderable() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Renderable::init(const std::string& name, const RenderableData& data, const RenderableAccess& access) {
+void Renderable::init(int num, const RenderableData& data, const RenderableAccess& access) {
   util::log("Initializing Renderable...");
 
-  name_ = name;
+  num_ = num;
   data_ = data;
   access_ = access;
 
@@ -25,7 +25,7 @@ void Renderable::bind(VkCommandBuffer commandBuffer) {
     VkBuffer vertexBuffers[] = { vertexBuffer_ };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 }
 
 /*-----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ void Renderable::bind(VkCommandBuffer commandBuffer) {
 -----------------------------------------------------------------------------*/
 
 void Renderable::draw(VkCommandBuffer commandBuffer) {
-    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(data_.indices.size()), 1, 0, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(data_.indices.size()), 1, 0, 0, num_);
 }
 
 /*-----------------------------------------------------------------------------

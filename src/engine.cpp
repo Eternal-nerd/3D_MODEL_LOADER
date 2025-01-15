@@ -53,60 +53,6 @@ void Engine::init() {
 
 }
 
-void Engine::generateRenderables() {
-  util::log("Generating renderables... ");
-
-  //for (int i = 0; i < 5; i++) {
-
-    RenderableData data;
-    data.vertices = {
-            { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-
-            { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-
-            { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-
-            { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-
-            { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-
-            { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
-            { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
-            { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
-            { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
-    };
-
-    data.indices = {
-        0,1,2, 0,2,3, 6,5,4,  7,6,4, 10,9,8, 11,10,8, 12,13,14, 12,14,15, 18,17,16, 19,18,16, 20,21,22, 20,22,23
-    };
-
-    RenderableAccess access;
-    gfx_.getRenderableAccess(access);
-
-    Renderable r;
-
-    r.init("cube", data, access);
-
-    renderables_.push_back(r);
-  //}
-
-}
-
 /*-----------------------------------------------------------------------------
 ------------------------------MAIN-LOOP----------------------------------------
 -----------------------------------------------------------------------------*/
@@ -121,10 +67,8 @@ void Engine::renderLoop() {
     auto startTime = std::chrono::high_resolution_clock::now();
 
     collectInputs();
-    updateCamera();
-    updateScene();
+    updateUBO();
     renderScene();
-    swapBuffers();
 
     // Limit FPS if wanted:
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -158,9 +102,102 @@ void Engine::collectInputs() {
 /*-----------------------------------------------------------------------------
 -----------------------------UPDATE-STUFF--------------------------------------
 -----------------------------------------------------------------------------*/
-void Engine::updateCamera() {}
+void Engine::updateUBO() {
+    gfx_.waitFrame();
 
-void Engine::updateScene() {}
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    UniformBufferObject ubo{};
+    // DO MODEL TRANSFORMS
+    for (int i = 0; i < renderables_.size(); i++) {
+        ubo.model[i] = glm::mat4(1.0f);
+
+        // move to model's position
+        glm::vec3 pos = renderables_[i].position_;
+
+        // can do fun stuff to positions here
+        pos[1] = sin(time+i);
+
+        ubo.model[i] = glm::translate(ubo.model[i], pos);
+
+        // rotate if wnated
+        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    // DO CAMERA TRANSFORMS
+    VkExtent2D extent = gfx_.getSwapExtent();
+
+    // LOOKAT(eyePos, centerPos (pointed at), up)
+    ubo.view = glm::lookAt(glm::vec3(0, 2, 6), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.proj = glm::perspective(glm::radians(30.0f), extent.width / (float)extent.height, 0.1f, 10.0f);
+
+    ubo.proj[1][1] *= -1;
+
+    gfx_.mapUBO(ubo);
+}
+
+void Engine::generateRenderables() {
+    util::log("Generating renderables... ");
+
+    for (int i = 0; i < 5; i++) {
+        RenderableData data;
+        data.vertices = {
+                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+
+                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+
+                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+
+                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+
+                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+
+                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
+                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f } },
+                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f } },
+                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f } },
+        };
+
+        data.indices = {
+            0,1,2, 0,2,3, 6,5,4,  7,6,4, 10,9,8, 11,10,8, 12,13,14, 12,14,15, 18,17,16, 19,18,16, 20,21,22, 20,22,23
+        };
+
+        RenderableAccess access;
+        gfx_.getRenderableAccess(access);
+
+        Renderable r;
+
+        r.init(i, data, access);
+
+        r.position_ = { i-2, 0, 0 };
+
+        if (renderables_.size() < MAX_MODELS) {
+            renderables_.push_back(r);
+        }
+        else {
+            throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");
+        }
+    }
+
+}
 
 /*-----------------------------------------------------------------------------
 ------------------------------GFX-RENDERING------------------------------------
@@ -180,13 +217,13 @@ void Engine::renderScene() {
 
 }
 
-void Engine::swapBuffers() {}
-
 /*-----------------------------------------------------------------------------
 ------------------------------CLEANUP------------------------------------------
 -----------------------------------------------------------------------------*/
 void Engine::cleanup() {
   util::log("Cleaning up engine...");
+
+  std::cout << "renderables_.size(): " << renderables_.size() << "\n";
 
   // cleanup gfx
   gfx_.cleanupStart();

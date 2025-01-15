@@ -3,6 +3,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 // my abstractions
 #include "util.h"
 #include "gfx.h"
@@ -38,11 +42,8 @@ private:
   void renderLoop();
   // methods inside the render loop:
   void collectInputs(); // get user input data to update camera/scene
-  void updateCamera();  // update camera based on inputs
-  void
-  updateScene(); // perform transformations to objects/models being rendered
+  void updateUBO(); //
   void renderScene(); // GPU renders scene image, draw call for each model
-  void swapBuffers(); // swaps frame currently in view with back buffered image?
 
   // cleans up the application on termination
   void cleanup();

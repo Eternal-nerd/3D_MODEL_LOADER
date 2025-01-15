@@ -11,7 +11,7 @@
 
 struct RenderableData {
 	std::vector<Vertex> vertices = {};
-	std::vector<uint16_t> indices = {};
+	std::vector<uint32_t> indices = {};
 };
 
 struct RenderableAccess {
@@ -25,7 +25,7 @@ public:
   Renderable();
   ~Renderable();
   
-  void init(const std::string& name, const RenderableData& data, const RenderableAccess& access);
+  void init(int num, const RenderableData& data, const RenderableAccess& access);
 
   void bind(VkCommandBuffer commandBuffer);
 
@@ -33,26 +33,14 @@ public:
 
   void cleanup();
 
+  glm::vec3 position_ = { 0, 0, 0 };
+
 private:
+
+	int num_ = -1;
+
 	RenderableData data_;
 	RenderableAccess access_;
-
-	std::string name_;
-
-	// TODO IMPLEMENT
-	struct Vertices {
-		int count;
-		VkBuffer buffer;
-		VkDeviceMemory memory;
-	} vertices_;
-
-	struct Indices {
-		int count;
-		VkBuffer buffer;
-		VkDeviceMemory memory;
-	} indices_;
-
-	//glm::vec3 position_; // TODO
 
 	VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
 	VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
