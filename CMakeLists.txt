@@ -24,6 +24,7 @@ set(SOURCES
 	src/txtr.cpp
 	src/renderable.cpp
 	src/util.cpp
+	src/camera.cpp
 	src/synchro.cpp
 )
 
@@ -32,6 +33,7 @@ set(HEADERS
 	src/engine.h
 	src/gfx.h
 	src/util.h
+	src/camera.h
 	src/dvce.h
 	src/swpchn.h
 	src/cmdr.h

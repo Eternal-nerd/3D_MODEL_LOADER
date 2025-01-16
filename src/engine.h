@@ -11,6 +11,7 @@
 #include "util.h"
 #include "gfx.h"
 #include "renderable.h"
+#include "camera.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 800;
@@ -32,6 +33,8 @@ private:
   Gfx gfx_;
 
   std::vector<Renderable> renderables_ = {};
+
+  Camera cam_;
 
   // initializes the application
   void init();
