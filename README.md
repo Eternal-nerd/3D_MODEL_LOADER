@@ -6,4 +6,3 @@ Build instructions (Linux):
 Build instructions (Windows):
 	-TODO
 
-TODO: Make UBOs for each game object I think.   

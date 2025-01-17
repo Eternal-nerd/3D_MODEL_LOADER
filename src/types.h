@@ -1,9 +1,13 @@
 #pragma once
 
+#include <SDL3/SDL.h>
+#include <vulkan/vulkan.h>
+
 #include <glm/glm.hpp>
 
 #include <array>
 #include <optional>
+#include <vector>
 
 
 const int MAX_MODELS = 512;
@@ -12,6 +16,22 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 model[MAX_MODELS];
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
+};
+
+// CONTROLS?
+struct KeyStates {
+    bool q = false;
+    bool w = false;
+    bool e = false;
+    bool a = false;
+    bool s = false;
+    bool d = false;
+    bool space = false;
+    bool _ = false;
+    // bool _ = false;
+     //bool _ = false;
+     //bool _ = false;
+
 };
 
 

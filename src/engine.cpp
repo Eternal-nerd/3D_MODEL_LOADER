@@ -48,6 +48,11 @@ void Engine::init() {
 
   // TODO: generate renderables here
   generateRenderables();
+
+  // init camera
+  VkExtent2D extent = gfx_.getSwapExtent();
+  float aspect = extent.width / (float)extent.height;
+  cam_.init(aspect);
 }
 
 /*-----------------------------------------------------------------------------
@@ -63,9 +68,14 @@ void Engine::renderLoop() {
     // set a timepoint
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    collectInputs();
-    updateUBO();
-    renderScene();
+    handleEvents();
+    
+    // only render stuff if window is visible
+    if (visible_) {
+        updateCamera();
+        updateUBO();
+        renderScene();
+    }
 
     // Limit FPS if wanted:
     std::this_thread::sleep_for(std::chrono::milliseconds(40));
@@ -77,7 +87,7 @@ void Engine::renderLoop() {
         stopTime - startTime);
     double ms = duration.count() * 0.001; // convert to ms
     double fps = 1000 / ms;
-    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
+    //std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
   }
   gfx_.deviceWaitIdle();
 }
@@ -85,20 +95,73 @@ void Engine::renderLoop() {
 /*-----------------------------------------------------------------------------
 ------------------------------INPUT--------------------------------------------
 -----------------------------------------------------------------------------*/
-void Engine::collectInputs() {
+void Engine::handleEvents() {
   // Poll events (inputs)
   while (SDL_PollEvent(&event_)) {
-    if (event_.type == SDL_EVENT_QUIT) {
-      running_ = false;
-    } else {
-      // TODO switch statement of all possible inputs?
+    switch (event_.type) {
+    case SDL_EVENT_QUIT:
+        running_ = false;
+        break;
+    case SDL_EVENT_KEY_DOWN:
+        handleKeyboardEvent(event_.key, true);
+        break;
+    case SDL_EVENT_KEY_UP:
+        handleKeyboardEvent(event_.key, false);
+        break;
+    case SDL_EVENT_WINDOW_HIDDEN:
+    case SDL_EVENT_WINDOW_MINIMIZED:
+        visible_ = false;
+        break;
+    case SDL_EVENT_WINDOW_SHOWN:
+    case SDL_EVENT_WINDOW_MAXIMIZED:
+    case SDL_EVENT_WINDOW_RESTORED:
+        visible_ = true;
+        break;
+    default: break;
     }
   }
 }
 
+void Engine::handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down) {
+    switch (key.scancode) {
+    case SDL_SCANCODE_W:
+        keys_.w = down;
+        std::cout << "w";
+        break;
+    case SDL_SCANCODE_A:
+        keys_.a = down;
+        std::cout << "a";
+        break;
+    case SDL_SCANCODE_S:
+        keys_.s = down;
+        std::cout << "s";
+        break;
+    case SDL_SCANCODE_D:
+        keys_.d = down;
+        std::cout << "d";
+        break;
+    default:
+        // do anything on unmapped keypress?
+        break;
+    }
+    if (down) {
+        std::cout << " pressed. \n";
+    }
+    else {
+        std::cout << " released. \n";
+    }
+}
+
+
 /*-----------------------------------------------------------------------------
 -----------------------------UPDATE-STUFF--------------------------------------
 -----------------------------------------------------------------------------*/
+void Engine::updateCamera() {
+    VkExtent2D extent = gfx_.getSwapExtent();
+    float aspect = extent.width / (float)extent.height;
+    cam_.update(keys_, aspect);
+}
+
 void Engine::updateUBO() {
     gfx_.waitFrame();
 
@@ -115,23 +178,23 @@ void Engine::updateUBO() {
         glm::vec3 pos = renderables_[i].position_;
 
         // can do fun stuff to positions here
-        pos[1]*=sin(time+i);
+        //pos[1]*=sin(time+i);
 
         ubo.model[i] = glm::translate(ubo.model[i], pos);
 
         // rotate if wnated
-        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-
-    // DO CAMERA TRANSFORMS
-    VkExtent2D extent = gfx_.getSwapExtent();
+        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians((i+1)*90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        if (i%2==0) {
+            ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians((i + 1) * 40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else {
+            ubo.model[i] = glm::rotate(ubo.model[i], -time * glm::radians((i + 1) * 40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+     }
 
     // LOOKAT(eyePos, centerPos (pointed at), up)
-    ubo.view = glm::lookAt(glm::vec3(0, 5, 8), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.proj = glm::perspective(glm::radians(30.0f), extent.width / (float)extent.height, 0.1f, 100.0f);
-
-    ubo.proj[1][1] *= -1;
+    ubo.view = cam_.getViewProj();
+    ubo.proj = cam_.getPerspectiveProj();
 
     gfx_.mapUBO(ubo);
 }

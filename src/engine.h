@@ -28,12 +28,14 @@ private:
   SDL_Window *window_ = nullptr;
   SDL_Event event_;
   bool running_ = false;
+  bool visible_ = true;
 
   // Gfx (Vulkan), used to draw Renderable objects
   Gfx gfx_;
 
   std::vector<Renderable> renderables_ = {};
 
+  KeyStates keys_;
   Camera cam_;
 
   // initializes the application
@@ -44,7 +46,12 @@ private:
   // loop that executes for each frame
   void renderLoop();
   // methods inside the render loop:
-  void collectInputs(); // get user input data to update camera/scene
+  
+  void handleEvents(); // get user input data to update camera/scene
+  void handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down);
+
+  void updateCamera();
+
   void updateUBO(); //
   void renderScene(); // GPU renders scene image, draw call for each model
 
