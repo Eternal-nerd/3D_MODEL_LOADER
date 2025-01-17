@@ -18,7 +18,6 @@ void Camera::init(float aspect) {
 
 	// last argument is "up" or direction up vector
 	view_ = glm::lookAt(position_, lookAt_, glm::vec3(0.0f, 1.0f, 0.0f));
-	view_ = glm::mat4(1);
 
 	// set camera FOV:
 	fovy_ = 90;
@@ -56,9 +55,9 @@ void Camera::update(const KeyStates& keys, float aspect) {
 	std::cout << "position_: " << glm::to_string(position_) << "\n";
 
 	// Translation matrix
-	glm::mat4 transM(1);
+	//glm::mat4 transM(1);
 	//std::cout << "transM before: " << glm::to_string(transM) << "\n";
-	transM = glm::translate(glm::mat4(1.0f), position_);
+	//transM = glm::translate(glm::mat4(1.0f), position_);
 	//std::cout << "transM  after: " << glm::to_string(transM) << "\n";
 
 	// Rotation matrix
@@ -69,7 +68,8 @@ void Camera::update(const KeyStates& keys, float aspect) {
 
 	//std::cout << "view_        : " << glm::to_string(view_) << "\n";
 	//std::cout << "view_ * transM: " << glm::to_string(view_ * transM) << "\n";
-	view_ = transM;
+	// FIXMEEEE
+	view_ = glm::lookAt(position_, lookAt_, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//throw std::runtime_error("end");
 
