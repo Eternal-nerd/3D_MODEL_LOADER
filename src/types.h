@@ -27,8 +27,8 @@ struct KeyStates {
     bool s = false;
     bool d = false;
     bool space = false;
-    bool _ = false;
-    // bool _ = false;
+    bool ctrl = false;
+    bool shift = false;
      //bool _ = false;
      //bool _ = false;
 

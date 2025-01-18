@@ -8,16 +8,13 @@ Camera::~Camera() {}
 -----------------------------------------------------------------------------*/
 void Camera::init(float aspect) {
 	// Set initial position of the camera
-	position_ = { 0, 1, 1 };
+	position_ = { 0, 0, -2 };
 
-	// Set position to start looking at
-	lookAt_ = { 0, 0, 0 };
-
-	// set rotation
+	// set intial rotation
 	rotation_ = { 0,0,0 };
 
-	// last argument is "up" or direction up vector
-	view_ = glm::lookAt(position_, lookAt_, glm::vec3(0.0f, 1.0f, 0.0f));
+	// init view matrix
+	view_ = glm::translate(glm::mat4(1), position_);
 
 	// set camera FOV:
 	fovy_ = 90;
@@ -39,42 +36,39 @@ void Camera::init(float aspect) {
 -----------------------------------------------------------------------------*/
 void Camera::update(const KeyStates& keys, float aspect) {
 	// apply camera position updates and update matrices
-	if (keys.w) {
-		position_[2] -= 0.1;
-	}
-	if (keys.a) {
-		position_[0] -= 0.1;
-	}
-	if (keys.s) {
-		position_[2] += 0.1;
-	}
-	if (keys.d) {
-		position_[0] += 0.1;
-	}
+	updatePosition(keys);
 
-	std::cout << "position_: " << glm::to_string(position_) << "\n";
-
-	// Translation matrix
-	//glm::mat4 transM(1);
-	//std::cout << "transM before: " << glm::to_string(transM) << "\n";
-	//transM = glm::translate(glm::mat4(1.0f), position_);
-	//std::cout << "transM  after: " << glm::to_string(transM) << "\n";
-
-	// Rotation matrix
-	//glm::mat4 rotM = glm::mat4(1);
-
-	// DO ROTATION FROM MOUSE INPUT HERE:
-
-
-	//std::cout << "view_        : " << glm::to_string(view_) << "\n";
-	//std::cout << "view_ * transM: " << glm::to_string(view_ * transM) << "\n";
-	// FIXMEEEE
-	view_ = glm::lookAt(position_, lookAt_, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	//throw std::runtime_error("end");
+	view_ = glm::translate(glm::mat4(1), position_);
 
 	persp_ = glm::perspective(glm::radians(fovy_), aspect, near_, far_);
 	persp_[1][1] *= -1;
+}
+
+void Camera::updatePosition(const KeyStates& keys) {
+	float moveIncr = 0.2;
+	float shiftMult = 1;
+	if (keys.shift) {
+		shiftMult = 4;
+	}
+
+	if (keys.w) {
+		position_[2] += moveIncr * shiftMult;
+	}
+	if (keys.a) {
+		position_[0] += moveIncr * shiftMult;
+	}
+	if (keys.s) {
+		position_[2] -= moveIncr * shiftMult;
+	}
+	if (keys.d) {
+		position_[0] -= moveIncr * shiftMult;
+	}
+	if (keys.space) {
+		position_[1] -= moveIncr * shiftMult;
+	}
+	if (keys.ctrl) {
+		position_[1] += moveIncr * shiftMult;
+	}
 }
 
 

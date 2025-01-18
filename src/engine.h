@@ -49,6 +49,7 @@ private:
   
   void handleEvents(); // get user input data to update camera/scene
   void handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down);
+  void handleMouseEvent();
 
   void updateCamera();
 

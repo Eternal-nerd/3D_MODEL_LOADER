@@ -68,6 +68,7 @@ void Engine::renderLoop() {
     // set a timepoint
     auto startTime = std::chrono::high_resolution_clock::now();
 
+    // FIXME the event handling system needs to run at a predefined rate, not just with the rate of the render loop...
     handleEvents();
     
     // only render stuff if window is visible
@@ -80,6 +81,7 @@ void Engine::renderLoop() {
     // Limit FPS if wanted:
     std::this_thread::sleep_for(std::chrono::milliseconds(40));
 
+    /*
     // set another timepoint
     auto stopTime = std::chrono::high_resolution_clock::now();
     // get duration
@@ -87,7 +89,8 @@ void Engine::renderLoop() {
         stopTime - startTime);
     double ms = duration.count() * 0.001; // convert to ms
     double fps = 1000 / ms;
-    //std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
+    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
+    */
   }
   gfx_.deviceWaitIdle();
 }
@@ -99,15 +102,22 @@ void Engine::handleEvents() {
   // Poll events (inputs)
   while (SDL_PollEvent(&event_)) {
     switch (event_.type) {
+    // X OUT OF WINDOW
     case SDL_EVENT_QUIT:
         running_ = false;
         break;
+    // KEYBOARD EVENTS
     case SDL_EVENT_KEY_DOWN:
         handleKeyboardEvent(event_.key, true);
         break;
     case SDL_EVENT_KEY_UP:
         handleKeyboardEvent(event_.key, false);
         break;
+    // MOUSE EVENTS
+    case SDL_EVENT_MOUSE_MOTION:
+        handleMouseEvent();
+        break;
+    // MINIMIZE/MAXIMIZE EVENTS
     case SDL_EVENT_WINDOW_HIDDEN:
     case SDL_EVENT_WINDOW_MINIMIZED:
         visible_ = false;
@@ -120,6 +130,10 @@ void Engine::handleEvents() {
     default: break;
     }
   }
+}
+
+void Engine::handleMouseEvent() {
+    // TODO
 }
 
 void Engine::handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down) {
@@ -139,6 +153,22 @@ void Engine::handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down) {
     case SDL_SCANCODE_D:
         keys_.d = down;
         std::cout << "d";
+        break;
+    case SDL_SCANCODE_SPACE:
+        keys_.space = down;
+        std::cout << "space";
+        break;
+    case SDL_SCANCODE_LCTRL:
+        keys_.ctrl = down;
+        std::cout << "ctrl";
+        break;
+    case SDL_SCANCODE_LSHIFT:
+        keys_.shift = down;
+        std::cout << "shift";
+        break;
+    case SDL_SCANCODE_ESCAPE:
+        // TEMPORARY - ESCAPE TO CLOSE APP
+        running_ = false;
         break;
     default:
         // do anything on unmapped keypress?
@@ -191,8 +221,7 @@ void Engine::updateUBO() {
             ubo.model[i] = glm::rotate(ubo.model[i], -time * glm::radians((i + 1) * 40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         }
      }
-
-    // LOOKAT(eyePos, centerPos (pointed at), up)
+    
     ubo.view = cam_.getViewProj();
     ubo.proj = cam_.getPerspectiveProj();
 

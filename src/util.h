@@ -19,6 +19,8 @@ namespace util {
 // TODO USE TEMPLATES TO ALLOW MULTIPLE ARGUMENTS
 void log(const std::string &s);
 
+void printMat4(const glm::mat4& mat);
+
 // GENERAL UTILITIES
 std::vector<char> readFile(const std::string &filename);
 

@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "types.h"
+#include "util.h"
 
 class Camera {
 
@@ -31,11 +32,12 @@ private:
 	float far_ = 0;
 
 	glm::vec3 position_ = {0,0,0};
-	glm::vec3 lookAt_ = { 0,0,0 };
 	glm::vec3 rotation_ = { 0,0,0 };
 
 	glm::mat4 view_ = glm::mat4(1);
 	glm::mat4 persp_ = glm::mat4(1);
+
+	void updatePosition(const KeyStates& keys);
 
 
 };
