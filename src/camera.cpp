@@ -40,7 +40,8 @@ void Camera::update(float aspect) {
 	glm::mat4 rotM = getRotM();
 
 	// update position
-	position_ += glm::vec3(rotM * glm::vec4(velocity_ * 0.2f, 0));
+	float speedMult = sprint_ ? 2 : 0.5;
+	position_ += glm::vec3(rotM * glm::vec4(velocity_ * speedMult, 0));
 	glm::mat4 transM = glm::translate(glm::mat4(1), position_);
 
 	// apply updates to view matrix
@@ -62,6 +63,7 @@ void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
 		if (event.key.scancode == SDL_SCANCODE_D) { velocity_.x = 1; }
 		if (event.key.scancode == SDL_SCANCODE_SPACE) { velocity_.y = 1; }
 		if (event.key.scancode == SDL_SCANCODE_LCTRL) { velocity_.y = -1; }
+		if (event.key.scancode == SDL_SCANCODE_LSHIFT) { sprint_ = true; }
 		break;
 	case SDL_EVENT_KEY_UP:
 		if (event.key.scancode == SDL_SCANCODE_W) { velocity_.z = 0; }
@@ -70,6 +72,7 @@ void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
 		if (event.key.scancode == SDL_SCANCODE_D) { velocity_.x = 0; }
 		if (event.key.scancode == SDL_SCANCODE_SPACE) { velocity_.y = 0; }
 		if (event.key.scancode == SDL_SCANCODE_LCTRL) { velocity_.y = 0; }
+		if (event.key.scancode == SDL_SCANCODE_LSHIFT) { sprint_ = false; }
 		break;
 	// MOUSE EVENTS
 	case SDL_EVENT_MOUSE_MOTION:

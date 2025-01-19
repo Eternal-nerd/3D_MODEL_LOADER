@@ -36,6 +36,7 @@ private:
 
 	glm::vec3 velocity_ = { 0,0,0 };
 	glm::vec3 position_ = {0,0,0};
+	bool sprint_ = false;
 	
 	// verticle rotation
 	float pitch_ = 0;

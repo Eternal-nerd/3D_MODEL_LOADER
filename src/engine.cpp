@@ -192,18 +192,15 @@ void Engine::updateUBO() {
         glm::vec3 pos = renderables_[i].position_;
 
         // can do fun stuff to positions here
-        //pos[1]*=sin(time+i);
+        // FIXME
+        pos.y*=sin(time+i);
+        pos.z = 5 * sin(time + i/2);
 
         ubo.model[i] = glm::translate(ubo.model[i], pos);
 
         // rotate if wnated
-        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians((i+1)*90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        if (i%2==0) {
-            ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians((i + 1) * 40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        else {
-            ubo.model[i] = glm::rotate(ubo.model[i], -time * glm::radians((i + 1) * 40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        }
+        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
      }
     
     ubo.view = cam_.getViewProj();
@@ -215,7 +212,9 @@ void Engine::updateUBO() {
 void Engine::generateRenderables() {
     util::log("Generating renderables... ");
 
-    for (int i = 0; i < 2; i++) {
+    //FIXME
+    //for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 400; i++) {
         RenderableData data;
         data.vertices = {
                 { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
@@ -260,7 +259,9 @@ void Engine::generateRenderables() {
 
         r.init(i, data, access);
 
-        r.position_ = { 2*(i-0.5), 0, 0 };
+        // FIXME
+        //r.position_ = { 2*(i-0.5), 0, 0 };
+        r.position_ = { i % 50 - 25, i % 20 - 10, 0 };
 
         if (renderables_.size() < MAX_MODELS) {
             renderables_.push_back(r);
