@@ -21,6 +21,10 @@ void log(const std::string &s);
 
 void printMat4(const glm::mat4& mat);
 
+void printVec3(const glm::vec3& vec);
+
+void printMouseMove(const SDL_MouseMotionEvent& move);
+
 // GENERAL UTILITIES
 std::vector<char> readFile(const std::string &filename);
 

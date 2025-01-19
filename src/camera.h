@@ -4,7 +4,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include <iostream>
 
@@ -19,7 +20,9 @@ public:
 
 	void init(float aspect);
 
-	void update(const KeyStates& keys, float aspect);
+	void processEvent(const SDL_Event& event, const KeyStates& keys);
+
+	void update(float aspect);
 	
 	void cleanup();
 
@@ -31,13 +34,18 @@ private:
 	float near_ = 0;
 	float far_ = 0;
 
+	glm::vec3 velocity_ = { 0,0,0 };
 	glm::vec3 position_ = {0,0,0};
-	glm::vec3 rotation_ = { 0,0,0 };
+	
+	// verticle rotation
+	float pitch_ = 0;
+	// horizontal rotation
+	float yaw_ = 0;
 
 	glm::mat4 view_ = glm::mat4(1);
 	glm::mat4 persp_ = glm::mat4(1);
 
-	void updatePosition(const KeyStates& keys);
+	glm::mat4 getRotM();
 
 
 };

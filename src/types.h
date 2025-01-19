@@ -18,7 +18,6 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
-// CONTROLS?
 struct KeyStates {
     bool q = false;
     bool w = false;
@@ -29,11 +28,10 @@ struct KeyStates {
     bool space = false;
     bool ctrl = false;
     bool shift = false;
-     //bool _ = false;
-     //bool _ = false;
+    //bool _ = false;
+    //bool _ = false;
 
 };
-
 
 /*  Vertex is a point in 3D space
     pos: (x, y, z)

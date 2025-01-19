@@ -36,6 +36,7 @@ private:
   std::vector<Renderable> renderables_ = {};
 
   KeyStates keys_;
+
   Camera cam_;
 
   // initializes the application
@@ -48,8 +49,7 @@ private:
   // methods inside the render loop:
   
   void handleEvents(); // get user input data to update camera/scene
-  void handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down);
-  void handleMouseEvent();
+  void handleInputEvent();
 
   void updateCamera();
 

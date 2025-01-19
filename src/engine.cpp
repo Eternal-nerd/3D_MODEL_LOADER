@@ -42,6 +42,11 @@ void Engine::init() {
     throw std::runtime_error("Failed to make window resizable. ");
   }
 
+  util::log("Set Mouse into relative mode (for FPS camera)...");
+  if (!SDL_SetWindowRelativeMouseMode(window_, true)) {
+      throw std::runtime_error("Failed to put mouse into relative mode. ");
+  }
+
   // Initialize gfx
   gfx_.setWindowPtr(window_);
   gfx_.init();
@@ -66,7 +71,7 @@ void Engine::renderLoop() {
   while (running_) {
     // measure frametime
     // set a timepoint
-    auto startTime = std::chrono::high_resolution_clock::now();
+    //auto startTime = std::chrono::high_resolution_clock::now();
 
     // FIXME the event handling system needs to run at a predefined rate, not just with the rate of the render loop...
     handleEvents();
@@ -106,17 +111,14 @@ void Engine::handleEvents() {
     case SDL_EVENT_QUIT:
         running_ = false;
         break;
-    // KEYBOARD EVENTS
+
+    // Input EVENTS
     case SDL_EVENT_KEY_DOWN:
-        handleKeyboardEvent(event_.key, true);
-        break;
     case SDL_EVENT_KEY_UP:
-        handleKeyboardEvent(event_.key, false);
-        break;
-    // MOUSE EVENTS
     case SDL_EVENT_MOUSE_MOTION:
-        handleMouseEvent();
+        handleInputEvent();
         break;
+
     // MINIMIZE/MAXIMIZE EVENTS
     case SDL_EVENT_WINDOW_HIDDEN:
     case SDL_EVENT_WINDOW_MINIMIZED:
@@ -132,54 +134,36 @@ void Engine::handleEvents() {
   }
 }
 
-void Engine::handleMouseEvent() {
-    // TODO
-}
+void Engine::handleInputEvent() {
+    if (event_.key.scancode == SDL_SCANCODE_ESCAPE) { running_ = false; }
+    
+    if (event_.type != SDL_EVENT_MOUSE_MOTION) {
+        // update keystates struct
+        bool down = event_.type == SDL_EVENT_KEY_DOWN;
+        switch (event_.key.scancode) {
+        case SDL_SCANCODE_W:
+            keys_.w = down;
+            break;
+        case SDL_SCANCODE_A:
+            keys_.a = down;
+            break;
+        case SDL_SCANCODE_S:
+            keys_.s = down;
+            break;
+        case SDL_SCANCODE_D:
+            keys_.d = down;
+            break;
+        case SDL_SCANCODE_SPACE:
+            keys_.space = down;
+            break;
+        case SDL_SCANCODE_LCTRL:
+            keys_.ctrl = down;
+            break;
+        }
+    }
 
-void Engine::handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down) {
-    switch (key.scancode) {
-    case SDL_SCANCODE_W:
-        keys_.w = down;
-        std::cout << "w";
-        break;
-    case SDL_SCANCODE_A:
-        keys_.a = down;
-        std::cout << "a";
-        break;
-    case SDL_SCANCODE_S:
-        keys_.s = down;
-        std::cout << "s";
-        break;
-    case SDL_SCANCODE_D:
-        keys_.d = down;
-        std::cout << "d";
-        break;
-    case SDL_SCANCODE_SPACE:
-        keys_.space = down;
-        std::cout << "space";
-        break;
-    case SDL_SCANCODE_LCTRL:
-        keys_.ctrl = down;
-        std::cout << "ctrl";
-        break;
-    case SDL_SCANCODE_LSHIFT:
-        keys_.shift = down;
-        std::cout << "shift";
-        break;
-    case SDL_SCANCODE_ESCAPE:
-        // TEMPORARY - ESCAPE TO CLOSE APP
-        running_ = false;
-        break;
-    default:
-        // do anything on unmapped keypress?
-        break;
-    }
-    if (down) {
-        std::cout << " pressed. \n";
-    }
-    else {
-        std::cout << " released. \n";
-    }
+    // FOR NOW input events only really affect the camera..
+    cam_.processEvent(event_, keys_);
 }
 
 
@@ -189,7 +173,7 @@ void Engine::handleKeyboardEvent(const SDL_KeyboardEvent& key, bool down) {
 void Engine::updateCamera() {
     VkExtent2D extent = gfx_.getSwapExtent();
     float aspect = extent.width / (float)extent.height;
-    cam_.update(keys_, aspect);
+    cam_.update(aspect);
 }
 
 void Engine::updateUBO() {

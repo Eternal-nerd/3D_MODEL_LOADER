@@ -15,6 +15,16 @@ void printMat4(const glm::mat4& mat) {
     }
 }
 
+void printVec3(const glm::vec3& vec) {
+    std::cout << vec.x << " " << vec.y << " " << vec.x << "\n";
+}
+
+void printMouseMove(const SDL_MouseMotionEvent& move) {
+    std::cout << "window x cord: " << move.x << "\n";
+    std::cout << "window y cord: " << move.y << "\n";
+    std::cout << "window rel x cord: " << move.xrel << "\n";
+    std::cout << "window rel y cord: " << move.yrel << "\n";
+}
 
 
 /*-----------------------------------------------------------------------------
