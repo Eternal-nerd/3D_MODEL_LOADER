@@ -1,10 +1,5 @@
 #include "engine.h"
 
-#include <chrono>
-#include <iostream>
-#include <stdexcept>
-#include <thread>
-
 Engine::Engine() {}
 
 Engine::~Engine() {}
@@ -25,6 +20,9 @@ void Engine::run() {
 -----------------------------------------------------------------------------*/
 
 void Engine::init() {
+    util::log("Initializing clock...");
+    clock_.init();
+
   util::log("Initializing SDL...");
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     throw std::runtime_error("Failed to initialize SDL. ");
@@ -48,16 +46,15 @@ void Engine::init() {
   }
 
   // Initialize gfx
-  gfx_.setWindowPtr(window_);
-  gfx_.init();
+  gfx_.init(window_);
 
-  // TODO: generate renderables here
+  // generate meshs
   generateRenderables();
 
   // init camera
   VkExtent2D extent = gfx_.getSwapExtent();
   float aspect = extent.width / (float)extent.height;
-  cam_.init(aspect);
+  cam_.init(aspect, clock_);
 }
 
 /*-----------------------------------------------------------------------------
@@ -70,8 +67,8 @@ void Engine::renderLoop() {
   running_ = true;
   while (running_) {
     // measure frametime
-    // set a timepoint
-    //auto startTime = std::chrono::high_resolution_clock::now();
+    clock_.startFrame();
+    fpsCounter_++;
 
     // FIXME the event handling system needs to run at a predefined rate, not just with the rate of the render loop...
     handleEvents();
@@ -83,19 +80,19 @@ void Engine::renderLoop() {
         renderScene();
     }
 
-    // Limit FPS if wanted:
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    // TODO find FPS and display as onscreen text
+    // for now, report fps every 100 frames
+    hundredFrameTime_ += clock_.getFrameDelta();
+    if (fpsCounter_ >= 99) {
+        // get average frame time Ns: 
+        long avg = hundredFrameTime_ / fpsCounter_;
+        
+        // print fps
+        std::cout << "FPS: " << 1000000000 / avg << "\n";
 
-    /*
-    // set another timepoint
-    auto stopTime = std::chrono::high_resolution_clock::now();
-    // get duration
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        stopTime - startTime);
-    double ms = duration.count() * 0.001; // convert to ms
-    double fps = 1000 / ms;
-    std::cout << "drawFrame() duration: " << ms << " milliseconds (" << fps << " FPS). \n";
-    */
+        fpsCounter_ = 0;
+        hundredFrameTime_ = 0;
+    }
   }
   gfx_.deviceWaitIdle();
 }
@@ -177,11 +174,7 @@ void Engine::updateCamera() {
 }
 
 void Engine::updateUBO() {
-    gfx_.waitFrame();
-
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    float time = clock_.getProgramSeconds();
 
     UniformBufferObject ubo{};
     // DO MODEL TRANSFORMS
@@ -192,9 +185,6 @@ void Engine::updateUBO() {
         glm::vec3 pos = renderables_[i].position_;
 
         // can do fun stuff to positions here
-        // FIXME
-        pos.y*=sin(time+i);
-        pos.z = 5 * sin(time + i/2);
 
         ubo.model[i] = glm::translate(ubo.model[i], pos);
 
@@ -206,15 +196,16 @@ void Engine::updateUBO() {
     ubo.view = cam_.getViewProj();
     ubo.proj = cam_.getPerspectiveProj();
 
+    // wait for frame to be ready
+    gfx_.waitFrame();
+
     gfx_.mapUBO(ubo);
 }
 
 void Engine::generateRenderables() {
     util::log("Generating renderables... ");
 
-    //FIXME
-    //for (int i = 0; i < 2; i++) {
-    for (int i = 0; i < 400; i++) {
+    for (int i = 0; i < 2; i++) {
         RenderableData data;
         data.vertices = {
                 { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f } },
@@ -259,9 +250,7 @@ void Engine::generateRenderables() {
 
         r.init(i, data, access);
 
-        // FIXME
-        //r.position_ = { 2*(i-0.5), 0, 0 };
-        r.position_ = { i % 50 - 25, i % 20 - 10, 0 };
+        r.position_ = { 2*(i-0.5), 0, 0 };
 
         if (renderables_.size() < MAX_MODELS) {
             renderables_.push_back(r);
@@ -296,8 +285,6 @@ void Engine::renderScene() {
 -----------------------------------------------------------------------------*/
 void Engine::cleanup() {
   util::log("Cleaning up engine...");
-
-  std::cout << "renderables_.size(): " << renderables_.size() << "\n";
 
   // cleanup gfx
   gfx_.cleanupStart();

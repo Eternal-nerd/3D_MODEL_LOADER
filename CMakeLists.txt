@@ -26,6 +26,7 @@ set(SOURCES
 	src/util.cpp
 	src/camera.cpp
 	src/synchro.cpp
+	src/clock.cpp
 )
 
 # add headers
@@ -41,6 +42,7 @@ set(HEADERS
 	src/renderable.h
 	src/types.h
 	src/synchro.h
+	src/clock.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
 )

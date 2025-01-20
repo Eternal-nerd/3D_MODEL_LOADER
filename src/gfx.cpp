@@ -11,10 +11,11 @@ Gfx::~Gfx() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Gfx::setWindowPtr(SDL_Window *window) { window_ = window; }
-
-void Gfx::init() {
+void Gfx::init(SDL_Window* window) {
   util::log("Initializing Gfx...");
+
+  // set window ptr
+  window_ = window;
 
   // initialize dvce
   dvce_.setWindowPtr(window_);

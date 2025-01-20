@@ -7,11 +7,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+#include <stdexcept>
+
 // my abstractions
 #include "util.h"
 #include "gfx.h"
 #include "renderable.h"
 #include "camera.h"
+#include "clock.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 800;
@@ -24,6 +28,12 @@ public:
   void run();
 
 private:
+	// time
+	Clock clock_;
+
+	int fpsCounter_ = 0;
+	long hundredFrameTime_ = 0;
+
   // SDL Shit
   SDL_Window *window_ = nullptr;
   SDL_Event event_;

@@ -18,11 +18,10 @@ public:
 
   void create(const std::string &filename);
 
-  // FIXME REMOVE
   const VkImageView &getTextureImageView() const;
   const VkSampler &getTextureSampler() const;
 
-  // TODO just use texture descriptor
+  // used?
   const VkDescriptorImageInfo& getDescriptor() const;
 
   void cleanup();

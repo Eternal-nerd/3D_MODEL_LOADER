@@ -18,7 +18,7 @@ public:
   Gfx();
   ~Gfx();
 
-  void init();
+  void init(SDL_Window* window);
 
   void waitFrame();
 
@@ -40,8 +40,6 @@ public:
 
   void cleanupStart();
   void cleanupEnd();
-
-  void setWindowPtr(SDL_Window *window);
 
 private:
   // SDL WINDOW
