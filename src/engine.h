@@ -56,7 +56,6 @@ private:
 
   // loop that executes for each frame
   void renderLoop();
-  // methods inside the render loop:
   
   void handleEvents(); // get user input data to update camera/scene
   void handleInputEvent();
