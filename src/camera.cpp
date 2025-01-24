@@ -47,10 +47,11 @@ void Camera::update(float aspect) {
 	// USE Time delta to scale position transformation
 	float timeMult = delta * 10.f;
 
-	// update position
 	float sprintMult = sprint_ ? 3.f : 1.f;
 
 	float scale = timeMult * sprintMult;
+
+	// update position
 	position_ += glm::vec3(getYawRotM() * glm::vec4(velocity_ * scale, 0));
 	glm::mat4 transM = glm::translate(glm::mat4(1), position_);
 
