@@ -40,8 +40,11 @@ void Gfx::init(SDL_Window* window) {
 
   // create texture TODO make this more efficient because there will prob be
   // many textures
-  txtr_.setAccessPtrs(dvce_, cmdr_);
-  txtr_.create("../res/cat.jpg");
+  for (int i = 0; i < TEXTURE_COUNT; i++) {
+      Txtr t;
+      t.create("../res/cat.jpg", dvce_, cmdr_);
+      textures_.push_back(t);
+  }
 
   // init synchro
   synchro_.setDvcePtr(dvce_);
@@ -496,10 +499,11 @@ void Gfx::createDescriptorSets() {
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(UniformBufferObject);
 
+    // TODO make many descriptors for all the textures (SEE Descriptor indexing vulkan sample sashcha willem)
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = txtr_.getTextureImageView();
-    imageInfo.sampler = txtr_.getTextureSampler();
+    imageInfo.imageView = textures_[0].getTextureImageView();
+    imageInfo.sampler = textures_[0].getTextureSampler();
 
     std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -557,7 +561,9 @@ void Gfx::cleanupStart() {
   swpchn_.cleanup();
 
   // texture cleanup here
-  txtr_.cleanup();
+  for (auto t : textures_) {
+      t.cleanup();
+  }
 
   util::log("Destroying graphics pipeline...");
   vkDestroyPipeline(dvce_.getLogical(), graphicsPipeline_, nullptr);
@@ -588,8 +594,5 @@ void Gfx::cleanupEnd() {
 
     cmdr_.cleanup();
 
-    /* cleanup dvce
-     * ... explain whats cleaned up here
-     */
     dvce_.cleanup();
 }

@@ -12,13 +12,11 @@ Txtr::~Txtr() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Txtr::setAccessPtrs(const Dvce &dvce, Cmdr &cmdr) {
+void Txtr::create(const std::string &filename, const Dvce& dvce, Cmdr& cmdr) {
+  util::log("Creating texture...");
+
   dvcePtr_ = &dvce;
   cmdrPtr_ = &cmdr;
-}
-
-void Txtr::create(const std::string &filename) {
-  util::log("Creating texture...");
 
   filename_ = filename.c_str();
 

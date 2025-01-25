@@ -14,9 +14,7 @@ public:
   ~Txtr();
 
   // to give texture access to stuff
-  void setAccessPtrs(const Dvce &dvce, Cmdr &cmdr);
-
-  void create(const std::string &filename);
+  void create(const std::string &filename, const Dvce& dvce, Cmdr& cmdr);
 
   const VkImageView &getTextureImageView() const;
   const VkSampler &getTextureSampler() const;
