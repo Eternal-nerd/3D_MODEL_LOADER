@@ -31,8 +31,8 @@ public:
 	void waitNs(long ns);
 
 private:
-	std::chrono::steady_clock::time_point start_;
-	std::chrono::steady_clock::time_point frameStart_;
+	std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+	std::chrono::time_point<std::chrono::high_resolution_clock> frameStart_;
 
 	long long totalNs_ = 0;
 
