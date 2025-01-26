@@ -177,7 +177,7 @@ bool checkDeviceExtensionSupport(
                                            deviceExtensions.end());
 
   for (const auto &extension : availableExtensions) {
-    requiredExtensions.erase(extension.extensionName);
+      requiredExtensions.erase(extension.extensionName);
   }
 
   return requiredExtensions.empty();

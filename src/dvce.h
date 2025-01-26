@@ -7,7 +7,10 @@
 #include "util.h"
 
 const std::vector<const char *> deviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+//    "VK_EXT_descriptor_indexing",
+// FIXME program will error if device doesnt support descriptor indexing
+};
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
