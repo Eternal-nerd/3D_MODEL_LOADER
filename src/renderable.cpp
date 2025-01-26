@@ -28,6 +28,23 @@ void Renderable::bind(VkCommandBuffer commandBuffer) {
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
 }
 
+
+/*-----------------------------------------------------------------------------
+------------------------------CHANGE-TEXTURE-----------------------------------
+-----------------------------------------------------------------------------*/
+void Renderable::setTextureIndex(int texIndex) {
+    // recreate buffers (destroy them)
+    cleanup();
+
+    for (int i = 0; i < data_.vertices.size(); i++) {
+        // no safeguard LOL
+        data_.vertices[i].texIndex = texIndex;
+    }
+    std::cout << "test?\n";
+    createVertexBuffer();
+    createIndexBuffer();
+}
+
 /*-----------------------------------------------------------------------------
 ------------------------------DRAWING------------------------------------------
 -----------------------------------------------------------------------------*/

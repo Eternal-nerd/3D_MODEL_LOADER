@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include <vector>
+#include <iostream>
 
 #include "types.h"
 #include "dvce.h"
@@ -30,6 +31,8 @@ public:
   void bind(VkCommandBuffer commandBuffer);
 
   void draw(VkCommandBuffer commandBuffer);
+
+  void setTextureIndex(int texIndex);
 
   void cleanup();
 

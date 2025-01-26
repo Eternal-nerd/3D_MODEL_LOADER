@@ -20,7 +20,6 @@
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 800;
 
-
 class Engine {
 public:
   Engine();

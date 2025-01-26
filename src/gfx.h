@@ -13,9 +13,6 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-// FIXME
-const int TEXTURE_COUNT = 1;
-
 class Gfx {
 public:
   Gfx();
@@ -60,6 +57,7 @@ private:
 
   Cmdr cmdr_;
 
+  std::vector<std::string> textureNames_ = {};
   std::vector<Txtr> textures_ = {};
 
   std::vector<VkBuffer> uniformBuffers_;

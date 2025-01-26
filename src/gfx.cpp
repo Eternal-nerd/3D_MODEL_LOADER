@@ -29,6 +29,12 @@ void Gfx::init(SDL_Window* window) {
   swpchn_.init();
 
   // create descriptor set layout for pipeline to use
+  // FIXME
+  textureNames_ = {
+        "../res/cat.jpg", "../res/guy.jpg", "../res/kerm.jpg", "../res/mclovin.jpg", 
+        "../res/money.jpg", "../res/set.png", "../res/test.jpg", "../res/texture.jpg" 
+  };
+
   createDescriptorSetLayout();
   // create pipeline
   createGraphicsPipeline();
@@ -38,11 +44,10 @@ void Gfx::init(SDL_Window* window) {
   cmdr_.createCommandPool();
   cmdr_.createCommandBuffers(MAX_FRAMES_IN_FLIGHT);
 
-  // create texture TODO make this more efficient because there will prob be
-  // many textures
-  for (int i = 0; i < TEXTURE_COUNT; i++) {
+  // TODO make this more elegant
+  for (int i = 0; i < textureNames_.size(); i++) {
       Txtr t;
-      t.create("../res/cat.jpg", dvce_, cmdr_);
+      t.create(textureNames_[i], dvce_, cmdr_);
       textures_.push_back(t);
   }
 
@@ -438,7 +443,7 @@ void Gfx::createDescriptorSetLayout() {
 
   VkDescriptorSetLayoutBinding samplerLayoutBinding{};
   samplerLayoutBinding.binding = 1;
-  samplerLayoutBinding.descriptorCount = 1;
+  samplerLayoutBinding.descriptorCount = static_cast<uint32_t>(textureNames_.size());
   samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   samplerLayoutBinding.pImmutableSamplers = nullptr;
   samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -456,14 +461,14 @@ void Gfx::createDescriptorSetLayout() {
   }
 }
 
-
+// FIXME texture stuff
 void Gfx::createDescriptorPool() {
   util::log("Creating descriptor pool...");
   std::array<VkDescriptorPoolSize, 2> poolSizes{};
   poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
   poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+  poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * textures_.size());
 
   VkDescriptorPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -500,10 +505,12 @@ void Gfx::createDescriptorSets() {
     bufferInfo.range = sizeof(UniformBufferObject);
 
     // TODO make many descriptors for all the textures (SEE Descriptor indexing vulkan sample sashcha willem)
-    VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = textures_[0].getTextureImageView();
-    imageInfo.sampler = textures_[0].getTextureSampler();
+    std::vector<VkDescriptorImageInfo> textureDescriptors(textures_.size());
+    for (int i = 0; i < textures_.size(); i++) {
+        textureDescriptors[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        textureDescriptors[i].imageView = textures_[i].getTextureImageView();
+        textureDescriptors[i].sampler = textures_[i].getTextureSampler();
+    }
 
     std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -520,8 +527,8 @@ void Gfx::createDescriptorSets() {
     descriptorWrites[1].dstBinding = 1;
     descriptorWrites[1].dstArrayElement = 0;
     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrites[1].descriptorCount = 1;
-    descriptorWrites[1].pImageInfo = &imageInfo;
+    descriptorWrites[1].descriptorCount = static_cast<uint32_t>(textures_.size());
+    descriptorWrites[1].pImageInfo = textureDescriptors.data();
 
     vkUpdateDescriptorSets(dvce_.getLogical(),
                            static_cast<uint32_t>(descriptorWrites.size()),
