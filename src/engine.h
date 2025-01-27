@@ -36,7 +36,6 @@ private:
 
   // SDL Shit
   SDL_Window* window_ = nullptr;
-  SDL_Surface* surf_ = nullptr;
   SDL_Event event_;
   bool running_ = false;
   bool visible_ = true;
