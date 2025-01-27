@@ -78,6 +78,8 @@ void Engine::renderLoop() {
         updateCamera();
         updateUBO();
         renderScene();
+        drawUI();
+        presentImage();
     }
 
     // TODO find FPS and display as onscreen text
@@ -271,7 +273,7 @@ void Engine::generateRenderables() {
 void Engine::renderScene() {
     VkCommandBuffer commandBuffer;
 
-    commandBuffer = gfx_.beginFrame();
+    commandBuffer = gfx_.setupCommandBuffer();
 
     // draw renderables
     for (auto renderable : renderables_) {
@@ -279,8 +281,19 @@ void Engine::renderScene() {
         renderable.draw(commandBuffer);
     }
 
-    gfx_.endFrame(commandBuffer);
+    gfx_.submitCommandBuffer(commandBuffer);
+}
 
+void Engine::presentImage() {
+    gfx_.presentSwapchainImage();
+}
+
+
+/*-----------------------------------------------------------------------------
+-----------------------------TESTING-HUD---------------------------------------
+-----------------------------------------------------------------------------*/
+void Engine::drawUI() {
+    gfx_.drawUI();
 }
 
 /*-----------------------------------------------------------------------------

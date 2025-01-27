@@ -92,7 +92,7 @@ void Gfx::mapUBO(const UniformBufferObject& ubo) {
     memcpy(uniformBuffersMapped_[currentFrame_], &ubo, sizeof(ubo));
 }
 
-VkCommandBuffer Gfx::beginFrame() {
+VkCommandBuffer Gfx::setupCommandBuffer() {
     VkCommandBuffer commandBuffer = cmdr_.getCommandBuffers()[currentFrame_];
 
     vkResetFences(dvce_.getLogical(), 1,
@@ -150,7 +150,7 @@ VkCommandBuffer Gfx::beginFrame() {
     return commandBuffer;
 }
 
-void Gfx::endFrame(VkCommandBuffer commandBuffer) {
+void Gfx::submitCommandBuffer(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
@@ -172,7 +172,8 @@ void Gfx::endFrame(VkCommandBuffer commandBuffer) {
     submitInfo.pCommandBuffers = &commandBuffer;
 
     VkSemaphore signalSemaphores[] = {
-        synchro_.getRenderFinishedSemaphores()[currentFrame_] };
+        synchro_.getRenderFinishedSemaphores()[currentFrame_]
+    };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -181,6 +182,19 @@ void Gfx::endFrame(VkCommandBuffer commandBuffer) {
         VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
+}
+
+
+void Gfx::drawUI() {
+    // get image to draw to
+
+}
+
+
+void Gfx::presentSwapchainImage() {
+    VkSemaphore signalSemaphores[] = {
+        synchro_.getRenderFinishedSemaphores()[currentFrame_]
+    };
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -193,6 +207,8 @@ void Gfx::endFrame(VkCommandBuffer commandBuffer) {
     presentInfo.pSwapchains = swapChains;
 
     presentInfo.pImageIndices = &imageIndex_;
+
+    // TODO Draw HUD to image here first
 
     VkResult result = vkQueuePresentKHR(dvce_.getPresentQue(), &presentInfo);
 

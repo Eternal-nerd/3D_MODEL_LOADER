@@ -35,7 +35,8 @@ private:
 	long hundredFrameTime_ = 0;
 
   // SDL Shit
-  SDL_Window *window_ = nullptr;
+  SDL_Window* window_ = nullptr;
+  SDL_Surface* surf_ = nullptr;
   SDL_Event event_;
   bool running_ = false;
   bool visible_ = true;
@@ -64,6 +65,9 @@ private:
 
   void updateUBO(); //
   void renderScene(); // GPU renders scene image, draw call for each model
+
+  void drawUI();
+  void presentImage();
 
   // cleans up the application on termination
   void cleanup();

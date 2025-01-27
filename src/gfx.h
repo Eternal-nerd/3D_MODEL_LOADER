@@ -22,11 +22,15 @@ public:
 
   void waitFrame();
 
-  VkCommandBuffer beginFrame();
+  VkCommandBuffer setupCommandBuffer();
   
   // THIS WHERE DRAWS HAPPEN in between the begin and end
 
-  void endFrame(VkCommandBuffer commandBuffer);
+  void submitCommandBuffer(VkCommandBuffer commandBuffer);
+
+  void drawUI();
+
+  void presentSwapchainImage();
 
   void deviceWaitIdle();
 

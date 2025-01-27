@@ -18,6 +18,13 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
+// FIXME
+struct color {
+    int r;
+    int g;
+    int b;
+};
+
 struct KeyStates {
     bool q = false;
     bool w = false;
