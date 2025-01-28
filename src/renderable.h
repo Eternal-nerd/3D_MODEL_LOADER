@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../libs/tiny_gltf.h"
+
 #include <vulkan/vulkan.h>
 
 #include <vector>
@@ -26,7 +28,9 @@ public:
   Renderable();
   ~Renderable();
   
-  void init(int num, const RenderableData& data, const RenderableAccess& access);
+  void initSimple(int num, const RenderableData& data, const RenderableAccess& access);
+
+  void initGLTF(const std::string& filename);
 
   void bind(VkCommandBuffer commandBuffer);
 
@@ -38,7 +42,10 @@ public:
 
   glm::vec3 position_ = { 0, 0, 0 };
 
+  bool isGLTF_ = false;
+
 private:
+	tinygltf::Model* gltfModel_ = nullptr;
 
 	int num_ = -1;
 

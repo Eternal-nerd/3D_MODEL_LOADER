@@ -6,7 +6,7 @@ Renderable::~Renderable() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Renderable::init(int num, const RenderableData& data, const RenderableAccess& access) {
+void Renderable::initSimple(int num, const RenderableData& data, const RenderableAccess& access) {
   util::log("Initializing Renderable...");
 
   num_ = num;
@@ -15,6 +15,32 @@ void Renderable::init(int num, const RenderableData& data, const RenderableAcces
 
   createVertexBuffer();
   createIndexBuffer();
+}
+
+void Renderable::initGLTF(const std::string& filename) {
+    util::log("Initializing GLTF Renderable...");
+    isGLTF_ = true;
+
+    tinygltf::TinyGLTF loader;
+    tinygltf::Model model;
+    std::string err;
+    std::string warn;
+
+    bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
+    //bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, argv[1]); // for binary glTF(.glb)
+    gltfModel_ = &model;
+
+    if (!warn.empty()) {
+        printf("Warn: %s\n", warn.c_str());
+    }
+
+    if (!err.empty()) {
+        printf("Err: %s\n", err.c_str());
+    }
+    
+    if (!ret) {
+        throw std::runtime_error("failed to load GLTF model from file!  ");
+    }
 }
 
 /*-----------------------------------------------------------------------------

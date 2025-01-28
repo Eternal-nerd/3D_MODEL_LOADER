@@ -16,6 +16,7 @@
 #include "renderable.h"
 #include "camera.h"
 #include "clock.h"
+#include "types.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 800;

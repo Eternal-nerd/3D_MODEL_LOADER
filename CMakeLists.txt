@@ -45,6 +45,9 @@ set(HEADERS
 	src/clock.h
 	libs/stb_image.h
 	libs/stb_image_resize2.h
+	libs/stb_image_write.h
+	libs/json.hpp
+	libs/tiny_gltf.h
 )
 
 # add executable:

@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "../libs/stb_image.h"
+
 #include <string>
 
 #include "cmdr.h"

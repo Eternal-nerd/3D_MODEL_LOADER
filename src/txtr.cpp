@@ -1,8 +1,5 @@
 #include "txtr.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../libs/stb_image.h"
-
 #include <stdexcept>
 
 Txtr::Txtr() {}

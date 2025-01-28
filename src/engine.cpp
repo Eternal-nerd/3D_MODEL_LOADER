@@ -207,64 +207,27 @@ void Engine::updateUBO() {
 void Engine::generateRenderables() {
     util::log("Generating renderables... ");
 
-    // FIXME MAGIC NUMBER LOL
-    for (int i = 0; i < 8; i++) {
-        RenderableData data;
-        data.vertices = {
-                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
+    RenderableAccess access;
+    gfx_.getRenderableAccess(access);
 
-                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
+    // cube
+    Cube cubeData;
+    RenderableData data;
+    data.vertices = cubeData.vertices;
+    data.indices = cubeData.indices;
+    Renderable r1;
+    r1.initSimple(0, data, access);
+    r1.position_ = { 0,0,0 };
+    r1.setTextureIndex(2);
+    renderables_.push_back(r1);
 
-                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
+    // gltf??
 
-                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
 
-                { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { { -0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { {  0.5,  0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
 
-                { { -0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-                { {  0.5, -0.5, -0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
-                { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
-                { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
-        };
-
-        data.indices = {
-            0,1,2, 0,2,3, 6,5,4,  7,6,4, 10,9,8, 11,10,8, 12,13,14, 12,14,15, 18,17,16, 19,18,16, 20,21,22, 20,22,23
-        };
-
-        RenderableAccess access;
-        gfx_.getRenderableAccess(access);
-
-        Renderable r;
-
-        r.init(i, data, access);
-
-        r.position_ = { 2*(i-0.5), 0, 0 };
-
-        r.setTextureIndex(i);
-
-        if (renderables_.size() < MAX_MODELS) {
-            renderables_.push_back(r);
-        }
-        else {
-            throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");
-        }
+    if (renderables_.size() >= MAX_MODELS) {
+        throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");
     }
-
 }
 
 /*-----------------------------------------------------------------------------
