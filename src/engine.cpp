@@ -217,13 +217,17 @@ void Engine::generateRenderables() {
     data.indices = cubeData.indices;
     Renderable r1;
     r1.initSimple(0, data, access);
-    r1.position_ = { 0,0,0 };
+    r1.position_ = { -2,0,0 };
     r1.setTextureIndex(2);
     renderables_.push_back(r1);
 
     // gltf??
-
-
+    std::string filename = "../res/gltf/Fox-glTF-Sample-Models/glTF-Binary/Fox.glb";
+    Renderable r2;
+    r2.initGLTF(1, access, filename);
+    r2.position_ = { 2,0,0 };
+    // FIXMEMMEE
+    //renderables_.push_back(r2);
 
     if (renderables_.size() >= MAX_MODELS) {
         throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");

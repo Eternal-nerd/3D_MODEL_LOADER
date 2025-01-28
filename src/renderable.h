@@ -30,7 +30,7 @@ public:
   
   void initSimple(int num, const RenderableData& data, const RenderableAccess& access);
 
-  void initGLTF(const std::string& filename);
+  void initGLTF(int num, const RenderableAccess& access, const std::string& filename);
 
   void bind(VkCommandBuffer commandBuffer);
 

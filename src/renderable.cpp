@@ -17,17 +17,20 @@ void Renderable::initSimple(int num, const RenderableData& data, const Renderabl
   createIndexBuffer();
 }
 
-void Renderable::initGLTF(const std::string& filename) {
+void Renderable::initGLTF(int num, const RenderableAccess& access, const std::string& filename) {
     util::log("Initializing GLTF Renderable...");
     isGLTF_ = true;
+
+    num_ = num;
+    access_ = access;
 
     tinygltf::TinyGLTF loader;
     tinygltf::Model model;
     std::string err;
     std::string warn;
 
-    bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
-    //bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, argv[1]); // for binary glTF(.glb)
+    //bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
+    bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, filename); // for binary glTF(.glb)
     gltfModel_ = &model;
 
     if (!warn.empty()) {
@@ -41,6 +44,8 @@ void Renderable::initGLTF(const std::string& filename) {
     if (!ret) {
         throw std::runtime_error("failed to load GLTF model from file!  ");
     }
+
+    // MUST CREATE BUFFERS / TEXTURE DESCRIPTORS???s HERE
 }
 
 /*-----------------------------------------------------------------------------
@@ -59,6 +64,10 @@ void Renderable::bind(VkCommandBuffer commandBuffer) {
 ------------------------------CHANGE-TEXTURE-----------------------------------
 -----------------------------------------------------------------------------*/
 void Renderable::setTextureIndex(int texIndex) {
+    if (isGLTF_) {
+        throw std::runtime_error("GLTF renderables have their own texture or somethign..");
+    }
+
     // recreate buffers (destroy them)
     cleanup();
 
@@ -153,7 +162,9 @@ void Renderable::cleanup() {
   vkDestroyBuffer(access_.dvcePtr->getLogical(), vertexBuffer_, nullptr);
   vkFreeMemory(access_.dvcePtr->getLogical(), vertexBufferMemory_, nullptr);
 
-
+  if (isGLTF_) {
+      delete gltfModel_;
+  }
 }
 
 
