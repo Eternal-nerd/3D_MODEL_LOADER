@@ -17,6 +17,7 @@ void Renderable::initSimple(int num, const RenderableData& data, const Renderabl
   createIndexBuffer();
 }
 
+// FIXME NOT READY TO USE!
 void Renderable::initGLTF(int num, const RenderableAccess& access, const std::string& filename) {
     util::log("Initializing GLTF Renderable...");
     isGLTF_ = true;
@@ -44,6 +45,8 @@ void Renderable::initGLTF(int num, const RenderableAccess& access, const std::st
     if (!ret) {
         throw std::runtime_error("failed to load GLTF model from file!  ");
     }
+
+
 
     // MUST CREATE BUFFERS / TEXTURE DESCRIPTORS???s HERE
 }

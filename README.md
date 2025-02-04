@@ -7,4 +7,5 @@ TODO:
 -add physics system / COLLISION!!!
 -add overlay/gui text
 -add lighting
-...
+
+Hit it hard tomorrow.  
