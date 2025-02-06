@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../libs/tiny_gltf.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <vulkan/vulkan.h>
 
@@ -12,11 +13,6 @@
 #include "cmdr.h"
 #include "util.h"
 
-struct RenderableData {
-	std::vector<Vertex> vertices = {};
-	std::vector<uint32_t> indices = {};
-};
-
 struct RenderableAccess {
 	const Dvce* dvcePtr = nullptr;
 	Cmdr* cmdrPtr = nullptr;
@@ -27,10 +23,8 @@ public:
 
   Renderable();
   ~Renderable();
-  
-  void initSimple(int num, const RenderableData& data, const RenderableAccess& access);
 
-  void initGLTF(int num, const RenderableAccess& access, const std::string& filename);
+  void init(int id, const RenderableData& data, const RenderableAccess& access);
 
   void bind(VkCommandBuffer commandBuffer);
 
@@ -38,16 +32,14 @@ public:
 
   void setTextureIndex(int texIndex);
 
+  int getId();
+
   void cleanup();
 
   glm::vec3 position_ = { 0, 0, 0 };
 
-  bool isGLTF_ = false;
-
 private:
-	tinygltf::Model* gltfModel_ = nullptr;
-
-	int num_ = -1;
+	int id_ = -1;
 
 	RenderableData data_;
 	RenderableAccess access_;

@@ -9,23 +9,10 @@ Swpchn::~Swpchn() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Swpchn::setAccessPtrs(const Dvce &dvce, const VkRenderPass &renderPass) {
+void Swpchn::init(const Dvce& dvce, const VkRenderPass& renderPass) {
+  util::log("Initializing swpchn...");
   dvcePtr_ = &dvce;
   renderPassPtr_ = &renderPass;
-}
-
-void Swpchn::preInit() {
-  util::log("Getting some swapchain details...");
-  SwapChainSupportDetails swapChainSupport = util::querySwapChainSupport(
-      dvcePtr_->getPhysical(), dvcePtr_->getSurface());
-  swapChainImageFormat_ =
-      util::chooseSwapSurfaceFormat(swapChainSupport.formats).format;
-  swapChainExtent_ = util::chooseSwapExtent(swapChainSupport.capabilities,
-                                            dvcePtr_->getWindowPtr());
-}
-
-void Swpchn::init() {
-  util::log("Initializing swpchn...");
 
   createSwapChain();
   createImageViews();

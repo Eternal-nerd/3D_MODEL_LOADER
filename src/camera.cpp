@@ -6,12 +6,13 @@ Camera::~Camera() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Camera::init(float aspect, Clock& clock) {
+void Camera::init(float aspect, Clock& clock, Physics& physics) {
 	// set access ptr to clock
 	clockPtr_ = &clock;
+	physicsPtr_ = &physics;
 
 	// Set initial position of the camera
-	position_ = { 0, 0, 2 };
+	position_ = { 0, 2, 2 };
 
 	// set intial rotation
 	pitch_ = 0;
@@ -45,14 +46,20 @@ void Camera::update(float aspect) {
 	float delta = clockPtr_->getProgramSeconds() - lastUpdate_;
 
 	// USE Time delta to scale position transformation
-	float timeMult = delta * 10.f;
+	float timeMult = delta * 3.f;
 
 	float sprintMult = sprint_ ? 3.f : 1.f;
 
 	float scale = timeMult * sprintMult;
 
 	// update position
-	position_ += glm::vec3(getYawRotM() * glm::vec4(velocity_ * scale, 0));
+	if (noclip_) {
+		position_ += glm::vec3(getYawRotM() * glm::vec4(velocity_ * scale, 0));
+	}
+	else {
+		position_ = physicsPtr_->getCameraPosition(position_, getYawRotM(), velocity_, scale);
+	}
+
 	glm::mat4 transM = glm::translate(glm::mat4(1), position_);
 
 	// get rotation matrix from mouse input
@@ -77,9 +84,13 @@ void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
 		if (event.key.scancode == SDL_SCANCODE_A) { velocity_.x = -1; }
 		if (event.key.scancode == SDL_SCANCODE_S) { velocity_.z = 1; }
 		if (event.key.scancode == SDL_SCANCODE_D) { velocity_.x = 1; }
-		if (event.key.scancode == SDL_SCANCODE_SPACE) { velocity_.y = 1; }
+		if (event.key.scancode == SDL_SCANCODE_SPACE) { 
+			velocity_.y = 1; 
+			jumping_ = true;
+		}
 		if (event.key.scancode == SDL_SCANCODE_LCTRL) { velocity_.y = -1; }
 		if (event.key.scancode == SDL_SCANCODE_LSHIFT) { sprint_ = true; }
+		if (event.key.scancode == SDL_SCANCODE_N) { noclip_ = !noclip_; }
 		break;
 	case SDL_EVENT_KEY_UP:
 		if (event.key.scancode == SDL_SCANCODE_W) { velocity_.z = 0; }
@@ -92,11 +103,11 @@ void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
 		break;
 	// MOUSE EVENTS
 	case SDL_EVENT_MOUSE_MOTION:
-		yaw_ += (float)event.motion.xrel / 200;
+		yaw_ += (float)event.motion.xrel / 250;
 
 		// limit pitch to +-90 degrees
 		if (abs(pitch_ - (float)event.motion.yrel / 200) < glm::radians(90.0f)) {
-			pitch_ -= (float)event.motion.yrel / 200;
+			pitch_ -= (float)event.motion.yrel / 250;
 		}
 		
 		break;

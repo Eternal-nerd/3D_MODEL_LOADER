@@ -13,9 +13,7 @@ public:
   ~Synchro();
 
   // to give sync objs access to device
-  void setDvcePtr(const Dvce &dvce);
-
-  void init(int framesInFlight);
+  void init(const Dvce& dvce, int framesInFlight);
 
   // GETTERS
   const std::vector<VkSemaphore> &getImageAvailableSemaphores() const;

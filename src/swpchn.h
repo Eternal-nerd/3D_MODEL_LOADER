@@ -11,13 +11,7 @@ public:
   Swpchn();
   ~Swpchn();
 
-  // to give swpchn access to stuff
-  void setAccessPtrs(const Dvce &dvce, const VkRenderPass &renderPass);
-
-  // to get the image format for renderpass
-  void preInit();
-
-  void init();
+  void init(const Dvce& dvce, const VkRenderPass& renderPass);
 
   const VkFormat &getSwapFormat() const;
   const VkExtent2D &getSwapExtent() const;

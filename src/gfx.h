@@ -28,8 +28,6 @@ public:
 
   void submitCommandBuffer(VkCommandBuffer commandBuffer);
 
-  void drawUI();
-
   void presentSwapchainImage();
 
   void deviceWaitIdle();
@@ -41,6 +39,8 @@ public:
   const VkExtent2D& getSwapExtent() const;
 
   void mapUBO(const UniformBufferObject& ubo);
+
+  int getTextureCount();
 
   void cleanupStart();
   void cleanupEnd();

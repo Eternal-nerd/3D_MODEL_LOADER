@@ -23,38 +23,40 @@ void Engine::init() {
     util::log("Initializing clock...");
     clock_.init();
 
-  util::log("Initializing SDL...");
-  if (!SDL_Init(SDL_INIT_VIDEO)) {
+    phys_.init(clock_);
+
+    util::log("Initializing SDL...");
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
     throw std::runtime_error("Failed to initialize SDL. ");
-  }
+    }
 
-  util::log("Creating SDL window...");
-  window_ = SDL_CreateWindow("3D_MODEL_LOADER", WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
+    util::log("Creating SDL window...");
+    window_ = SDL_CreateWindow("3D_MODEL_LOADER", WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
 
-  if (!window_) {
+    if (!window_) {
     throw std::runtime_error("Failed to create SDL window. ");
-  }
+    }
 
-  util::log("Setting SDL window to be resizable...");
-  if (!SDL_SetWindowResizable(window_, true)) {
+    util::log("Setting SDL window to be resizable...");
+    if (!SDL_SetWindowResizable(window_, true)) {
     throw std::runtime_error("Failed to make window resizable. ");
-  }
+    }
 
-  util::log("Set Mouse into relative mode (for FPS camera)...");
-  if (!SDL_SetWindowRelativeMouseMode(window_, true)) {
-      throw std::runtime_error("Failed to put mouse into relative mode. ");
-  }
+    util::log("Set Mouse into relative mode (for FPS camera)...");
+    if (!SDL_SetWindowRelativeMouseMode(window_, true)) {
+        throw std::runtime_error("Failed to put mouse into relative mode. ");
+    }
 
-  // Initialize gfx
-  gfx_.init(window_);
+    // Initialize gfx
+    gfx_.init(window_);
 
-  // generate meshs
-  generateRenderables();
+    // generate meshs
+    generateRenderables();
 
-  // init camera
-  VkExtent2D extent = gfx_.getSwapExtent();
-  float aspect = extent.width / (float)extent.height;
-  cam_.init(aspect, clock_);
+    // init camera
+    VkExtent2D extent = gfx_.getSwapExtent();
+    float aspect = extent.width / (float)extent.height;
+    cam_.init(aspect, clock_, phys_);
 }
 
 /*-----------------------------------------------------------------------------
@@ -158,10 +160,13 @@ void Engine::handleInputEvent() {
         case SDL_SCANCODE_LCTRL:
             keys_.ctrl = down;
             break;
+        case SDL_SCANCODE_N:
+            keys_.n = down;
+            break;
         }
     }
 
-    // FOR NOW input events only really affect the camera..
+    // FOR NOW mouse input events only really affect the camera..
     cam_.processEvent(event_, keys_);
 }
 
@@ -179,21 +184,36 @@ void Engine::updateUBO() {
     float time = clock_.getProgramSeconds();
 
     UniformBufferObject ubo{};
+    
     // DO MODEL TRANSFORMS
     for (int i = 0; i < renderables_.size(); i++) {
         ubo.model[i] = glm::mat4(1.0f);
 
         // move to model's position
         glm::vec3 pos = renderables_[i].position_;
-
-        // can do fun stuff to positions here
-
         ubo.model[i] = glm::translate(ubo.model[i], pos);
 
-        // rotate if wnated
-        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-     }
+        // i=id
+        switch (i) {
+        case 0:
+            ubo.model[i] = glm::scale(ubo.model[i], { 100.f, 0.f, 100.f });
+            ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            break;
+        case 1:
+            ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            break;
+        case 2:
+            ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            break;
+        case 3:
+            ubo.model[i] = glm::scale(ubo.model[i], { 0.05f, 0.05f, 0.05f });
+            break;
+        default:
+            break;
+        }
+    }
     
     ubo.view = cam_.getViewProj();
     ubo.proj = cam_.getPerspectiveProj();
@@ -210,28 +230,81 @@ void Engine::generateRenderables() {
     RenderableAccess access;
     gfx_.getRenderableAccess(access);
 
-    // cube
+    // premades
     Cube cubeData;
-    RenderableData data;
-    data.vertices = cubeData.vertices;
-    data.indices = cubeData.indices;
+    Plane planeData;
+    LetterQuad letterQuad;
+
+    // FLOOR
+    Renderable floor;
+    RenderableData floorData;
+    floorData.vertices = planeData.vertices;
+    floorData.indices = planeData.indices;
+    floor.init(0, floorData, access);
+    floor.position_ = { 0,0,0 };
+    setRenderableTextureIndex(floor, 3);
+    renderables_.push_back(floor);
+
+    // cube
+    RenderableData data1;
+    data1.vertices = cubeData.vertices;
+    data1.indices = cubeData.indices;
     Renderable r1;
-    r1.initSimple(0, data, access);
-    r1.position_ = { -2,0,0 };
-    r1.setTextureIndex(2);
+    r1.init(1, data1, access);
+    r1.position_ = { -2,2,0 };
+    setRenderableTextureIndex(r1, 1);
     renderables_.push_back(r1);
 
-    // gltf??
-    std::string filename = "../res/gltf/Fox-glTF-Sample-Models/glTF-Binary/Fox.glb";
+    // viking room model
     Renderable r2;
-    r2.initGLTF(1, access, filename);
-    r2.position_ = { 2,0,0 };
-    // FIXMEMMEE
-    //renderables_.push_back(r2);
+    r2.init(2, util::getObjData("../res/obj/viking_room.obj"), access);
+    r2.position_ = {10, 0, 0};
+    setRenderableTextureIndex(r2, 0);
+    renderables_.push_back(r2);
+
+    // house
+    Renderable r3;
+    r3.init(3, util::getObjData("../res/obj/house.obj"), access);
+    r3.position_ = { -10, 0, 0 };
+    setRenderableTextureIndex(r3, 2);
+    renderables_.push_back(r3);
+
+    //FIXME
+    Renderable font;
+    RenderableData fontData;
+    fontData.vertices = planeData.vertices;
+    fontData.indices = planeData.indices;
+    font.init(4, fontData, access);
+    font.position_ = { 0,2,-5 };
+    setRenderableTextureIndex(font, 4);
+    renderables_.push_back(font);
+    // test letter
+    /*Renderable letter;
+    RenderableData letterData;
+    letterData.vertices = letterQuad.vertices;
+    // mess with texture cords here
+    //letterData.vertices[0].texCoord = { 0.0f, 1.0f };
+    //letterData.vertices[1].texCoord = { 1.0f, 1.0f };
+    //letterData.vertices[2].texCoord = { 1.0f, 0.0f };
+    //letterData.vertices[3].texCoord = { 0.0f, 0.0f };
+
+    letterData.indices = letterQuad.indices;
+    letter.init(4, letterData, access);
+    letter.position_ = {0, 2, 0};
+    setRenderableTextureIndex(letter, 0);
+    renderables_.push_back(letter);*/
 
     if (renderables_.size() >= MAX_MODELS) {
         throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");
     }
+}
+
+void Engine::setRenderableTextureIndex(Renderable& renderable, int index) {
+    if (index > gfx_.getTextureCount()) {
+        throw std::runtime_error("TEXTURE INDEX OUT OF BOUNDS");
+    }
+
+    renderable.setTextureIndex(index);
 }
 
 /*-----------------------------------------------------------------------------
@@ -248,6 +321,8 @@ void Engine::renderScene() {
         renderable.draw(commandBuffer);
     }
 
+    text_.draw(commandBuffer);
+
     gfx_.submitCommandBuffer(commandBuffer);
 }
 
@@ -260,7 +335,7 @@ void Engine::presentImage() {
 -----------------------------TESTING-HUD---------------------------------------
 -----------------------------------------------------------------------------*/
 void Engine::drawUI() {
-    gfx_.drawUI();
+
 }
 
 /*-----------------------------------------------------------------------------

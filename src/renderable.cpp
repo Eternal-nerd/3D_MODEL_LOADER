@@ -6,10 +6,10 @@ Renderable::~Renderable() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Renderable::initSimple(int num, const RenderableData& data, const RenderableAccess& access) {
+void Renderable::init(int id, const RenderableData& data, const RenderableAccess& access) {
   util::log("Initializing Renderable...");
 
-  num_ = num;
+  id_ = id;
   data_ = data;
   access_ = access;
 
@@ -17,6 +17,14 @@ void Renderable::initSimple(int num, const RenderableData& data, const Renderabl
   createIndexBuffer();
 }
 
+/*-----------------------------------------------------------------------------
+------------------------------GETTER-------------------------------------------
+-----------------------------------------------------------------------------*/
+int Renderable::getId() {
+    return id_;
+}
+
+/*
 // FIXME NOT READY TO USE!
 void Renderable::initGLTF(int num, const RenderableAccess& access, const std::string& filename) {
     util::log("Initializing GLTF Renderable...");
@@ -49,7 +57,8 @@ void Renderable::initGLTF(int num, const RenderableAccess& access, const std::st
 
 
     // MUST CREATE BUFFERS / TEXTURE DESCRIPTORS???s HERE
-}
+}*/
+
 
 /*-----------------------------------------------------------------------------
 ------------------------------BINDING------------------------------------------
@@ -67,18 +76,12 @@ void Renderable::bind(VkCommandBuffer commandBuffer) {
 ------------------------------CHANGE-TEXTURE-----------------------------------
 -----------------------------------------------------------------------------*/
 void Renderable::setTextureIndex(int texIndex) {
-    if (isGLTF_) {
-        throw std::runtime_error("GLTF renderables have their own texture or somethign..");
-    }
-
     // recreate buffers (destroy them)
     cleanup();
 
     for (int i = 0; i < data_.vertices.size(); i++) {
-        // no safeguard LOL
         data_.vertices[i].texIndex = texIndex;
     }
-    std::cout << "test?\n";
     createVertexBuffer();
     createIndexBuffer();
 }
@@ -88,7 +91,7 @@ void Renderable::setTextureIndex(int texIndex) {
 -----------------------------------------------------------------------------*/
 
 void Renderable::draw(VkCommandBuffer commandBuffer) {
-    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(data_.indices.size()), 1, 0, 0, num_);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(data_.indices.size()), 1, 0, 0, id_);
 }
 
 /*-----------------------------------------------------------------------------
@@ -164,10 +167,6 @@ void Renderable::cleanup() {
   vkFreeMemory(access_.dvcePtr->getLogical(), indexBufferMemory_, nullptr);
   vkDestroyBuffer(access_.dvcePtr->getLogical(), vertexBuffer_, nullptr);
   vkFreeMemory(access_.dvcePtr->getLogical(), vertexBufferMemory_, nullptr);
-
-  if (isGLTF_) {
-      delete gltfModel_;
-  }
 }
 
 

@@ -1,5 +1,10 @@
 #pragma once
 
+// LATER
+//#include "../libs/tiny_gltf.h"
+
+#include "../libs/tiny_obj_loader.h"
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
@@ -7,6 +12,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "cmdr.h"
 #include "types.h"
@@ -27,6 +33,9 @@ void printMouseMove(const SDL_MouseMotionEvent& move);
 
 // GENERAL UTILITIES
 std::vector<char> readFile(const std::string &filename);
+
+// Vertex/index processing
+RenderableData getObjData(const std::string obj_filename);
 
 // SHADER
 VkShaderModule createShaderModule(const std::vector<char> &code,

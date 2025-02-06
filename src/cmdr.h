@@ -12,8 +12,7 @@ public:
   Cmdr();
   ~Cmdr();
 
-  // to give cmdr access to device
-  void setDvcePtr(const Dvce &dvce);
+  void init(const Dvce &dvce, int maxFramesInFlight);
 
   void createCommandPool();
   void createCommandBuffers(int maxFramesInFlight);

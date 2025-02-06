@@ -4,10 +4,14 @@
 #include <iostream>
 #include <stdexcept>
 
-#define TINYGLTF_IMPLEMENTATION
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
+
+#define TINYOBJLOADER_IMPLEMENTATION 
+//#define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define TINYGLTF_NO_INCLUDE_STB_IMAGE 
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#define TINYGLTF_NO_INCLUDE_STB_IMAGE 
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 
 #include "engine.h"

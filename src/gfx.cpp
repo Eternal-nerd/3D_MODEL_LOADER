@@ -12,59 +12,50 @@ Gfx::~Gfx() {}
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
 void Gfx::init(SDL_Window* window) {
-  util::log("Initializing Gfx...");
+    util::log("Initializing Gfx...");
 
-  // set window ptr
-  window_ = window;
+    // set window ptr
+    window_ = window;
 
-  // initialize dvce
-  dvce_.setWindowPtr(window_);
-  dvce_.init();
+    // initialize dvce
+    dvce_.init(window_);
 
-  // create renderpass
-  createRenderPass();
+    // create renderpass
+    createRenderPass();
 
-  // initialize swpchn
-  swpchn_.setAccessPtrs(dvce_, renderPass_);
-  swpchn_.init();
+    // initialize swpchn
+    swpchn_.init(dvce_, renderPass_);
 
-  // create descriptor set layout for pipeline to use
-  // FIXME
-  textureNames_ = {
-        "../res/cat.jpg", "../res/guy.jpg", "../res/kerm.jpg", "../res/mclovin.jpg", 
-        "../res/money.jpg", "../res/set.png", "../res/test.jpg", "../res/texture.jpg" 
-  };
+    // names of global textures?
+    textureNames_ = { 
+        "../res/png/viking_room.png",
+        "../res/png/set.png", 
+        "../res/jpg/wood.jpg", 
+        "../res/jpg/grass.jpg",
+        // FIXME
+        "../res/font/font.png"
+    };
 
-  createDescriptorSetLayout();
-  // create pipeline
-  createGraphicsPipeline();
+    createDescriptorSetLayout();
+    // create pipeline
+    createGraphicsPipeline();
 
-  // create cmdr
-  cmdr_.setDvcePtr(dvce_);
-  cmdr_.createCommandPool();
-  cmdr_.createCommandBuffers(MAX_FRAMES_IN_FLIGHT);
+    // create cmdr
+    cmdr_.init(dvce_, MAX_FRAMES_IN_FLIGHT);
 
-  // TODO make this more elegant
-  for (int i = 0; i < textureNames_.size(); i++) {
-      Txtr t;
-      t.create(textureNames_[i], dvce_, cmdr_);
-      textures_.push_back(t);
-  }
+    // TODO make this more elegant
+    for (int i = 0; i < textureNames_.size(); i++) {
+        Txtr t;
+        t.create(textureNames_[i], dvce_, cmdr_);
+        textures_.push_back(t);
+    }
 
-  // init synchro
-  synchro_.setDvcePtr(dvce_);
-  synchro_.init(MAX_FRAMES_IN_FLIGHT);
+    // init synchro
+    synchro_.init(dvce_, MAX_FRAMES_IN_FLIGHT);
 
-
-  // MAKE CAMERA UBO AND PER-MODEL UBO
-  createUniformBuffers();
-
-  // FYI THis is where the vertex and index buffers were created
-  
-  // can stay
-  createDescriptorPool();
-
-  createDescriptorSets();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
 }
 
 /*-----------------------------------------------------------------------------
@@ -184,13 +175,6 @@ void Gfx::submitCommandBuffer(VkCommandBuffer commandBuffer) {
     }
 }
 
-
-void Gfx::drawUI() {
-    // get image to draw to
-
-}
-
-
 void Gfx::presentSwapchainImage() {
     VkSemaphore signalSemaphores[] = {
         synchro_.getRenderFinishedSemaphores()[currentFrame_]
@@ -228,6 +212,10 @@ void Gfx::presentSwapchainImage() {
 void Gfx::getRenderableAccess(RenderableAccess& access) {
     access.dvcePtr = &dvce_;
     access.cmdrPtr = &cmdr_;
+}
+
+int Gfx::getTextureCount() {
+    return textures_.size();
 }
 
 void Gfx::deviceWaitIdle() { dvce_.waitIdle(); }

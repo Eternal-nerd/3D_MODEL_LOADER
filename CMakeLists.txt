@@ -27,6 +27,8 @@ set(SOURCES
 	src/camera.cpp
 	src/synchro.cpp
 	src/clock.cpp
+	src/physics.cpp
+	src/text.cpp
 )
 
 # add headers
@@ -43,11 +45,14 @@ set(HEADERS
 	src/types.h
 	src/synchro.h
 	src/clock.h
+	src/physics.h
+	src/text.h
 	libs/stb_image.h
-	libs/stb_image_resize2.h
-	libs/stb_image_write.h
-	libs/json.hpp
-	libs/tiny_gltf.h
+	libs/tiny_obj_loader.h
+	#libs/stb_image_resize2.h
+	#libs/stb_image_write.h
+	#libs/json.hpp
+	#libs/tiny_gltf.h
 )
 
 # add executable:

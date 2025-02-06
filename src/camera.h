@@ -1,7 +1,8 @@
 #pragma once
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -13,6 +14,7 @@
 #include "types.h"
 #include "util.h"
 #include "clock.h"
+#include "physics.h"
 
 class Camera {
 
@@ -20,7 +22,7 @@ public:
 	Camera();
 	~Camera();
 
-	void init(float aspect, Clock& clock);
+	void init(float aspect, Clock& clock, Physics& physics);
 
 	void processEvent(const SDL_Event& event, const KeyStates& keys);
 
@@ -36,13 +38,18 @@ private:
 	Clock* clockPtr_ = nullptr;
 	float lastUpdate_ = 0.f;
 
+	// reference to physics
+	Physics* physicsPtr_ = nullptr;
+
 	float fovy_ = 0;
 	float near_ = 0;
 	float far_ = 0;
 
 	glm::vec3 velocity_ = { 0,0,0 };
 	glm::vec3 position_ = {0,0,0};
+	bool noclip_ = false;
 	bool sprint_ = false;
+	bool jumping_ = false;
 	
 	// verticle rotation
 	float pitch_ = 0;

@@ -8,7 +8,11 @@ Cmdr::~Cmdr() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Cmdr::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
+void Cmdr::init(const Dvce &dvce, int maxFramesInFlight) {
+    dvcePtr_ = &dvce;
+    createCommandPool();
+    createCommandBuffers(maxFramesInFlight);
+}
 
 void Cmdr::createCommandPool() {
   util::log("Creating command pool...");

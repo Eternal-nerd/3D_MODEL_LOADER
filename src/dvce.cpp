@@ -8,12 +8,10 @@ Dvce::~Dvce() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-
-void Dvce::setWindowPtr(SDL_Window *window) { window_ = window; }
-
-void Dvce::init() {
+void Dvce::init(SDL_Window* window) {
   util::log("Initializing Device...");
 
+  window_ = window;
   createInstance();
   setupDebugMessenger();
   createSurface();

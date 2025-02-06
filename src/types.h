@@ -3,7 +3,9 @@
 #include <SDL3/SDL.h>
 #include <vulkan/vulkan.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 
 #include <array>
 #include <optional>
@@ -35,7 +37,7 @@ struct KeyStates {
     bool space = false;
     bool ctrl = false;
     bool shift = false;
-    //bool _ = false;
+    bool n = false; // NOCLIP
     //bool _ = false;
 
 };
@@ -85,6 +87,25 @@ struct Vertex {
 
         return attributeDescriptions;
     }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
+};
+
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
+
+struct RenderableData {
+    std::vector<Vertex> vertices = {};
+    std::vector<uint32_t> indices = {};
 };
 
 struct QueueFamilyIndices {
@@ -102,6 +123,19 @@ struct SwapChainSupportDetails {
   std::vector<VkPresentModeKHR> presentModes;
 };
 
+
+struct Plane {
+    std::vector<Vertex> vertices = {
+        { { -0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 1.0f }, 0 },
+        { {  0.5, -0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 1.0f }, 0 },
+        { {  0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 1.0f, 0.0f }, 0 },
+        { { -0.5,  0.5,  0.5 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
+    };
+
+    std::vector<uint32_t> indices = {
+        0,1,2, 0,2,3
+    };
+};
 
 struct Cube {
     std::vector<Vertex> vertices = {

@@ -26,8 +26,7 @@ public:
   Dvce();
   ~Dvce();
 
-  void setWindowPtr(SDL_Window *window);
-  void init();
+  void init(SDL_Window* window);
 
   // getters
   const VkPhysicalDevice &getPhysical() const;

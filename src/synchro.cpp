@@ -8,10 +8,9 @@ Synchro::~Synchro() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Synchro::setDvcePtr(const Dvce &dvce) { dvcePtr_ = &dvce; }
-
-void Synchro::init(int maxFramesInFlight) {
+void Synchro::init(const Dvce& dvce, int maxFramesInFlight) {
   util::log("Initializing syncro class...");
+  dvcePtr_ = &dvce;
   maxFramesInFlight_ = maxFramesInFlight;
   createSyncObjects();
 }
