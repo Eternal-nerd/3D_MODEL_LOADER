@@ -6,7 +6,7 @@ Renderable::~Renderable() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Renderable::init(int id, const RenderableData& data, const RenderableAccess& access) {
+void Renderable::init(int id, const RenderableData& data, const GfxAccess& access) {
   util::log("Initializing Renderable...");
 
   id_ = id;

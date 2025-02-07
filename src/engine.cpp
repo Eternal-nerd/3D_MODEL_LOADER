@@ -50,8 +50,14 @@ void Engine::init() {
     // Initialize gfx
     gfx_.init(window_);
 
+    GfxAccess access;
+    gfx_.getAccess(access);
+
+    // initialize text overlay
+    text_.init(access);
+
     // generate meshs
-    generateRenderables();
+    generateRenderables(access);
 
     // init camera
     VkExtent2D extent = gfx_.getSwapExtent();
@@ -72,7 +78,7 @@ void Engine::renderLoop() {
     clock_.startFrame();
     fpsCounter_++;
 
-    // FIXME the event handling system needs to run at a predefined rate, not just with the rate of the render loop...
+    // get user inputs
     handleEvents();
     
     // only render stuff if window is visible
@@ -196,18 +202,26 @@ void Engine::updateUBO() {
         // i=id
         switch (i) {
         case 0:
+            // TODO Skybox
+            ubo.model[i] = glm::scale(ubo.model[i], { 1000.f, 1000.f, 1000.f });
+            break;
+        case 1:
+            // FLOOR
             ubo.model[i] = glm::scale(ubo.model[i], { 100.f, 0.f, 100.f });
             ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             break;
-        case 1:
+        case 2:
+            // CUBE
             ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             ubo.model[i] = glm::rotate(ubo.model[i], time * glm::radians(40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             break;
-        case 2:
+        case 3:
+            // VIKING ROOM
             ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             break;
-        case 3:
+        case 4:
+            // HOUSE
             ubo.model[i] = glm::scale(ubo.model[i], { 0.05f, 0.05f, 0.05f });
             break;
         default:
@@ -224,25 +238,33 @@ void Engine::updateUBO() {
     gfx_.mapUBO(ubo);
 }
 
-void Engine::generateRenderables() {
+void Engine::generateRenderables(const GfxAccess& access) {
     util::log("Generating renderables... ");
 
-    RenderableAccess access;
-    gfx_.getRenderableAccess(access);
-
     // premades
+    InvertedCube invertedCubeData;
     Cube cubeData;
     Plane planeData;
     LetterQuad letterQuad;
+
+    // Skybox
+    Renderable skybox;
+    RenderableData skyboxData;
+    skyboxData.vertices = invertedCubeData.vertices;
+    skyboxData.indices = invertedCubeData.indices;
+    skybox.init(0, skyboxData, access);
+    skybox.position_ = { 0,0,0 };
+    setRenderableTextureIndex(skybox, 0);
+    renderables_.push_back(skybox);
 
     // FLOOR
     Renderable floor;
     RenderableData floorData;
     floorData.vertices = planeData.vertices;
     floorData.indices = planeData.indices;
-    floor.init(0, floorData, access);
+    floor.init(1, floorData, access);
     floor.position_ = { 0,0,0 };
-    setRenderableTextureIndex(floor, 3);
+    setRenderableTextureIndex(floor, 4);
     renderables_.push_back(floor);
 
     // cube
@@ -250,23 +272,23 @@ void Engine::generateRenderables() {
     data1.vertices = cubeData.vertices;
     data1.indices = cubeData.indices;
     Renderable r1;
-    r1.init(1, data1, access);
+    r1.init(2, data1, access);
     r1.position_ = { -2,2,0 };
-    setRenderableTextureIndex(r1, 1);
+    setRenderableTextureIndex(r1, 2);
     renderables_.push_back(r1);
 
     // viking room model
     Renderable r2;
-    r2.init(2, util::getObjData("../res/obj/viking_room.obj"), access);
+    r2.init(3, util::getObjData("../res/obj/viking_room.obj"), access);
     r2.position_ = {10, 0, 0};
-    setRenderableTextureIndex(r2, 0);
+    setRenderableTextureIndex(r2, 1);
     renderables_.push_back(r2);
 
     // house
     Renderable r3;
-    r3.init(3, util::getObjData("../res/obj/house.obj"), access);
+    r3.init(4, util::getObjData("../res/obj/house.obj"), access);
     r3.position_ = { -10, 0, 0 };
-    setRenderableTextureIndex(r3, 2);
+    setRenderableTextureIndex(r3, 3);
     renderables_.push_back(r3);
 
     //FIXME
@@ -274,9 +296,9 @@ void Engine::generateRenderables() {
     RenderableData fontData;
     fontData.vertices = planeData.vertices;
     fontData.indices = planeData.indices;
-    font.init(4, fontData, access);
+    font.init(5, fontData, access);
     font.position_ = { 0,2,-5 };
-    setRenderableTextureIndex(font, 4);
+    setRenderableTextureIndex(font, 5);
     renderables_.push_back(font);
     // test letter
     /*Renderable letter;

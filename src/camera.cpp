@@ -28,7 +28,7 @@ void Camera::init(float aspect, Clock& clock, Physics& physics) {
 	near_ = 0.1f;
 
 	// set far plane:
-	far_ = 100;
+	far_ = 2000; // FIXME
 
 	persp_ = glm::perspective(glm::radians(fovy_), aspect, near_, far_);
 	// invert the Y direction on projection matrix ???

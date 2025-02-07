@@ -58,7 +58,7 @@ private:
 	// initializes the application
 	void init();
 
-	void generateRenderables();
+	void generateRenderables(const GfxAccess& access);
 	void setRenderableTextureIndex(Renderable& renderable, int index);
 
 	// loop that executes for each frame

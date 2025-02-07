@@ -13,18 +13,13 @@
 #include "cmdr.h"
 #include "util.h"
 
-struct RenderableAccess {
-	const Dvce* dvcePtr = nullptr;
-	Cmdr* cmdrPtr = nullptr;
-};
-
 class Renderable {
 public:
 
   Renderable();
   ~Renderable();
 
-  void init(int id, const RenderableData& data, const RenderableAccess& access);
+  void init(int id, const RenderableData& data, const GfxAccess& access);
 
   void bind(VkCommandBuffer commandBuffer);
 
@@ -42,7 +37,7 @@ private:
 	int id_ = -1;
 
 	RenderableData data_;
-	RenderableAccess access_;
+	GfxAccess access_;
 
 	VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
 	VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;

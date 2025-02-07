@@ -6,6 +6,8 @@
 // for letter dictionary
 #include <unordered_map>
 
+#include "gfx.h"
+#include "txtr.h"
 #include "renderable.h"
 #include "types.h"
 
@@ -37,14 +39,50 @@ public:
 	Text();
 	~Text();
 
+	// init text overlay
+	void init(const GfxAccess& access);
+
+	// TODO add scale factor
+
+	// draw each char
     void draw(VkCommandBuffer commandBuffer);
 
+	// delete resources
+	void cleanup();
 
     bool visible_ = true;
+	enum TextAlign { alignLeft, alignCenter, alignRight };
+	uint32_t numLetters;
 
 private:
-	std::vector<Renderable> letterQuads_ = {};
+	// reference to gfx class:
+	GfxAccess access_;
 
+    Txtr fontTexture_;
+	Renderable textVertexBuffer_;
+
+	VkDescriptorPool descriptorPool_;
+	VkDescriptorSetLayout descriptorSetLayout_;
+	VkDescriptorSet descriptorSet_;
+	VkPipelineLayout pipelineLayout_;
+	VkPipelineCache pipelineCache_;
+	VkPipeline pipeline_;
+
+	// Passed from the sample
+	VkRenderPass renderPass_;
+	VkQueue queue_;
+	uint32_t* frameBufferWidth;
+	uint32_t* frameBufferHeight;
+	std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+	float scale;
+
+	// Pointer to mapped vertex buffer
+	glm::vec4* mapped = nullptr;
+
+
+
+	void prepareResources();
+	void preparePipeline();
 
 
 };
