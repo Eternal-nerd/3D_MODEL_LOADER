@@ -30,7 +30,8 @@ void Gfx::init(SDL_Window* window) {
     textureNames_ = { 
         "../res/skybox/skybox.png",
         "../res/png/viking_room.png",
-        "../res/png/set.png", 
+        //"../res/png/set.png",
+        "../res/jpg/mclovin.jpg",
         "../res/jpg/wood.jpg", 
         "../res/jpg/grass.jpg",
         // FIXME
