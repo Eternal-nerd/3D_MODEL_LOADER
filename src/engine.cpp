@@ -248,7 +248,6 @@ void Engine::generateRenderables(const GfxAccess& access) {
     InvertedCube invertedCubeData;
     Cube cubeData;
     Plane planeData;
-    LetterQuad letterQuad;
 
     // Skybox
     Renderable skybox;
@@ -365,7 +364,9 @@ void Engine::updateTextOverlay() {
 
     text_.beginTextUpdate();
 
-    text_.addText("Hello World. ", -1.f, -0.9f);
+    text_.addText("GET OUT!!!", -1.f, -0.9f);
+    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.8f);
+
 
     text_.endTextUpdate();
 }
