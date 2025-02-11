@@ -15,27 +15,6 @@
 // Max. number of chars the text overlay buffer can hold
 #define TEXTOVERLAY_MAX_CHAR_COUNT 2048
 
-/* BASED ON SPECIFIC FONT FILE USED :
-total width: 300px
-total height: 300px
-letter width & height: 30px
-rows: 10
-col: 10
----- NOT USED LOL
-*/
-struct LetterQuad {
-    std::vector<LetterVertex> vertices = {
-        { { -0.1, 0.1 }, { 0.0f, 0.0f } },
-        { {  0.1, 0.1 }, { 0.1f, 0.0f } },
-        { {  0.1,  -0.1 }, { 0.1f, 0.1f } },
-        { { -0.1,  -0.1 }, { 0.0f, 0.1f } },
-    };
-
-    std::vector<uint32_t> indices = {
-        2,1,0, 3,2,0
-    };
-};
-
 const float LETTER_OFFSET = 0.1f;
 
 // mostly self-contained text overlay class based on Sascha Willems implementation
