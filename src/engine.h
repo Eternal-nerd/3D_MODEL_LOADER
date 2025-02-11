@@ -73,7 +73,8 @@ private:
 	void renderScene(); // GPU renders scene image, draw call for each model
 
 	// hmmmm
-	void drawUI();
+	void updateTextOverlay();
+
 	void presentImage();
 
 	// cleans up the application on termination

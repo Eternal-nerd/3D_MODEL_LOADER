@@ -294,8 +294,7 @@ void Gfx::createRenderPass() {
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  if (vkCreateRenderPass(dvce_.getLogical(), &renderPassInfo, nullptr,
-                         &renderPass_) != VK_SUCCESS) {
+  if (vkCreateRenderPass(dvce_.getLogical(), &renderPassInfo, nullptr, &renderPass_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create render pass!");
   }
 }

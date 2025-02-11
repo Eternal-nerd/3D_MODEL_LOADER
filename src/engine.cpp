@@ -55,6 +55,7 @@ void Engine::init() {
 
     // initialize text overlay
     text_.init(access);
+    updateTextOverlay();
 
     // generate meshs
     generateRenderables(access);
@@ -86,7 +87,7 @@ void Engine::renderLoop() {
         updateCamera();
         updateUBO();
         renderScene();
-        drawUI();
+        // FIXME Text overlay update?  
         presentImage();
     }
 
@@ -357,8 +358,43 @@ void Engine::presentImage() {
 /*-----------------------------------------------------------------------------
 -----------------------------TESTING-HUD---------------------------------------
 -----------------------------------------------------------------------------*/
-void Engine::drawUI() {
+void Engine::updateTextOverlay() {
+    // Update the text buffer displayed by the text overlay
+    //uint32_t lastNumLetters = text_.numLetters; // FIXME REMOVE?
 
+    text_.beginTextUpdate();
+
+    text_.addText("Hello World. ", 0.f, 0.f);
+
+    /*
+    textOverlay->addText(title, 5.0f * ui.scale, 5.0f * ui.scale, TextOverlay::alignLeft);
+
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << (frameTimer * 1000.0f) << "ms (" << lastFPS << " fps)";
+    textOverlay->addText(ss.str(), 5.0f * ui.scale, 25.0f * ui.scale, TextOverlay::alignLeft);
+
+    textOverlay->addText(deviceProperties.deviceName, 5.0f * ui.scale, 45.0f * ui.scale, TextOverlay::alignLeft);
+
+    // Display current model view matrix
+    textOverlay->addText("model view matrix", (float)width - 5.0f * ui.scale, 5.0f * ui.scale, TextOverlay::alignRight);
+
+    for (uint32_t i = 0; i < 4; i++) {
+        ss.str("");
+        ss << std::fixed << std::setprecision(2) << std::showpos;
+        ss << uniformData.modelView[0][i] << " " << uniformData.modelView[1][i] << " " << uniformData.modelView[2][i] << " " << uniformData.modelView[3][i];
+        textOverlay->addText(ss.str(), (float)width - 5.0f * ui.scale, (25.0f + (float)i * 20.0f) * ui.scale, TextOverlay::alignRight);
+    }
+
+    glm::vec3 projected = glm::project(glm::vec3(0.0f), uniformData.modelView, uniformData.projection, glm::vec4(0, 0, (float)width, (float)height));
+    textOverlay->addText("A torus knot", projected.x, projected.y, TextOverlay::alignCenter);
+
+
+    textOverlay->addText("Press \"space\" to toggle text overlay", 5.0f * ui.scale, 65.0f * ui.scale, TextOverlay::alignLeft);
+    textOverlay->addText("Hold middle mouse button and drag to move", 5.0f * ui.scale, 85.0f * ui.scale, TextOverlay::alignLeft);
+
+    */
+
+    text_.endTextUpdate();
 }
 
 /*-----------------------------------------------------------------------------

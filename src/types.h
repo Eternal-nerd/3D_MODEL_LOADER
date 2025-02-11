@@ -25,7 +25,7 @@ struct GfxAccess {
     Cmdr* cmdrPtr = nullptr;
     // for text overlay:
     const Swpchn* swpchnPtr = nullptr;
-    VkRenderPass vkRenderpass;
+    VkRenderPass vkRenderpass = VK_NULL_HANDLE;
 
 };
 
@@ -110,6 +110,7 @@ struct Vertex {
     }
 };
 
+// TODO remove this SHIT, just use vec4
 struct LetterVertex {
     glm::vec2 pos;
     glm::vec2 texCoord;

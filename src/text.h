@@ -21,6 +21,7 @@ total height: 300px
 letter width & height: 30px
 rows: 10
 col: 10
+---- NOT USED LOL
 */
 struct LetterQuad {
     std::vector<LetterVertex> vertices = {
@@ -45,6 +46,11 @@ public:
 	// init text overlay
 	void init(const GfxAccess& access);
 
+	// USED BY ENGINE:
+	void beginTextUpdate();
+	void addText(const std::string& text, float xPos, float yPos);
+	void endTextUpdate();
+
 	// draw each char
     void draw(VkCommandBuffer commandBuffer);
 
@@ -53,7 +59,7 @@ public:
 
     bool visible_ = true;
 	enum TextAlign { alignLeft, alignCenter, alignRight };
-	uint32_t numLetters;
+	uint32_t numLetters_ = 0;
 
 private:
 	// reference to gfx class:
@@ -71,12 +77,6 @@ private:
 	VkPipelineLayout pipelineLayout_;
 	VkPipelineCache pipelineCache_;
 	VkPipeline pipeline_;
-
-	// Passed from the gfx access
-	VkRenderPass renderPass_;
-	
-	// FIXME - can just get this from device?
-	VkQueue queue_;
 	
 	// FIXME - just get this from swapchain pointer
 	uint32_t* frameBufferWidth;

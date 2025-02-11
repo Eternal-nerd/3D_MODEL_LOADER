@@ -11,8 +11,6 @@ void Text::init(const GfxAccess& access) {
 
     access_ = access;
 
-    assert(access_.vkRenderpass != VK_NULL_HANDLE);
-
     prepareResources();
     preparePipeline();
 }
@@ -22,6 +20,7 @@ void Text::prepareResources() {
     util::log("preparing resources for text overlay...");
 
     // create texture to sample from
+    // FIXME go clear not blue
     fontTexture_.create("../res/font/font.png", *access_.dvcePtr, *access_.cmdrPtr);
     
     // Vertex buffer
@@ -122,8 +121,9 @@ void Text::preparePipeline() {
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
 
-    VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo,
-                                                    fragShaderStageInfo };
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+    shaderStages.push_back(vertShaderStageInfo);
+    shaderStages.push_back(fragShaderStageInfo);
 
     // Pipeline cache
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
@@ -204,20 +204,37 @@ void Text::preparePipeline() {
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
     dynamicState.pDynamicStates = dynamicStateEnables.data();
 
-    auto vertexInputBindings = LetterVertex::getBindingDescription(); // FIXME does there need to be 2 of these?
-    auto vertexInputAttributes = LetterVertex::getAttributeDescriptions();
+    
+    std::array<VkVertexInputBindingDescription, 2> vertexInputBindings{};
+    vertexInputBindings[0].binding = 0;
+    vertexInputBindings[0].stride = sizeof(glm::vec4);
+    vertexInputBindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    vertexInputBindings[1].binding = 1;
+    vertexInputBindings[1].stride = sizeof(glm::vec4);
+    vertexInputBindings[1].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributes{};
+    vertexInputAttributes[0].binding = 0;
+    vertexInputAttributes[0].location = 0;
+    vertexInputAttributes[0].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexInputAttributes[0].offset = 0;
+    vertexInputAttributes[1].binding = 1;
+    vertexInputAttributes[1].location = 1;
+    vertexInputAttributes[1].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexInputAttributes[1].offset = sizeof(glm::vec2);
+
 
     VkPipelineVertexInputStateCreateInfo vertexInputState{};
     vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputState.vertexBindingDescriptionCount = 1;
-    vertexInputState.pVertexBindingDescriptions = &vertexInputBindings;
+    vertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexInputBindings.size());
+    vertexInputState.pVertexBindingDescriptions = vertexInputBindings.data();
     vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInputAttributes.size());
     vertexInputState.pVertexAttributeDescriptions = vertexInputAttributes.data();
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineCreateInfo.layout = pipelineLayout_;
-    pipelineCreateInfo.renderPass = renderPass_;
+    pipelineCreateInfo.renderPass = access_.vkRenderpass;
     pipelineCreateInfo.pVertexInputState = &vertexInputState;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
     pipelineCreateInfo.pRasterizationState = &rasterizationState;
@@ -226,8 +243,8 @@ void Text::preparePipeline() {
     pipelineCreateInfo.pViewportState = &viewportState;
     pipelineCreateInfo.pDepthStencilState = &depthStencilState;
     pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = 2;
-    pipelineCreateInfo.pStages = shaderStages;
+    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.pStages = shaderStages.data();
 
     if (vkCreateGraphicsPipelines(access_.dvcePtr->getLogical(), pipelineCache_, 1, &pipelineCreateInfo, nullptr, &pipeline_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
@@ -241,13 +258,73 @@ void Text::preparePipeline() {
 /*-----------------------------------------------------------------------------
 ------------------------------UPDATE-------------------------------------------
 -----------------------------------------------------------------------------*/
+// map buffer
+void Text::beginTextUpdate() {
+    if (vkMapMemory(access_.dvcePtr->getLogical(), memory_, 0, VK_WHOLE_SIZE, 0, (void**)&mapped) != VK_SUCCESS) {
+        throw std::runtime_error("failed to map memory for overlay text update! ");
+    }
+    numLetters_ = 0;
+}
 
+// xPos & yPos --> 0.f - 1.f?
+void Text::addText(const std::string& text, float xPos, float yPos) {
+    assert(mapped != nullptr);
+
+    // TESTING
+    
+    // vertex 1:
+    mapped->x = -0.2f; // position x
+    mapped->y = -0.2f; // position y
+    mapped->z = 0.4f; // tex coord x
+    mapped->w = 0.3f; // tex coord y
+    mapped++;
+
+    // vertex 2
+    mapped->x = 0.2f;
+    mapped->y = -0.2f;
+    mapped->z = 0.5f;
+    mapped->w = 0.3f;
+    mapped++;
+
+    // vertex 3
+    mapped->x = -0.2f;
+    mapped->y = 0.2f;
+    mapped->z = 0.4f;
+    mapped->w = 0.4f;
+    mapped++;
+
+    // vertex 4
+    mapped->x = 0.2f;
+    mapped->y = 0.2f;
+    mapped->z = 0.5f;
+    mapped->w = 0.4f;
+    mapped++;
+
+    numLetters_++;
+
+}
+
+// unmap buffer
+void Text::endTextUpdate() {
+    vkUnmapMemory(access_.dvcePtr->getLogical(), memory_);
+    mapped = nullptr;
+}
 
 /*-----------------------------------------------------------------------------
 ------------------------------DRAW---------------------------------------------
 -----------------------------------------------------------------------------*/
 void Text::draw(VkCommandBuffer commandBuffer) {
-    
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1, &descriptorSet_, 0, NULL);
+
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer_, &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, 1, 1, &buffer_, &offsets);
+    // One draw command for every character. This is okay for a debug overlay, but not optimal
+    // In a real-world application one would try to batch draw commands
+    for (uint32_t j = 0; j < numLetters_; j++) {
+        vkCmdDraw(commandBuffer, 4, 1, j * 4, 0);
+    }
 }
 
 
