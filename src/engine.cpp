@@ -217,12 +217,13 @@ void Engine::updateUBO() {
             break;
         case 3:
             // VIKING ROOM
+            ubo.model[i] = glm::scale(ubo.model[i], { 5.f, 5.f, 5.f });
             ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             ubo.model[i] = glm::rotate(ubo.model[i], glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             break;
         case 4:
             // HOUSE
-            ubo.model[i] = glm::scale(ubo.model[i], { 0.05f, 0.05f, 0.05f });
+            ubo.model[i] = glm::scale(ubo.model[i], { 0.1f, 0.1f, 0.1f });
             break;
         default:
             break;
@@ -280,14 +281,14 @@ void Engine::generateRenderables(const GfxAccess& access) {
     // viking room model
     Renderable r2;
     r2.init(3, util::getObjData("../res/obj/viking_room.obj"), access);
-    r2.position_ = {10, 0, 0};
+    r2.position_ = {20, 0, 0};
     setRenderableTextureIndex(r2, 1);
     renderables_.push_back(r2);
 
     // house
     Renderable r3;
     r3.init(4, util::getObjData("../res/obj/house.obj"), access);
-    r3.position_ = { -10, 0, 0 };
+    r3.position_ = { -30, 0, 0 };
     setRenderableTextureIndex(r3, 3);
     renderables_.push_back(r3);
 
@@ -372,6 +373,9 @@ void Engine::cleanup() {
   for (auto r : renderables_) {
       r.cleanup();
   }
+
+  // cleanup text overlay shit
+  text_.cleanup();
 
   gfx_.cleanupEnd();
 

@@ -11,15 +11,22 @@
 #include <optional>
 #include <vector>
 
+#include <assert.h>
 
 const int MAX_MODELS = 512;
 
 class Dvce;
 class Cmdr;
+class Swpchn;
 
 struct GfxAccess {
+    // get queues throught device
     const Dvce* dvcePtr = nullptr;
     Cmdr* cmdrPtr = nullptr;
+    // for text overlay:
+    const Swpchn* swpchnPtr = nullptr;
+    VkRenderPass vkRenderpass;
+
 };
 
 
@@ -54,6 +61,8 @@ struct KeyStates {
 /*  Vertex is a point in 3D space
     pos: (x, y, z)
     color: (r, g, b)
+    ...
+
 */
 struct Vertex {
     glm::vec3 pos;
@@ -70,8 +79,7 @@ struct Vertex {
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 4>
-        getAttributeDescriptions() {
+    static std::array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions() {
         std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
         attributeDescriptions[0].binding = 0;
@@ -99,6 +107,36 @@ struct Vertex {
 
     bool operator==(const Vertex& other) const {
         return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
+};
+
+struct LetterVertex {
+    glm::vec2 pos;
+    glm::vec2 texCoord;
+
+    static VkVertexInputBindingDescription getBindingDescription() {
+        VkVertexInputBindingDescription bindingDescription{};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(LetterVertex);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescription;
+    }
+
+    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+        attributeDescriptions[0].binding = 0;
+        attributeDescriptions[0].location = 0;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].offset = offsetof(LetterVertex, pos);
+
+        attributeDescriptions[1].binding = 0;
+        attributeDescriptions[1].location = 1;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(LetterVertex, texCoord);
+
+        return attributeDescriptions;
     }
 };
 

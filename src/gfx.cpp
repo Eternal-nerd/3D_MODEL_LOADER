@@ -214,6 +214,8 @@ void Gfx::presentSwapchainImage() {
 void Gfx::getAccess(GfxAccess& access) {
     access.dvcePtr = &dvce_;
     access.cmdrPtr = &cmdr_;
+    access.swpchnPtr = &swpchn_;
+    access.vkRenderpass = renderPass_;
 }
 
 int Gfx::getTextureCount() {
@@ -403,9 +405,8 @@ void Gfx::createGraphicsPipeline() {
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout_;
 
-    if (vkCreatePipelineLayout(dvce_.getLogical(), &pipelineLayoutInfo, nullptr,
-                                &pipelineLayout_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create pipeline layout!");
+    if (vkCreatePipelineLayout(dvce_.getLogical(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create pipeline layout!");
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};

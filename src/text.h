@@ -9,6 +9,7 @@
 #include "gfx.h"
 #include "txtr.h"
 #include "renderable.h"
+#include "util.h"
 #include "types.h"
 
 // Max. number of chars the text overlay buffer can hold
@@ -22,11 +23,11 @@ rows: 10
 col: 10
 */
 struct LetterQuad {
-    std::vector<Vertex> vertices = {
-        { { -0.1, 0.1,  0.0 }, {1.0, 1.0, 1.0}, { 0.0f, 0.0f }, 0 },
-        { {  0.1, 0.1,  0.0 }, {1.0, 1.0, 1.0}, { 0.1f, 0.0f }, 0 },
-        { {  0.1,  -0.1,  0.0 }, {1.0, 1.0, 1.0}, { 0.1f, 0.1f }, 0 },
-        { { -0.1,  -0.1,  0.0 }, {1.0, 1.0, 1.0}, { 0.0f, 0.1f }, 0 },
+    std::vector<LetterVertex> vertices = {
+        { { -0.1, 0.1 }, { 0.0f, 0.0f } },
+        { {  0.1, 0.1 }, { 0.1f, 0.0f } },
+        { {  0.1,  -0.1 }, { 0.1f, 0.1f } },
+        { { -0.1,  -0.1 }, { 0.0f, 0.1f } },
     };
 
     std::vector<uint32_t> indices = {
@@ -34,6 +35,8 @@ struct LetterQuad {
     };
 };
 
+
+// mostly self-contained text overlay class based on Sascha Willems implementation
 class Text {
 public:
 	Text();
@@ -41,8 +44,6 @@ public:
 
 	// init text overlay
 	void init(const GfxAccess& access);
-
-	// TODO add scale factor
 
 	// draw each char
     void draw(VkCommandBuffer commandBuffer);
@@ -59,7 +60,10 @@ private:
 	GfxAccess access_;
 
     Txtr fontTexture_;
-	Renderable textVertexBuffer_;
+
+	// NOT using renderable cause we want just one simple big buffer to index into..
+	VkBuffer buffer_;
+	VkDeviceMemory memory_;
 
 	VkDescriptorPool descriptorPool_;
 	VkDescriptorSetLayout descriptorSetLayout_;
@@ -68,17 +72,20 @@ private:
 	VkPipelineCache pipelineCache_;
 	VkPipeline pipeline_;
 
-	// Passed from the sample
+	// Passed from the gfx access
 	VkRenderPass renderPass_;
+	
+	// FIXME - can just get this from device?
 	VkQueue queue_;
+	
+	// FIXME - just get this from swapchain pointer
 	uint32_t* frameBufferWidth;
 	uint32_t* frameBufferHeight;
-	std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-	float scale;
+	
+	float scale_;
 
 	// Pointer to mapped vertex buffer
 	glm::vec4* mapped = nullptr;
-
 
 
 	void prepareResources();
