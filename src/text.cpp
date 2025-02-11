@@ -272,14 +272,9 @@ void Text::addText(const std::string& text, float xPos, float yPos) {
 
     // calc. letter width/height
     VkExtent2D extent = access_.swpchnPtr->getSwapExtent();
-    const float charW = 50.f * scale / extent.width;
+    const float charW = 25.f * scale / extent.width;
     const float charH = 50.f * scale / extent.height;
 
-
-    //std::cout << "width: " << extent.width << "\n";
-    //std::cout << "height: " << extent.height << "\n";
-
-    // TESTING
     for (char letter : text) {
 
         // vertex 1: top left
@@ -292,7 +287,7 @@ void Text::addText(const std::string& text, float xPos, float yPos) {
         // vertex 2: top right 
         mapped->x = xPos + charW;
         mapped->y = yPos;
-        mapped->z = getXOffset(letter) + LETTER_OFFSET;
+        mapped->z = getXOffset(letter) + LETTER_OFFSET_X;
         mapped->w = getYOffset(letter);
         mapped++;
 
@@ -300,21 +295,20 @@ void Text::addText(const std::string& text, float xPos, float yPos) {
         mapped->x = xPos;
         mapped->y = yPos + charH;
         mapped->z = getXOffset(letter);
-        mapped->w = getYOffset(letter) + LETTER_OFFSET;
+        mapped->w = getYOffset(letter) + LETTER_OFFSET_Y;
         mapped++;
 
         // vertex 4: bottom right
         mapped->x = xPos + charW;
         mapped->y = yPos + charH;
-        mapped->z = getXOffset(letter) + LETTER_OFFSET;
-        mapped->w = getYOffset(letter) + LETTER_OFFSET;
+        mapped->z = getXOffset(letter) + LETTER_OFFSET_X;
+        mapped->w = getYOffset(letter) + LETTER_OFFSET_Y;
         mapped++;
 
         xPos += charW;
 
         numLetters_++;
     }
-
 }
 
 // unmap buffer
@@ -355,7 +349,7 @@ float Text::getXOffset(char c) {
     case 'f':
     case 'p':
     case 'z':
-        return 0.f;
+        return 0.02f;
     case '!':
     case '+':
     case '5':
@@ -366,7 +360,7 @@ float Text::getXOffset(char c) {
     case 'g':
     case 'q':
     case '{':
-        return 0.1f;
+        return 0.12f;
     case '"':
     case ',':
     case '6':
@@ -377,7 +371,7 @@ float Text::getXOffset(char c) {
     case 'h':
     case 'r':
     case '|':
-        return 0.2f;
+        return 0.22f;
     case '#':
     case '-':
     case '7':
@@ -388,7 +382,7 @@ float Text::getXOffset(char c) {
     case 'i':
     case 's':
     case '}':
-        return 0.3f;
+        return 0.32f;
     case '$':
     case '.':
     case '8':
@@ -399,7 +393,7 @@ float Text::getXOffset(char c) {
     case 'j':
     case 't':
     case '~':
-        return 0.4f;
+        return 0.42f;
     case '%':
     case '/':
     case '9':
@@ -409,7 +403,7 @@ float Text::getXOffset(char c) {
     case 'a':
     case 'k':
     case 'u':
-        return 0.5f;
+        return 0.52f;
     case '&':
     case '0':
     case ':':
@@ -419,7 +413,7 @@ float Text::getXOffset(char c) {
     case 'b':
     case 'l':
     case 'v':
-        return 0.6f;
+        return 0.62f;
     case '\'':
     case '1':
     case ';':
@@ -429,7 +423,7 @@ float Text::getXOffset(char c) {
     case 'c':
     case 'm':
     case 'w':
-        return 0.7f;
+        return 0.72f;
     case '(':
     case '2':
     case '<':
@@ -439,7 +433,7 @@ float Text::getXOffset(char c) {
     case 'd':
     case 'n':
     case 'x':
-        return 0.8f;
+        return 0.82f;
     case ')':
     case '3':
     case '=':
@@ -449,7 +443,7 @@ float Text::getXOffset(char c) {
     case 'e':
     case 'o':
     case 'y':
-        return 0.9f;
+        return 0.92f;
     default:
         return 0.f;
     }

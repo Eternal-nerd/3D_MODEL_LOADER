@@ -171,6 +171,12 @@ void Engine::handleInputEvent() {
         case SDL_SCANCODE_N:
             keys_.n = down;
             break;
+        case SDL_SCANCODE_F3:
+            keys_.f3 = down;
+            if (down) {
+                text_.visible_ = !text_.visible_;
+            }
+            break;
         }
     }
 
@@ -345,7 +351,9 @@ void Engine::renderScene() {
         renderable.draw(commandBuffer);
     }
 
-    text_.draw(commandBuffer);
+    if (text_.visible_) {
+        text_.draw(commandBuffer);
+    }
 
     gfx_.submitCommandBuffer(commandBuffer);
 }
@@ -366,6 +374,11 @@ void Engine::updateTextOverlay() {
 
     text_.addText("GET OUT!!!", -1.f, -0.9f);
     text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.8f);
+    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.8f);
+    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.7f);
+    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.6f);
+    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.5f);
+
 
 
     text_.endTextUpdate();

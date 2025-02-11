@@ -15,7 +15,8 @@
 // Max. number of chars the text overlay buffer can hold
 #define TEXTOVERLAY_MAX_CHAR_COUNT 2048
 
-const float LETTER_OFFSET = 0.1f;
+const float LETTER_OFFSET_X = 0.06f;
+const float LETTER_OFFSET_Y = 0.1f;
 
 // mostly self-contained text overlay class based on Sascha Willems implementation
 class Text {
@@ -37,7 +38,7 @@ public:
 	// delete resources
 	void cleanup();
 
-    bool visible_ = true;
+    bool visible_ = false;
 	
 	float scale = 1.f;
 

@@ -54,6 +54,7 @@ struct KeyStates {
     bool ctrl = false;
     bool shift = false;
     bool n = false; // NOCLIP
+    bool f3 = false; // debug text
     //bool _ = false;
 
 };
