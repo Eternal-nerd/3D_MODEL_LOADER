@@ -99,8 +99,8 @@ void Engine::renderLoop() {
         // get average frame time Ns: 
         long avg = hundredFrameTime_ / fpsCounter_;
         
-        // print fps
-        std::cout << "FPS: " << 1000000000 / avg << "\n";
+        // save fps
+        fpsStr_ = std::to_string(1000000000 / avg);
 
         fpsCounter_ = 0;
         hundredFrameTime_ = 0;
@@ -173,9 +173,7 @@ void Engine::handleInputEvent() {
             break;
         case SDL_SCANCODE_F3:
             keys_.f3 = down;
-            if (down) {
-                text_.visible_ = !text_.visible_;
-            }
+            if (down) { text_.visible_ = !text_.visible_; }
             break;
         }
     }
@@ -367,18 +365,9 @@ void Engine::presentImage() {
 -----------------------------TESTING-HUD---------------------------------------
 -----------------------------------------------------------------------------*/
 void Engine::updateTextOverlay() {
-    // Update the text buffer displayed by the text overlay
-    //uint32_t lastNumLetters = text_.numLetters; // FIXME REMOVE?
-
     text_.beginTextUpdate();
 
-    text_.addText("GET OUT!!!", -1.f, -0.9f);
-    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.8f);
-    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.8f);
-    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.7f);
-    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.6f);
-    text_.addText("Hehehehe niceee %%%$$ dwqndjikqwbd wq3443f", -1.f, -0.5f);
-
+    text_.addText("FPS: " + fpsStr_, -1.f, -1.f);
 
 
     text_.endTextUpdate();
