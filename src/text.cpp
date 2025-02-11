@@ -20,7 +20,6 @@ void Text::prepareResources() {
     util::log("preparing resources for text overlay...");
 
     // create texture to sample from
-    // FIXME go clear not blue
     fontTexture_.create("../res/font/font.png", *access_.dvcePtr, *access_.cmdrPtr);
     
     // Vertex buffer
