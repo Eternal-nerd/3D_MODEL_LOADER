@@ -3,8 +3,8 @@
 #include <vulkan/vulkan.h>
 
 #include <vector>
-// for letter dictionary
-#include <unordered_map>
+#include <iostream>
+
 
 #include "gfx.h"
 #include "txtr.h"
@@ -36,6 +36,7 @@ struct LetterQuad {
     };
 };
 
+const float LETTER_OFFSET = 0.1f;
 
 // mostly self-contained text overlay class based on Sascha Willems implementation
 class Text {
@@ -58,8 +59,8 @@ public:
 	void cleanup();
 
     bool visible_ = true;
-	enum TextAlign { alignLeft, alignCenter, alignRight };
-	uint32_t numLetters_ = 0;
+	
+	float scale = 1.f;
 
 private:
 	// reference to gfx class:
@@ -77,19 +78,20 @@ private:
 	VkPipelineLayout pipelineLayout_;
 	VkPipelineCache pipelineCache_;
 	VkPipeline pipeline_;
-	
-	// FIXME - just get this from swapchain pointer
-	uint32_t* frameBufferWidth;
-	uint32_t* frameBufferHeight;
-	
-	float scale_;
+
+	uint32_t numLetters_ = 0;
 
 	// Pointer to mapped vertex buffer
 	glm::vec4* mapped = nullptr;
 
-
 	void prepareResources();
 	void preparePipeline();
 
+	// letter quad size helpers
+	// TODO?
+
+	// Helpers for texture indexing
+	float getXOffset(char c);
+	float getYOffset(char c);
 
 };

@@ -266,41 +266,54 @@ void Text::beginTextUpdate() {
     numLetters_ = 0;
 }
 
-// xPos & yPos --> 0.f - 1.f?
+// xPos & yPos --> -1.f - 1.f?
 void Text::addText(const std::string& text, float xPos, float yPos) {
     assert(mapped != nullptr);
 
+    // calc. letter width/height
+    VkExtent2D extent = access_.swpchnPtr->getSwapExtent();
+    const float charW = 50.f * scale / extent.width;
+    const float charH = 50.f * scale / extent.height;
+
+
+    //std::cout << "width: " << extent.width << "\n";
+    //std::cout << "height: " << extent.height << "\n";
+
     // TESTING
-    
-    // vertex 1:
-    mapped->x = -0.2f; // position x
-    mapped->y = -0.2f; // position y
-    mapped->z = 0.4f; // tex coord x
-    mapped->w = 0.3f; // tex coord y
-    mapped++;
+    for (char letter : text) {
 
-    // vertex 2
-    mapped->x = 0.2f;
-    mapped->y = -0.2f;
-    mapped->z = 0.5f;
-    mapped->w = 0.3f;
-    mapped++;
+        // vertex 1: top left
+        mapped->x = xPos; // position x
+        mapped->y = yPos; // position y
+        mapped->z = getXOffset(letter); // tex coord x
+        mapped->w = getYOffset(letter); // tex coord y
+        mapped++;
 
-    // vertex 3
-    mapped->x = -0.2f;
-    mapped->y = 0.2f;
-    mapped->z = 0.4f;
-    mapped->w = 0.4f;
-    mapped++;
+        // vertex 2: top right 
+        mapped->x = xPos + charW;
+        mapped->y = yPos;
+        mapped->z = getXOffset(letter) + LETTER_OFFSET;
+        mapped->w = getYOffset(letter);
+        mapped++;
 
-    // vertex 4
-    mapped->x = 0.2f;
-    mapped->y = 0.2f;
-    mapped->z = 0.5f;
-    mapped->w = 0.4f;
-    mapped++;
+        // vertex 3: bottom left
+        mapped->x = xPos;
+        mapped->y = yPos + charH;
+        mapped->z = getXOffset(letter);
+        mapped->w = getYOffset(letter) + LETTER_OFFSET;
+        mapped++;
 
-    numLetters_++;
+        // vertex 4: bottom right
+        mapped->x = xPos + charW;
+        mapped->y = yPos + charH;
+        mapped->z = getXOffset(letter) + LETTER_OFFSET;
+        mapped->w = getYOffset(letter) + LETTER_OFFSET;
+        mapped++;
+
+        xPos += charW;
+
+        numLetters_++;
+    }
 
 }
 
@@ -327,6 +340,232 @@ void Text::draw(VkCommandBuffer commandBuffer) {
     }
 }
 
+/*-----------------------------------------------------------------------------
+------------------------------HEPLERS------------------------------------------
+-----------------------------------------------------------------------------*/
+float Text::getXOffset(char c) {
+    switch (c) {
+    case ' ':
+    case '*':
+    case '4':
+    case '>':
+    case 'H':
+    case 'R':
+    case '\\':
+    case 'f':
+    case 'p':
+    case 'z':
+        return 0.f;
+    case '!':
+    case '+':
+    case '5':
+    case '?':
+    case 'I':
+    case 'S':
+    case ']':
+    case 'g':
+    case 'q':
+    case '{':
+        return 0.1f;
+    case '"':
+    case ',':
+    case '6':
+    case '@':
+    case 'J':
+    case 'T':
+    case '^':
+    case 'h':
+    case 'r':
+    case '|':
+        return 0.2f;
+    case '#':
+    case '-':
+    case '7':
+    case 'A':
+    case 'K':
+    case 'U':
+    case '_':
+    case 'i':
+    case 's':
+    case '}':
+        return 0.3f;
+    case '$':
+    case '.':
+    case '8':
+    case 'B':
+    case 'L':
+    case 'V':
+    case '`':
+    case 'j':
+    case 't':
+    case '~':
+        return 0.4f;
+    case '%':
+    case '/':
+    case '9':
+    case 'C':
+    case 'M':
+    case 'W':
+    case 'a':
+    case 'k':
+    case 'u':
+        return 0.5f;
+    case '&':
+    case '0':
+    case ':':
+    case 'D':
+    case 'N':
+    case 'X':
+    case 'b':
+    case 'l':
+    case 'v':
+        return 0.6f;
+    case '\'':
+    case '1':
+    case ';':
+    case 'E':
+    case 'O':
+    case 'Y':
+    case 'c':
+    case 'm':
+    case 'w':
+        return 0.7f;
+    case '(':
+    case '2':
+    case '<':
+    case 'F':
+    case 'P':
+    case 'Z':
+    case 'd':
+    case 'n':
+    case 'x':
+        return 0.8f;
+    case ')':
+    case '3':
+    case '=':
+    case 'G':
+    case 'Q':
+    case '[':
+    case 'e':
+    case 'o':
+    case 'y':
+        return 0.9f;
+    default:
+        return 0.f;
+    }
+}
+
+float Text::getYOffset(char c) {
+    switch (c) {
+    case ' ':
+    case '!':
+    case '"':
+    case '#':
+    case '$':
+    case '%':
+    case '&':
+    case '\'':
+    case '(':
+    case ')':
+        return 0.f;
+    case '*':
+    case '+':
+    case ',':
+    case '-':
+    case '.':
+    case '/':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+        return 0.1f;
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case ':':
+    case ';':
+    case '<':
+    case '=':
+        return 0.2f;
+    case '>':
+    case '?':
+    case '@':
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+        return 0.3f;
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+        return 0.4f;
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+    case 'Z':
+    case '[':
+        return 0.5f;
+    case '\\':
+    case ']':
+    case '^':
+    case '_':
+    case '`':
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+        return 0.6f;
+    case 'f':
+    case 'g':
+    case 'h':
+    case 'i':
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
+    case 'n':
+    case 'o':
+        return 0.7f;
+    case 'p':
+    case 'q':
+    case 'r':
+    case 's':
+    case 't':
+    case 'u':
+    case 'v':
+    case 'w':
+    case 'x':
+    case 'y':
+        return 0.8f;
+    case 'z':
+    case '{':
+    case '|':
+    case '}':
+    case '~':
+        return 0.9f;
+    default: 
+        return 0.f;
+    }
+}
 
 /*-----------------------------------------------------------------------------
 ------------------------------CLEANUP------------------------------------------

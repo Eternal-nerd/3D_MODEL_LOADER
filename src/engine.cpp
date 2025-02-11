@@ -86,6 +86,7 @@ void Engine::renderLoop() {
     if (visible_) {
         updateCamera();
         updateUBO();
+        updateTextOverlay();
         renderScene();
         // FIXME Text overlay update?  
         presentImage();
@@ -364,7 +365,7 @@ void Engine::updateTextOverlay() {
 
     text_.beginTextUpdate();
 
-    text_.addText("Hello World. ", 0.f, 0.f);
+    text_.addText("Hello World. ", -1.f, -0.9f);
 
     /*
     textOverlay->addText(title, 5.0f * ui.scale, 5.0f * ui.scale, TextOverlay::alignLeft);
