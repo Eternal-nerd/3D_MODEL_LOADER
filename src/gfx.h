@@ -42,6 +42,8 @@ public:
 
 	int getTextureCount();
 
+	void togglePolygonMode();
+
 	void cleanupStart();
 	void cleanupEnd();
 
@@ -78,9 +80,12 @@ private:
 
 	uint32_t imageIndex_ = 0;
 
+	VkPolygonMode currentMode_;
+
 	void createRenderPass();
 	void createDescriptorSetLayout();
-	void createGraphicsPipeline();
+	void createGraphicsPipeline(VkPolygonMode mode = VK_POLYGON_MODE_FILL);
+	void recreatePipeline(VkPolygonMode mode);
 
 	// Maybe not here?
 	void createDescriptorPool();

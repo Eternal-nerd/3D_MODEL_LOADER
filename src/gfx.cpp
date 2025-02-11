@@ -39,6 +39,7 @@ void Gfx::init(SDL_Window* window) {
     };
 
     createDescriptorSetLayout();
+
     // create pipeline
     createGraphicsPipeline();
 
@@ -302,7 +303,36 @@ void Gfx::createRenderPass() {
 /*-----------------------------------------------------------------------------
 -----------------------------GFX-PIPELINE--------------------------------------
 -----------------------------------------------------------------------------*/
-void Gfx::createGraphicsPipeline() {
+void Gfx::togglePolygonMode() {
+    //enum polygonMode_ { VK_POLYGON_MODE_FILL , VK_POLYGON_MODE_LINE, VK_POLYGON_MODE_POINT};
+    switch (currentMode_) {
+    case VK_POLYGON_MODE_FILL:
+        recreatePipeline(VK_POLYGON_MODE_LINE);
+        break;
+    case VK_POLYGON_MODE_LINE:
+        recreatePipeline(VK_POLYGON_MODE_POINT);
+        break;
+    case VK_POLYGON_MODE_POINT:
+        recreatePipeline(VK_POLYGON_MODE_FILL);
+        break;
+    }
+}
+
+void Gfx::recreatePipeline(VkPolygonMode mode) {
+    // CLEANUP SHIT THEN RECREATE???
+
+    util::log("Destroying graphics pipeline...");
+    vkDestroyPipeline(dvce_.getLogical(), graphicsPipeline_, nullptr);
+    util::log("Destroying pipeline layout...");
+    vkDestroyPipelineLayout(dvce_.getLogical(), pipelineLayout_, nullptr);
+
+    // RECREATE
+    createGraphicsPipeline(mode);
+
+}
+
+
+void Gfx::createGraphicsPipeline(VkPolygonMode mode) {
     util::log("Creating graphics pipeline...");
     auto vertShaderCode = util::readFile("../shaders/compiled/vert.spv");
     auto fragShaderCode = util::readFile("../shaders/compiled/frag.spv");
@@ -352,8 +382,8 @@ void Gfx::createGraphicsPipeline() {
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    // Options: POINT, LINE, FILL
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL; // FIXME2
+    rasterizer.polygonMode = mode;
+    currentMode_ = mode;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // _NONE; // fixme
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;

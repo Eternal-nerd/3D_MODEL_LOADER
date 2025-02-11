@@ -55,6 +55,7 @@ struct KeyStates {
     bool shift = false;
     bool n = false; // NOCLIP
     bool f3 = false; // debug text
+    bool p = false; // toggle polygon mode
     //bool _ = false;
 
 };

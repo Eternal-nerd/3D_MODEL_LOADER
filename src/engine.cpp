@@ -175,6 +175,10 @@ void Engine::handleInputEvent() {
             keys_.f3 = down;
             if (down) { text_.visible_ = !text_.visible_; }
             break;
+        case SDL_SCANCODE_P:
+            keys_.p = down;
+            if (down) { gfx_.togglePolygonMode(); }
+            break;
         }
     }
 
