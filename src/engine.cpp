@@ -23,7 +23,7 @@ void Engine::init() {
     util::log("Initializing clock...");
     clock_.init();
 
-    phys_.init(clock_);
+    phys_.init(clock_, keys_);
 
     util::log("Initializing SDL...");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -63,7 +63,7 @@ void Engine::init() {
     // init camera
     VkExtent2D extent = gfx_.getSwapExtent();
     float aspect = extent.width / (float)extent.height;
-    cam_.init(aspect, clock_, phys_);
+    cam_.init(aspect, phys_);
 }
 
 /*-----------------------------------------------------------------------------
@@ -77,6 +77,7 @@ void Engine::renderLoop() {
   while (running_) {
     // measure frametime
     clock_.startFrame();
+
     fpsCounter_++;
 
     // get user inputs
@@ -86,9 +87,9 @@ void Engine::renderLoop() {
     if (visible_) {
         updateCamera();
         updateUBO();
+        // switch order of next 2? 
         updateTextOverlay();
         renderScene();
-        // FIXME Text overlay update?  
         presentImage();
     }
 
@@ -100,7 +101,7 @@ void Engine::renderLoop() {
         long avg = hundredFrameTime_ / fpsCounter_;
         
         // save fps
-        fpsStr_ = std::to_string(1000000000 / avg);
+        fpsStr_ = "FPS: " + std::to_string(1000000000 / avg);
 
         fpsCounter_ = 0;
         hundredFrameTime_ = 0;
@@ -164,6 +165,9 @@ void Engine::handleInputEvent() {
             break;
         case SDL_SCANCODE_SPACE:
             keys_.space = down;
+            break;
+        case SDL_SCANCODE_LSHIFT:
+            keys_.shift = down;
             break;
         case SDL_SCANCODE_LCTRL:
             keys_.ctrl = down;
@@ -310,21 +314,6 @@ void Engine::generateRenderables(const GfxAccess& access) {
     font.position_ = { 0,2,-5 };
     setRenderableTextureIndex(font, 5);
     renderables_.push_back(font);
-    // test letter
-    /*Renderable letter;
-    RenderableData letterData;
-    letterData.vertices = letterQuad.vertices;
-    // mess with texture cords here
-    //letterData.vertices[0].texCoord = { 0.0f, 1.0f };
-    //letterData.vertices[1].texCoord = { 1.0f, 1.0f };
-    //letterData.vertices[2].texCoord = { 1.0f, 0.0f };
-    //letterData.vertices[3].texCoord = { 0.0f, 0.0f };
-
-    letterData.indices = letterQuad.indices;
-    letter.init(4, letterData, access);
-    letter.position_ = {0, 2, 0};
-    setRenderableTextureIndex(letter, 0);
-    renderables_.push_back(letter);*/
 
     if (renderables_.size() >= MAX_MODELS) {
         throw std::runtime_error("ATTEMPTING TO CREATE TOO MANY MODELS!  ");
@@ -369,12 +358,39 @@ void Engine::presentImage() {
 -----------------------------TESTING-HUD---------------------------------------
 -----------------------------------------------------------------------------*/
 void Engine::updateTextOverlay() {
+    // populate debug text que
+    populateDebugText();
+
     text_.beginTextUpdate();
 
-    text_.addText("FPS: " + fpsStr_, -1.f, -1.f);
-
+    float offset = 0.f;
+    while (!debugText_.empty()) {
+        // for now, just align left
+        text_.addText(debugText_.front(), -1.f, -1.f + offset);
+        debugText_.pop();
+        offset += 0.05f;
+    }
 
     text_.endTextUpdate();
+}
+
+void Engine::populateDebugText() {
+    // FPS
+    debugText_.push(fpsStr_);
+    // Camera position
+    glm::vec3 camPos = cam_.getPosition();
+    std::string camPosStr = "Cam pos.: { " 
+        + std::to_string(camPos[0]).substr(0, 6) + ", "
+        + std::to_string(camPos[1]).substr(0, 6) + ", "
+        + std::to_string(camPos[2]).substr(0, 6) + " }";
+    debugText_.push(camPosStr);
+    // Camera velocity
+    glm::vec3 camVel = cam_.getVelocity();
+    std::string camVelStr = "Cam vel.: { "
+        + std::to_string(camVel[0]).substr(0, 6) + ", "
+        + std::to_string(camVel[1]).substr(0, 6) + ", "
+        + std::to_string(camVel[2]).substr(0, 6) + " }";
+    debugText_.push(camVelStr);
 }
 
 /*-----------------------------------------------------------------------------

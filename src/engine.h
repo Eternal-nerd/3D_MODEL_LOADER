@@ -8,6 +8,8 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <queue>
+#include <iomanip>
 
 // my abstractions
 #include "util.h"
@@ -37,7 +39,9 @@ private:
 
 	int fpsCounter_ = 0;
 	long hundredFrameTime_ = 0;
+
 	std::string fpsStr_ = "";
+	std::queue<std::string> debugText_ = {};
 
 	// SDL Shit
 	SDL_Window* window_ = nullptr;
@@ -75,6 +79,7 @@ private:
 
 	// hmmmm
 	void updateTextOverlay();
+	void populateDebugText();
 
 	void presentImage();
 

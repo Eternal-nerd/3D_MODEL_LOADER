@@ -6,20 +6,19 @@ Camera::~Camera() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Camera::init(float aspect, Clock& clock, Physics& physics) {
+void Camera::init(float aspect, Physics& physics) {
 	// set access ptr to clock
-	clockPtr_ = &clock;
 	physicsPtr_ = &physics;
 
 	// Set initial position of the camera
-	position_ = { 0, 2, 2 };
+	phys_.position = { 0, 2, 2 };
 
 	// set intial rotation
 	pitch_ = 0;
 	yaw_ = 0;
 
 	// init view matrix
-	view_ = glm::translate(glm::mat4(1), position_);
+	view_ = glm::translate(glm::mat4(1), phys_.position);
 
 	// set camera FOV:
 	fovy_ = 90;
@@ -33,8 +32,6 @@ void Camera::init(float aspect, Clock& clock, Physics& physics) {
 	persp_ = glm::perspective(glm::radians(fovy_), aspect, near_, far_);
 	// invert the Y direction on projection matrix ???
 	persp_[1][1] *= -1;
-
-	lastUpdate_ = clockPtr_->getProgramSeconds();
 }
 
 
@@ -42,25 +39,9 @@ void Camera::init(float aspect, Clock& clock, Physics& physics) {
 -----------------------------UPDATE-STUFF--------------------------------------
 -----------------------------------------------------------------------------*/
 void Camera::update(float aspect) {
-	// get time difference from last update
-	float delta = clockPtr_->getProgramSeconds() - lastUpdate_;
+	physicsPtr_->updateCameraPos(phys_, getYawRotM(), noclip_);
 
-	// USE Time delta to scale position transformation
-	float timeMult = delta * 3.f;
-
-	float sprintMult = sprint_ ? 3.f : 1.f;
-
-	float scale = timeMult * sprintMult;
-
-	// update position
-	if (noclip_) {
-		position_ += glm::vec3(getYawRotM() * glm::vec4(velocity_ * scale, 0));
-	}
-	else {
-		position_ = physicsPtr_->getCameraPosition(position_, getYawRotM(), velocity_, scale);
-	}
-
-	glm::mat4 transM = glm::translate(glm::mat4(1), position_);
+	glm::mat4 transM = glm::translate(glm::mat4(1), phys_.position);
 
 	// get rotation matrix from mouse input
 	glm::mat4 rotM = getRotM();
@@ -70,37 +51,17 @@ void Camera::update(float aspect) {
 
 	persp_ = glm::perspective(glm::radians(fovy_), aspect, near_, far_);
 	persp_[1][1] *= -1;
-	
-	lastUpdate_ = clockPtr_->getProgramSeconds();
 }
 
 void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
-	// TODO Used key States struct to improve movement
-
 	switch (event.type) {
 	// KEYBOARD EVENTS
 	case SDL_EVENT_KEY_DOWN:
-		if (event.key.scancode == SDL_SCANCODE_W) { velocity_.z = -1; }
-		if (event.key.scancode == SDL_SCANCODE_A) { velocity_.x = -1; }
-		if (event.key.scancode == SDL_SCANCODE_S) { velocity_.z = 1; }
-		if (event.key.scancode == SDL_SCANCODE_D) { velocity_.x = 1; }
-		if (event.key.scancode == SDL_SCANCODE_SPACE) { 
-			velocity_.y = 1; 
-			jumping_ = true;
-		}
-		if (event.key.scancode == SDL_SCANCODE_LCTRL) { velocity_.y = -1; }
-		if (event.key.scancode == SDL_SCANCODE_LSHIFT) { sprint_ = true; }
-		if (event.key.scancode == SDL_SCANCODE_N) { noclip_ = !noclip_; }
-		break;
+			if (event.key.scancode == SDL_SCANCODE_N) { noclip_ = !noclip_; }
+			break;
 	case SDL_EVENT_KEY_UP:
-		if (event.key.scancode == SDL_SCANCODE_W) { velocity_.z = 0; }
-		if (event.key.scancode == SDL_SCANCODE_A) { velocity_.x = 0; }
-		if (event.key.scancode == SDL_SCANCODE_S) { velocity_.z = 0; }
-		if (event.key.scancode == SDL_SCANCODE_D) { velocity_.x = 0; }
-		if (event.key.scancode == SDL_SCANCODE_SPACE) { velocity_.y = 0; }
-		if (event.key.scancode == SDL_SCANCODE_LCTRL) { velocity_.y = 0; }
-		if (event.key.scancode == SDL_SCANCODE_LSHIFT) { sprint_ = false; }
-		break;
+			break;
+
 	// MOUSE EVENTS
 	case SDL_EVENT_MOUSE_MOTION:
 		yaw_ += (float)event.motion.xrel / 250;
@@ -115,8 +76,16 @@ void Camera::processEvent(const SDL_Event& event, const KeyStates& keys) {
 }
 
 /*-----------------------------------------------------------------------------
------------------------------GET-MATRICES--------------------------------------
+-----------------------------GETTERS-------------------------------------------
 -----------------------------------------------------------------------------*/
+glm::vec3 Camera::getPosition() {
+	return phys_.position;
+}
+
+glm::vec3 Camera::getVelocity() {
+	return phys_.velocity;
+}
+
 glm::mat4 Camera::getRotM() {
 	glm::quat pitchRotation = glm::angleAxis(pitch_, glm::vec3{ 1, 0, 0 });
 	glm::quat yawRotation = glm::angleAxis(yaw_, glm::vec3{ 0, -1, 0 });

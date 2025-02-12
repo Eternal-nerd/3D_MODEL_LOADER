@@ -29,7 +29,6 @@ struct GfxAccess {
 
 };
 
-
 struct UniformBufferObject {
     alignas(16) glm::mat4 model[MAX_MODELS];
     alignas(16) glm::mat4 view;
@@ -41,6 +40,13 @@ struct color {
     int r;
     int g;
     int b;
+};
+
+struct CamPhysicsAttributes {
+    glm::vec3 velocity = { 0,0,0 };
+    glm::vec3 position = { 0,0,0 };
+    bool grounded = true;
+    bool jumping = false;
 };
 
 struct KeyStates {

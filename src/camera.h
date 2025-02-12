@@ -22,7 +22,7 @@ public:
 	Camera();
 	~Camera();
 
-	void init(float aspect, Clock& clock, Physics& physics);
+	void init(float aspect, Physics& physics);
 
 	void processEvent(const SDL_Event& event, const KeyStates& keys);
 
@@ -30,14 +30,13 @@ public:
 	
 	void cleanup();
 
+	glm::vec3 getPosition();
+	glm::vec3 getVelocity();
+
 	const glm::mat4& getViewProj() const;
 	const glm::mat4& getPerspectiveProj() const;
 
 private:
-	// reference to clock:
-	Clock* clockPtr_ = nullptr;
-	float lastUpdate_ = 0.f;
-
 	// reference to physics
 	Physics* physicsPtr_ = nullptr;
 
@@ -45,11 +44,8 @@ private:
 	float near_ = 0;
 	float far_ = 0;
 
-	glm::vec3 velocity_ = { 0,0,0 };
-	glm::vec3 position_ = {0,0,0};
+	CamPhysicsAttributes phys_;
 	bool noclip_ = false;
-	bool sprint_ = false;
-	bool jumping_ = false;
 	
 	// verticle rotation
 	float pitch_ = 0;
@@ -62,6 +58,5 @@ private:
 	glm::mat4 getRotM();
 
 	glm::mat4 getYawRotM();
-
 
 };

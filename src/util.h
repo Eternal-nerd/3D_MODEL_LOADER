@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <cmath>
 
 #include "cmdr.h"
 #include "types.h"
@@ -21,87 +22,89 @@ class Cmdr;
 
 namespace util {
 
-// noob logging function
-// TODO USE TEMPLATES TO ALLOW MULTIPLE ARGUMENTS
-void log(const std::string &s);
+    float roundF(float f, int decimalPlaces);
 
-void printMat4(const glm::mat4& mat);
+    // noob logging function
+    // TODO USE TEMPLATES TO ALLOW MULTIPLE ARGUMENTS
+    void log(const std::string &s);
 
-void printVec3(const glm::vec3& vec);
+    void printMat4(const glm::mat4& mat);
 
-void printMouseMove(const SDL_MouseMotionEvent& move);
+    void printVec3(const glm::vec3& vec);
 
-// GENERAL UTILITIES
-std::vector<char> readFile(const std::string &filename);
+    void printMouseMove(const SDL_MouseMotionEvent& move);
 
-// Vertex/index processing
-RenderableData getObjData(const std::string obj_filename);
+    // GENERAL UTILITIES
+    std::vector<char> readFile(const std::string &filename);
 
-// SHADER
-VkShaderModule createShaderModule(const std::vector<char> &code,
-                                  const VkDevice &device);
+    // Vertex/index processing
+    RenderableData getObjData(const std::string obj_filename);
 
-// DEBUGGING
-VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger);
-void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-                                   VkDebugUtilsMessengerEXT debugMessenger,
-                                   const VkAllocationCallbacks *pAllocator);
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
-void populateDebugMessengerCreateInfo(
-    VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+    // SHADER
+    VkShaderModule createShaderModule(const std::vector<char> &code,
+                                      const VkDevice &device);
 
-// SDL DETAILS
-std::vector<const char *> getRequiredExtensions();
+    // DEBUGGING
+    VkResult CreateDebugUtilsMessengerEXT(
+        VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+        const VkAllocationCallbacks *pAllocator,
+        VkDebugUtilsMessengerEXT *pDebugMessenger);
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+                                       VkDebugUtilsMessengerEXT debugMessenger,
+                                       const VkAllocationCallbacks *pAllocator);
+    VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
+    void populateDebugMessengerCreateInfo(
+        VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-// VULKAN DETAILS
-bool checkValidationLayerSupport(
-    const std::vector<const char *> &validationLayers);
-bool checkDeviceExtensionSupport(
-    VkPhysicalDevice physicalDevice,
-    const std::vector<const char *> &deviceExtensions);
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice,
-                                     VkSurfaceKHR surface);
-uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
-                        const VkPhysicalDevice &physicalDevice);
+    // SDL DETAILS
+    std::vector<const char *> getRequiredExtensions();
 
-// SWAPCHAIN details
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice,
-                                              VkSurfaceKHR surface);
-VkSurfaceFormatKHR chooseSwapSurfaceFormat(
-    const std::vector<VkSurfaceFormatKHR> &availableFormats);
-VkPresentModeKHR chooseSwapPresentMode(
-    const std::vector<VkPresentModeKHR> &availablePresentModes);
-VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
-                            SDL_Window *window);
+    // VULKAN DETAILS
+    bool checkValidationLayerSupport(
+        const std::vector<const char *> &validationLayers);
+    bool checkDeviceExtensionSupport(
+        VkPhysicalDevice physicalDevice,
+        const std::vector<const char *> &deviceExtensions);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice,
+                                         VkSurfaceKHR surface);
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+                            const VkPhysicalDevice &physicalDevice);
 
-// Depth
-VkFormat findDepthFormat(const VkPhysicalDevice &physicalDevice);
-VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
-                             VkImageTiling tiling,
-                             VkFormatFeatureFlags features,
-                             const VkPhysicalDevice &physicalDevice);
+    // SWAPCHAIN details
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice,
+                                                  VkSurfaceKHR surface);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+        const std::vector<VkSurfaceFormatKHR> &availableFormats);
+    VkPresentModeKHR chooseSwapPresentMode(
+        const std::vector<VkPresentModeKHR> &availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
+                                SDL_Window *window);
 
-// Image shit
-VkImageView createImageView(VkImage image, VkFormat format,
-                            VkImageAspectFlags aspectFlags,
-                            const VkDevice &device);
-void createImage(uint32_t width, uint32_t height, VkFormat format,
-                 VkImageTiling tiling, VkImageUsageFlags usage,
-                 VkMemoryPropertyFlags properties, VkImage &image,
-                 VkDeviceMemory &imageMemory, const VkDevice &device,
-                 const VkPhysicalDevice &physicalDevice);
+    // Depth
+    VkFormat findDepthFormat(const VkPhysicalDevice &physicalDevice);
+    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
+                                 VkImageTiling tiling,
+                                 VkFormatFeatureFlags features,
+                                 const VkPhysicalDevice &physicalDevice);
 
-// BUFFERS
-void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                  VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                  VkDeviceMemory &bufferMemory, const VkDevice &device,
-                  const VkPhysicalDevice &physicalDevice);
-void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
-                Cmdr &cmdr);
+    // Image shit
+    VkImageView createImageView(VkImage image, VkFormat format,
+                                VkImageAspectFlags aspectFlags,
+                                const VkDevice &device);
+    void createImage(uint32_t width, uint32_t height, VkFormat format,
+                     VkImageTiling tiling, VkImageUsageFlags usage,
+                     VkMemoryPropertyFlags properties, VkImage &image,
+                     VkDeviceMemory &imageMemory, const VkDevice &device,
+                     const VkPhysicalDevice &physicalDevice);
+
+    // BUFFERS
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                      VkDeviceMemory &bufferMemory, const VkDevice &device,
+                      const VkPhysicalDevice &physicalDevice);
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+                    Cmdr &cmdr);
 } // namespace util
