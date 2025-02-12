@@ -338,7 +338,6 @@ void Engine::renderScene() {
 
     // draw renderables
     for (auto renderable : renderables_) {
-        renderable.bind(commandBuffer);
         renderable.draw(commandBuffer);
     }
 

@@ -21,8 +21,6 @@ public:
 
   void init(int id, const RenderableData& data, const GfxAccess& access);
 
-  void bind(VkCommandBuffer commandBuffer);
-
   void draw(VkCommandBuffer commandBuffer);
 
   void setTextureIndex(int texIndex);

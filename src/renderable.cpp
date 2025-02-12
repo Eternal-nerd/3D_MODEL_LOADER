@@ -61,21 +61,13 @@ void Renderable::initGLTF(int num, const RenderableAccess& access, const std::st
 
 
 /*-----------------------------------------------------------------------------
-------------------------------BINDING------------------------------------------
------------------------------------------------------------------------------*/
-
-void Renderable::bind(VkCommandBuffer commandBuffer) {
-    VkDeviceSize offsets =  0;
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer_, &offsets);
-    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
-}
-
-
-/*-----------------------------------------------------------------------------
 ------------------------------DRAWING------------------------------------------
 -----------------------------------------------------------------------------*/
 
 void Renderable::draw(VkCommandBuffer commandBuffer) {
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer_, &offsets);
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer_, 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(data_.indices.size()), 1, 0, 0, id_);
 }
 
