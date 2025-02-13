@@ -19,6 +19,10 @@ class Dvce;
 class Cmdr;
 class Swpchn;
 
+struct Sound {
+
+};
+
 struct GfxAccess {
     // get queues throught device
     const Dvce* dvcePtr = nullptr;
@@ -47,6 +51,7 @@ struct CamPhysicsAttributes {
     glm::vec3 position = { 0,0,0 };
     bool grounded = true;
     bool jumping = false;
+    float distanceSinceStep = 0.f;
 };
 
 struct KeyStates {

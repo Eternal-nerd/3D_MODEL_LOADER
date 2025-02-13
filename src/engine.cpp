@@ -23,7 +23,9 @@ void Engine::init() {
     util::log("Initializing clock...");
     clock_.init();
 
-    phys_.init(clock_, keys_);
+    audio_.init();
+
+    phys_.init(clock_, keys_, audio_);
 
     util::log("Initializing SDL...");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -409,6 +411,8 @@ void Engine::cleanup() {
   text_.cleanup();
 
   gfx_.cleanupEnd();
+
+  audio_.cleanup();
 
   util::log("Cleaning up SDL...");
   SDL_DestroyWindow(window_);

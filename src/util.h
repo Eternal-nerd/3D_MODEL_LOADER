@@ -37,6 +37,9 @@ namespace util {
     // GENERAL UTILITIES
     std::vector<char> readFile(const std::string &filename);
 
+    bool isBigEndian();
+    int convertToInt(char* buffer, int len);
+
     // Vertex/index processing
     RenderableData getObjData(const std::string obj_filename);
 

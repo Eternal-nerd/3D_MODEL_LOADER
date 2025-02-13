@@ -20,6 +20,7 @@
 #include "types.h"
 #include "physics.h"
 #include "text.h"
+#include "audio.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 800;
@@ -34,6 +35,8 @@ public:
 private:
 	// time
 	Clock clock_;
+
+	Audio audio_;
 
 	Physics phys_;
 

@@ -6,9 +6,10 @@ Physics::~Physics() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Physics::init(Clock& clock, KeyStates& keys) {
+void Physics::init(Clock& clock, KeyStates& keys, Audio& audio) {
 	clockPtr_ = &clock;
 	keysPtr_ = &keys;
+	audio_ = &audio;
 	lastCamUpdate_ = clockPtr_->getProgramSeconds();
 }
 
@@ -23,10 +24,33 @@ void Physics::updateCameraPos(CamPhysicsAttributes& camPhys, glm::mat4 yawRotM, 
 	applyCamVelocity(camPhys, delta, noclip);
 
 	// update position
-	camPhys.position += glm::vec3(yawRotM * glm::vec4(camPhys.velocity * delta, 0));
+	glm::vec3 positionIncr = glm::vec3(yawRotM * glm::vec4(camPhys.velocity * delta, 0));
+	camPhys.position += positionIncr;
+	if (!noclip) {
+		// movement
+		camPhys.distanceSinceStep += std::max(abs(positionIncr.x), abs(positionIncr.z));
+		if (camPhys.distanceSinceStep > 3.f) {
+			// play step sound if grounded:
+			if (camPhys.grounded) {
+				// play random step sound, 5 to choose from
+				int index = 2 + (rand() % 5);
+				audio_->play(index);
+			}
+			// reset it
+			camPhys.distanceSinceStep = 0.f;
+		}
+
+
+		if (camPhys.grounded && camPhys.position.y > 2.f) {
+			audio_->play(0);
+		}
+		if (!camPhys.grounded && camPhys.position.y <= 2.f) {
+			audio_->play(1);
+		}
+	}
 
 	// FIXME this is poor man's collision detection
-	camPhys.grounded = !(camPhys.position.y > 2.f);
+	camPhys.grounded = camPhys.position.y <= 2.f;
 
 	lastCamUpdate_ = clockPtr_->getProgramSeconds();
 }
