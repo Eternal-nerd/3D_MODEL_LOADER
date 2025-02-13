@@ -23,14 +23,16 @@ void Engine::init() {
     util::log("Initializing clock...");
     clock_.init();
 
-    audio_.init();
-
-    phys_.init(clock_, keys_, audio_);
-
     util::log("Initializing SDL...");
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
     throw std::runtime_error("Failed to initialize SDL. ");
     }
+
+    // Audio using SDL
+    audio_.init();
+    
+    // PHYSICS
+    phys_.init(clock_, keys_, audio_);
 
     util::log("Creating SDL window...");
     window_ = SDL_CreateWindow("3D_MODEL_LOADER", WIDTH, HEIGHT, SDL_WINDOW_VULKAN);

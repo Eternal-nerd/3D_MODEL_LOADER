@@ -1,7 +1,6 @@
 #pragma once
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include <SDL3/SDL.h>
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
@@ -26,21 +25,9 @@ public:
 private:
 	std::vector<std::string> audioFilenames_ = {};
 
-	// OpenAL stuff
-	ALCdevice* device_ = nullptr;
-	ALCcontext* context_ = nullptr;
-
-	// buffer
-	ALuint audioBuffer_;
-	// single source for now:
-	ALuint audioSource_;
-
-	//err
-	ALenum err_;
-
-
-	// util
-	bool loadWAV(const std::string& filename, std::uint8_t& channels, std::int32_t& sample_rate, std::uint8_t& bits_per_sample, std::vector<char>& sound_data);
-
+	SDL_AudioStream* stream_ = NULL;
+	Uint8* wavData_ = NULL;
+	Uint32 wavDataLen_ = 0;
+	SDL_AudioSpec audioSpec_;
 
 };

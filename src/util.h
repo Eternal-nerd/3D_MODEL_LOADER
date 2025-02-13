@@ -37,6 +37,7 @@ namespace util {
     // GENERAL UTILITIES
     std::vector<char> readFile(const std::string &filename);
 
+    // USELESS
     bool isBigEndian();
     int convertToInt(char* buffer, int len);
 

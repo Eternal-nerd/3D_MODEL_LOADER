@@ -13,11 +13,6 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 include_directories(${SDL3_INCLUDE_DIRS})
 
-# OpenAL-Soft
-find_package(OpenAL REQUIRED CONFIG)
-include_directories(${OpenAL_INCLUDE_DIRS})
-
-
 # add source files:
 set(SOURCES
 	src/main.cpp
@@ -66,7 +61,7 @@ set(HEADERS
 add_executable(3D_MODEL_LOADER ${SOURCES} ${HEADERS})
 
 # add libs
-target_link_libraries(3D_MODEL_LOADER PRIVATE Vulkan::Vulkan SDL3::SDL3 OpenAL::OpenAL)
+target_link_libraries(3D_MODEL_LOADER PRIVATE Vulkan::Vulkan SDL3::SDL3)
 
 # Specify the output directory for the binary
 set_target_properties(3D_MODEL_LOADER PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)

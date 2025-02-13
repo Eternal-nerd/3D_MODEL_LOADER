@@ -56,6 +56,7 @@ namespace util {
       return buffer;
     }
 
+    // USELESSSS
     bool isBigEndian()
     {
         int a = 1;
