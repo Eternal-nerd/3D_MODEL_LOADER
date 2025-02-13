@@ -28,7 +28,7 @@ void Physics::updateCameraPos(CamPhysicsAttributes& camPhys, glm::mat4 yawRotM, 
 	camPhys.position += positionIncr;
 	if (!noclip) {
 		// movement
-		camPhys.distanceSinceStep += std::max(abs(positionIncr.x), abs(positionIncr.z));
+		camPhys.distanceSinceStep += std::max(std::abs(positionIncr.x), std::abs(positionIncr.z));
 		if (camPhys.distanceSinceStep > 3.f) {
 			// play step sound if grounded:
 			if (camPhys.grounded) {
