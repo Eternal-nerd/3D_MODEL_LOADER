@@ -61,56 +61,56 @@ void Physics::applyCamVelocity(CamPhysicsAttributes& camPhys, float deltaT, bool
 	// TODO Noclip mode
 	if (noclip) {
 		// Z DIRECTION
-		if (keysPtr_->w == keysPtr_->s) {
-			camPhys.velocity.z = 0;
-		}
 		if (keysPtr_->w) {
 			camPhys.velocity.z = -NOCLIP_SPEED / sprintDiv;
 		}
 		if (keysPtr_->s) {
 			camPhys.velocity.z = NOCLIP_SPEED / sprintDiv;
 		}
-		// X DIRECTION
-		if (keysPtr_->a == keysPtr_->d) {
-			camPhys.velocity.x = 0;
+		if (keysPtr_->w == keysPtr_->s) {
+			camPhys.velocity.z = 0;
 		}
+		// X DIRECTION
 		if (keysPtr_->a) {
 			camPhys.velocity.x = -NOCLIP_SPEED / sprintDiv;
 		}
 		if (keysPtr_->d) {
 			camPhys.velocity.x = NOCLIP_SPEED / sprintDiv;
 		}
-		// Y DIR
-		if (keysPtr_->space == keysPtr_->ctrl) {
-			camPhys.velocity.y = 0;
+		if (keysPtr_->a == keysPtr_->d) {
+			camPhys.velocity.x = 0;
 		}
+		// Y DIR
 		if (keysPtr_->ctrl) {
 			camPhys.velocity.y = -NOCLIP_SPEED / sprintDiv;
 		}
 		if (keysPtr_->space) {
 			camPhys.velocity.y = NOCLIP_SPEED / sprintDiv;
 		}
+		if (keysPtr_->space == keysPtr_->ctrl) {
+			camPhys.velocity.y = 0;
+		}
 	}
 	else { // GRAVITY
 		// Z DIRECTION
-		if (keysPtr_->w == keysPtr_->s) {
-			camPhys.velocity.z = 0;
-		}
 		if (keysPtr_->w) {
 			camPhys.velocity.z = -MAX_CAMERA_VELOCITY / sprintDiv;
 		}
 		if (keysPtr_->s) {
 			camPhys.velocity.z = MAX_CAMERA_VELOCITY / sprintDiv;
 		}
-		// X DIRECTION
-		if (keysPtr_->a == keysPtr_->d) {
-			camPhys.velocity.x = 0;
+		if (keysPtr_->w == keysPtr_->s) {
+			camPhys.velocity.z = 0;
 		}
+		// X DIRECTION
 		if (keysPtr_->a) {
 			camPhys.velocity.x = -MAX_CAMERA_VELOCITY / sprintDiv;
 		}
 		if (keysPtr_->d) {
 			camPhys.velocity.x = MAX_CAMERA_VELOCITY / sprintDiv;
+		}
+		if (keysPtr_->a == keysPtr_->d) {
+			camPhys.velocity.x = 0;
 		}
 		// Y DIR: JUMPING:
 		if (!camPhys.grounded) {
