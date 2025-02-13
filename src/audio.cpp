@@ -33,6 +33,9 @@ void Audio::init() {
         throw std::runtime_error("Failed to create SDL audio stream! ");
     }
 
+    // lower volume
+    SDL_SetAudioStreamGain(stream_, 0.1f);
+
     /* SDL_OpenAudioDeviceStream starts the device paused. You have to tell it to start! */
     SDL_ResumeAudioStreamDevice(stream_);
 }
