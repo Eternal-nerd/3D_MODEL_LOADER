@@ -19,12 +19,23 @@ const float MAX_CAMERA_VELOCITY = 15.f;
 const float NOCLIP_SPEED = 30.f;
 // meters
 
-
-
-class Physics {
+class ObjectPhysics {
 public:
-	Physics();
-	~Physics();
+
+
+
+private:
+
+
+
+};
+
+
+
+class CamPhysics {
+public:
+	CamPhysics();
+	~CamPhysics();
 
 	void init(Clock& clock, KeyStates& keys, Audio& audio);
 
