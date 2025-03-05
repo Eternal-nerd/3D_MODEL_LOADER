@@ -25,7 +25,7 @@ void Engine::init() {
 
     util::log("Initializing SDL...");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-    throw std::runtime_error("Failed to initialize SDL. ");
+        throw std::runtime_error("Failed to initialize SDL. ");
     }
 
     // Audio using SDL
