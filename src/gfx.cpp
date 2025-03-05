@@ -26,18 +26,6 @@ void Gfx::init(SDL_Window* window) {
     // initialize swpchn
     swpchn_.init(dvce_, renderPass_);
 
-    // names of global textures?
-    textureNames_ = { 
-        "../res/skybox/skybox.png",
-        "../res/png/viking_room.png",
-        //"../res/png/set.png",
-        "../res/jpg/mclovin.jpg",
-        "../res/jpg/wood.jpg", 
-        "../res/jpg/grass.jpg",
-        // FIXME
-        "../res/font/font.png"
-    };
-
     createDescriptorSetLayout();
 
     // create pipeline
@@ -45,6 +33,18 @@ void Gfx::init(SDL_Window* window) {
 
     // create cmdr
     cmdr_.init(dvce_, MAX_FRAMES_IN_FLIGHT);
+
+    // names of global textures?
+    textureNames_ = {
+        "../res/skybox/skybox.png",
+        "../res/png/viking_room.png",
+        //"../res/png/set.png",
+        "../res/jpg/mclovin.jpg",
+        "../res/jpg/wood.jpg",
+        "../res/jpg/grass.jpg",
+        // FIXME
+        "../res/font/font.png"
+    };
 
     // TODO make this more elegant
     for (int i = 0; i < textureNames_.size(); i++) {

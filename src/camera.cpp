@@ -6,7 +6,7 @@ Camera::~Camera() {}
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Camera::init(float aspect, Physics& physics) {
+void Camera::init(float aspect, CamPhysics& physics) {
 	// set access ptr to clock
 	physicsPtr_ = &physics;
 

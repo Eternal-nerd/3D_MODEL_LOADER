@@ -38,7 +38,7 @@ private:
 
 	Audio audio_;
 
-	Physics phys_;
+	CamPhysics phys_;
 
 	int fpsCounter_ = 0;
 	long hundredFrameTime_ = 0;

@@ -1,12 +1,12 @@
 #include "physics.h"
 
-Physics::Physics() {}
-Physics::~Physics() {}
+CamPhysics::CamPhysics() {}
+CamPhysics::~CamPhysics() {}
 
 /*-----------------------------------------------------------------------------
 ------------------------------INITIALIZATION-----------------------------------
 -----------------------------------------------------------------------------*/
-void Physics::init(Clock& clock, KeyStates& keys, Audio& audio) {
+void CamPhysics::init(Clock& clock, KeyStates& keys, Audio& audio) {
 	clockPtr_ = &clock;
 	keysPtr_ = &keys;
 	audio_ = &audio;
@@ -16,7 +16,7 @@ void Physics::init(Clock& clock, KeyStates& keys, Audio& audio) {
 /*-----------------------------------------------------------------------------
 -----------------------------UPDATE-STUFF--------------------------------------
 -----------------------------------------------------------------------------*/
-void Physics::updateCameraPos(CamPhysicsAttributes& camPhys, glm::mat4 yawRotM, bool noclip) {
+void CamPhysics::updateCameraPos(CamPhysicsAttributes& camPhys, glm::mat4 yawRotM, bool noclip) {
 	// get time difference from last update
 	float delta = clockPtr_->getProgramSeconds() - lastCamUpdate_;
 
@@ -55,7 +55,7 @@ void Physics::updateCameraPos(CamPhysicsAttributes& camPhys, glm::mat4 yawRotM, 
 	lastCamUpdate_ = clockPtr_->getProgramSeconds();
 }
 
-void Physics::applyCamVelocity(CamPhysicsAttributes& camPhys, float deltaT, bool noclip) {
+void CamPhysics::applyCamVelocity(CamPhysicsAttributes& camPhys, float deltaT, bool noclip) {
 	float sprintDiv = keysPtr_->shift ? 1.f : 3.f;
 
 	// TODO Noclip mode

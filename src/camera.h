@@ -22,7 +22,7 @@ public:
 	Camera();
 	~Camera();
 
-	void init(float aspect, Physics& physics);
+	void init(float aspect, CamPhysics& physics);
 
 	void processEvent(const SDL_Event& event, const KeyStates& keys);
 
@@ -38,7 +38,7 @@ public:
 
 private:
 	// reference to physics
-	Physics* physicsPtr_ = nullptr;
+	CamPhysics* physicsPtr_ = nullptr;
 
 	float fovy_ = 0;
 	float near_ = 0;
